@@ -2,11 +2,414 @@ import matplotlib as mpl
 
 mpl.use("Qt5Agg")  # or can use 'TkAgg', whatever you have/prefer
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 import pandas as pd
 from pythermalcomfort.psychrometrics import p_sat, units_converter, p_sat_torr
 import math
+import seaborn as sns
+import os
+
+plt.style.use("seaborn-paper")
+
+
+class DataAnalysis:
+    def __init__(self):
+        self.dir_figures = os.path.join(os.getcwd(), "manuscript", "src", "figures")
+        self.dir_tables = os.path.join(os.getcwd(), "manuscript", "src", "tables")
+
+        self.ta_range = np.arange(26, 51, 0.5)
+        self.v_range = [0.1, 0.2, 0.4, 0.8, 1.2, 2, 3, 4.5]
+        self.rh_range = np.arange(10, 105, 5)
+
+        self.colors = ["tab:orange", "tab:blue", "tab:green", "tab:red"]
+
+    def model_comparison(self, save_fig=True):
+
+        fig_0, ax_0 = plt.subplots(4, 2, figsize=(7, 8), sharex="all", sharey="row")
+        fig_1, ax_1 = plt.subplots(2, 2, figsize=(7, 7), sharex="all")
+
+        index_color = 0
+
+        legend_labels = []
+
+        for v in [0.2, 4.5]:
+
+            for rh in [30, 60]:
+
+                max_skin_wettedness = fan_use_set(
+                    50, 50, v, 100, 1.2, 0.5, wme=0, units="SI"
+                )["skin_wetness"]
+
+                dry_heat_loss = []
+                dry_heat_loss_ollie = []
+                sensible_skin_heat_loss = []
+                sensible_skin_heat_loss_ollie = []
+                sweat_rate = []
+                sweat_rate_ollie = []
+                max_latent_heat_loss = []
+                max_latent_heat_loss_ollie = []
+
+                color = self.colors[index_color]
+                index_color += 1
+
+                for ta in self.ta_range:
+
+                    r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
+
+                    dry_heat_loss.append(r["hl_dry"])
+                    sensible_skin_heat_loss.append(r["hl_evaporation_required"])
+                    sweat_rate.append(r["sweating_required"])
+                    max_latent_heat_loss.append(
+                        r["hl_evaporation_max"] * max_skin_wettedness
+                    )
+
+                    if v > 1:
+                        fan_on = True
+                    else:
+                        fan_on = False
+
+                    r = ollie(fan_on, ta, rh, is_elderly=False)
+
+                    dry_heat_loss_ollie.append(r["hl_dry"])
+                    sensible_skin_heat_loss_ollie.append(r["e_req_w"])
+
+                    sweat_rate_ollie.append(r["s_req"])
+                    max_latent_heat_loss_ollie.append(r["e_max_w"])
+
+                sweat_rate_ollie = [x if x > 0 else np.nan for x in sweat_rate_ollie]
+
+                sensible_skin_heat_loss_ollie = [
+                    x if x > 0 else np.nan for x in sensible_skin_heat_loss_ollie
+                ]
+
+                label = f"v = {v}m/s; RH = {rh}%;"
+
+                ax_0[0][0].plot(self.ta_range, dry_heat_loss, color=color, label=label)
+                ax_0[0][1].plot(
+                    self.ta_range, dry_heat_loss_ollie, color=color, label=label
+                )
+                ax_0[1][0].plot(
+                    self.ta_range, sensible_skin_heat_loss, color=color, label=label
+                )
+                ax_0[1][1].plot(
+                    self.ta_range,
+                    sensible_skin_heat_loss_ollie,
+                    color=color,
+                    label=label,
+                )
+
+                ax_0[2][0].plot(self.ta_range, sweat_rate, color=color, label=label)
+                ax_0[2][1].plot(
+                    self.ta_range, sweat_rate_ollie, color=color, label=label
+                )
+                ax_0[3][0].plot(
+                    self.ta_range, max_latent_heat_loss, color=color, label=label
+                )
+                ax_0[3][1].plot(
+                    self.ta_range, max_latent_heat_loss_ollie, color=color, label=label
+                )
+
+                ax_1[0][0].plot(self.ta_range, dry_heat_loss, color=color, label=label)
+                ax_1[0][0].plot(
+                    self.ta_range, dry_heat_loss_ollie, color=color, linestyle=":",
+                )
+                ax_1[0][1].plot(
+                    self.ta_range, sensible_skin_heat_loss, color=color, label=label
+                )
+                ax_1[0][1].plot(
+                    self.ta_range,
+                    sensible_skin_heat_loss_ollie,
+                    color=color,
+                    linestyle=":",
+                )
+
+                ax_1[1][0].plot(self.ta_range, sweat_rate, color=color, label=label)
+                ax_1[1][0].plot(
+                    self.ta_range, sweat_rate_ollie, color=color, linestyle=":",
+                )
+                ax_1[1][1].plot(
+                    self.ta_range,
+                    max_latent_heat_loss,
+                    color=color,
+                    label=label + " SET",
+                )
+                ax_1[1][1].plot(
+                    self.ta_range,
+                    max_latent_heat_loss_ollie,
+                    color=color,
+                    label=label + " Ollie et al. (2015)",
+                    linestyle=":",
+                )
+
+                legend_labels.append(label)
+                legend_labels.append(label)
+
+        ax_0[0][0].set(ylim=(-250, 200), title="SET", ylabel="dry heat loss (W)")
+        ax_0[0][1].set(ylim=(-250, 200), title="Ollie")
+        ax_0[1][0].set(ylim=(0, 300), ylabel="Required latent heat loss (W)")
+        ax_0[1][1].set(ylim=(0, 300))
+
+        ax_0[2][0].set(ylim=(0, 550), ylabel="Sweat rate (mL/h)")
+        ax_0[2][1].set(ylim=(0, 550))
+        ax_0[3][0].set(
+            ylim=(0, 600), xlabel="Temperature", ylabel="Maximum latent heat loss (W)"
+        )
+        ax_0[3][1].set(ylim=(0, 600), xlabel="Temperature")
+
+        for x in range(0, 4):
+            ax_0[x][0].grid()
+            ax_0[x][1].grid()
+
+        ax_0[0][0].legend()
+        fig_0.tight_layout()
+        if save_fig:
+            fig_0.savefig(
+                os.path.join(self.dir_figures, "comparison_models.png"), dpi=300
+            )
+        else:
+            fig_0.show()
+
+        plt.close(fig_0)
+
+        ax_1[0][0].set(ylim=(-250, 200), ylabel="Dry heat loss [W]")
+        ax_1[0][1].set(ylim=(0, 300), ylabel="Required latent heat loss [W]")
+        ax_1[1][0].set(
+            ylim=(0, 700), xlabel="Temperature [°C]", ylabel="Sweat rate [mL/h]"
+        )
+        ax_1[1][1].set(
+            ylim=(0, 400),
+            xlabel="Temperature [°C]",
+            ylabel="Maximum latent heat loss (W]",
+        )
+
+        for x in range(0, 2):
+            ax_1[x][0].grid(c="lightgray")
+            ax_1[x][1].grid(c="lightgray")
+            ax_1[x][0].xaxis.set_ticks_position("none")
+            ax_1[x][1].xaxis.set_ticks_position("none")
+            ax_1[x][1].xaxis.set_ticks_position("none")
+            ax_1[x][1].yaxis.set_ticks_position("none")
+
+        lines, labels = fig_1.axes[-1].get_legend_handles_labels()
+        fig_1.legend(
+            lines,
+            labels,
+            loc="upper center",  # Position of legend
+            ncol=2,
+            frameon=False,
+        )
+        sns.despine(left=True, bottom=True, right=True)
+        fig_1.tight_layout()
+        plt.subplots_adjust(top=0.88)
+        if save_fig:
+            plt.savefig(
+                os.path.join(self.dir_figures, "comparison_models_v2.png"), dpi=300
+            )
+        else:
+            plt.show()
+
+    def comparison_air_speed(self):
+
+        fig, ax = plt.subplots()
+
+        for v in self.v_range:
+
+            tmp_array = []
+            rh_array = []
+
+            sensible_skin_heat_loss = []
+            sensible_skin_heat_loss_ollie = []
+            max_latent_heat_loss = []
+            max_latent_heat_loss_ollie = []
+
+            skin_wettedness = []
+            core_tmp = []
+
+            max_skin_wettedness = fan_use_set(
+                50, 50, v, 100, 1.2, 0.5, wme=0, units="SI"
+            )["skin_wetness"]
+
+            for rh in self.rh_range:
+
+                for ta in self.ta_range:
+
+                    tmp_array.append(ta)
+                    rh_array.append(rh)
+
+                    r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
+
+                    sensible_skin_heat_loss.append(r["hl_evaporation_required"])
+                    # todo check the following assumption since it is very important
+                    max_latent_heat_loss.append(
+                        r["hl_evaporation_max"] * max_skin_wettedness
+                    )
+                    # max_latent_heat_loss.append(r["hl_evaporation_max"] * w)
+
+                    skin_wettedness.append(r["skin_wetness"])
+                    core_tmp.append(r["temp_core"])
+
+                    if v == 0.2:
+                        fan_on = False
+
+                        r = ollie(fan_on, ta, rh, is_elderly=False)
+
+                        sensible_skin_heat_loss_ollie.append(r["e_req_w"])
+                        max_latent_heat_loss_ollie.append(r["e_max_w"])
+
+                    elif v == 4.5:
+                        fan_on = True
+
+                        r = ollie(fan_on, ta, rh, is_elderly=False)
+
+                        sensible_skin_heat_loss_ollie.append(r["e_req_w"])
+                        max_latent_heat_loss_ollie.append(r["e_max_w"])
+
+            sensible_skin_heat_loss = [
+                x if x > 0 else 0 for x in sensible_skin_heat_loss
+            ]
+            max_latent_heat_loss = [x if x > 0 else 0 for x in max_latent_heat_loss]
+            max_latent_heat_loss_ollie = [
+                x if x > 0 else 0 for x in max_latent_heat_loss_ollie
+            ]
+            max_latent_heat_loss_ollie = [
+                x if x > 0 else 0 for x in max_latent_heat_loss_ollie
+            ]
+
+            ollie_model = [
+                x[0] - x[1]
+                for x in zip(max_latent_heat_loss_ollie, sensible_skin_heat_loss_ollie)
+            ]
+            ollie_model = [np.nan if x > 0 else 0 for x in ollie_model]
+            set_model = [
+                x[0] - x[1] for x in zip(max_latent_heat_loss, sensible_skin_heat_loss)
+            ]
+            set_model = [np.nan if x > 0 else 0 for x in set_model]
+
+            df = pd.DataFrame(data={"tmp": tmp_array, "rh": rh_array, "set": set_model})
+
+            if sensible_skin_heat_loss_ollie != []:
+                df["ollie"] = ollie_model
+                df_ollie = df.pivot("tmp", "rh", "ollie").sort_index(ascending=False)
+                y, x = [], []
+                for col in df_ollie.columns:
+                    try:
+                        y.append(df_ollie[col].dropna().index[-1])
+                        x.append(col)
+                    except:
+                        pass
+
+                # smooth line
+                f2 = np.poly1d(np.polyfit(x, y, 2))
+                xnew = np.linspace(min(x), max(x), 100)
+                ax.plot(xnew, f2(xnew), linestyle=":", label=f"v = {v} - Ollie")
+
+            df_set = df.pivot("tmp", "rh", "set").sort_index(ascending=False)
+
+            y, x = [], []
+            for col in df_set.columns:
+                try:
+                    y.append(df_set[col].dropna().index[-1])
+                    x.append(col)
+                except:
+                    pass
+
+            # smooth line
+            f2 = np.poly1d(np.polyfit(x, y, 2))
+
+            xnew = np.linspace(min(x), max(x), 100)
+
+            ax.plot(xnew, f2(xnew), label=f"v = {v} - SET")
+
+        ax.grid()
+
+        ax.set(xlabel="Relative Humidity", ylabel="Temperature")
+
+        plt.legend()
+
+        plt.tight_layout()
+        plt.savefig(os.path.join(self.dir_figures, "comparison_air_speed.png"), dpi=300)
+
+        f, ax = plt.subplots()
+        levels = np.arange(36, 43, 1)
+        x, y = np.meshgrid(self.rh_range, self.ta_range)
+        df = pd.DataFrame({"tmp": tmp_array, "rh": rh_array, "z": core_tmp})
+        df_w = df.pivot("tmp", "rh", "z")
+        cf = ax.contourf(x, y, df_w.values, levels)
+        plt.colorbar(cf)
+        ax.set(
+            xlabel="Relative Humidity",
+            ylabel="Temperature",
+            title=f"core body tmp - air speed {v}",
+        )
+        plt.show()
+
+    def plot_other_variables(self, variable, levels_cbar):
+
+        v_range = [0.2, 4.5]
+
+        f, ax = plt.subplots(len(v_range), 1, sharex="all", sharey="all")
+
+        df_comparison = pd.DataFrame()
+
+        for ix, v in enumerate(v_range):
+
+            tmp_array = []
+            rh_array = []
+            variable_arr = []
+
+            for rh in self.rh_range:
+
+                for ta in self.ta_range:
+
+                    tmp_array.append(ta)
+                    rh_array.append(rh)
+
+                    r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
+
+                    variable_arr.append(r[variable])
+
+            # dataframe used to plot the two contour plots
+            x, y = np.meshgrid(self.rh_range, self.ta_range)
+            df = pd.DataFrame({"tmp": tmp_array, "rh": rh_array, "z": variable_arr})
+            df_comparison[f"index_{ix}"] = [x if x > 0 else 0 for x in variable_arr]
+            df_w = df.pivot("tmp", "rh", "z")
+            cf = ax[ix].contourf(x, y, df_w.values, levels_cbar)
+
+            ax[ix].set(
+                xlabel="Relative Humidity",
+                ylabel="Air Temperature",
+                title=f"{variable} - air speed {v}",
+            )
+
+        f.subplots_adjust(right=0.8)
+        cbar_ax = f.add_axes([0.85, 0.15, 0.05, 0.7])
+        f.colorbar(cf, cax=cbar_ax)
+        plt.show()
+
+        # find point above which heat gains are higher with fans
+        df_comparison["delta"] = df_comparison["index_1"] - df_comparison["index_0"]
+        df_comparison["tmp"] = df["tmp"]
+        df_comparison["rh"] = df["rh"]
+        df_w = df_comparison.pivot("tmp", "rh", "delta")
+
+        f, ax = plt.subplots(constrained_layout=True)
+        origin = "lower"
+        levels = [-0.5, 0, 0.5]
+        cf = ax.contourf(
+            x, y, df_w.values, levels, colors=("b", "r"), extend="both", origin=origin
+        )
+        cf.cmap.set_under("darkblue")
+        cf.cmap.set_over("maroon")
+        ax.contour(x, y, df_w.values, [-0.5, 0, 0.5], colors=("k",), origin=origin)
+
+        ax.set(
+            xlabel="Relative Humidity",
+            ylabel="Air Temperature",
+            title=f"{variable} difference at v {v_range[1]} - {v_range[0]} [m/s]",
+        )
+
+        f.colorbar(cf)
+        plt.show()
 
 
 # def fan_use(tdb, tr, vr, rh, met, clo, wme=0, units="SI"):
@@ -499,391 +902,21 @@ def fan_use_set(
     }
 
 
-def model_comparison():
-
-    ta_range = range(26, 50)
-
-    fig, ax = plt.subplots(4, 2, figsize=(7, 8), sharex="all", sharey="row")
-
-    for v in [0.2, 4.5]:
-
-        for rh in [30, 60]:
-
-            max_skin_wettedness = fan_use_set(
-                50, 50, v, 100, 1.2, 0.5, wme=0, units="SI"
-            )["skin_wetness"]
-
-            dry_heat_loss = []
-            dry_heat_loss_ollie = []
-            sensible_skin_heat_loss = []
-            sensible_skin_heat_loss_ollie = []
-            sweat_rate = []
-            sweat_rate_ollie = []
-            max_latent_heat_loss = []
-            max_latent_heat_loss_ollie = []
-
-            for ta in ta_range:
-
-                r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
-
-                dry_heat_loss.append(r["hl_dry"])
-                sensible_skin_heat_loss.append(r["hl_evaporation_required"])
-                sweat_rate.append(r["sweating_required"])
-                max_latent_heat_loss.append(
-                    r["hl_evaporation_max"] * max_skin_wettedness
-                )
-
-                if v > 1:
-                    fan_on = True
-                else:
-                    fan_on = False
-
-                r = ollie(fan_on, ta, rh, is_elderly=False)
-
-                dry_heat_loss_ollie.append(r["hl_dry"])
-                sensible_skin_heat_loss_ollie.append(r["e_req_w"])
-
-                sweat_rate_ollie.append(r["s_req"])
-                max_latent_heat_loss_ollie.append(r["e_max_w"])
-
-            sweat_rate_ollie = [x if x > 0 else np.nan for x in sweat_rate_ollie]
-
-            sensible_skin_heat_loss_ollie = [
-                x if x > 0 else np.nan for x in sensible_skin_heat_loss_ollie
-            ]
-
-            ax[0][0].plot(ta_range, dry_heat_loss, label=f"{v} - {rh}")
-            ax[0][1].plot(ta_range, dry_heat_loss_ollie, label=f"{v} - {rh}")
-            ax[1][0].plot(ta_range, sensible_skin_heat_loss, label=f"{v} - {rh}")
-            ax[1][1].plot(ta_range, sensible_skin_heat_loss_ollie, label=f"{v} - {rh}")
-
-            ax[2][0].plot(ta_range, sweat_rate, label=f"{v} - {rh}")
-            ax[2][1].plot(ta_range, sweat_rate_ollie, label=f"{v} - {rh}")
-            ax[3][0].plot(ta_range, max_latent_heat_loss, label=f"{v} - {rh}")
-            ax[3][1].plot(ta_range, max_latent_heat_loss_ollie, label=f"{v} - {rh}")
-
-    ax[0][0].set(ylim=(-250, 200), title="SET", ylabel="dry heat loss (W)")
-    ax[0][1].set(ylim=(-250, 200), title="Ollie")
-    ax[1][0].set(ylim=(0, 300), ylabel="latent heat loss required (W)")
-    ax[1][1].set(ylim=(0, 300))
-
-    ax[2][0].set(ylim=(0, 550), ylabel="sweat rate")
-    ax[2][1].set(ylim=(0, 550))
-    ax[3][0].set(ylim=(0, 600), xlabel="Temperature", ylabel="max latent heat loss (W)")
-    ax[3][1].set(ylim=(0, 600), xlabel="Temperature")
-
-    for x in range(0, 4):
-        ax[x][0].grid()
-        ax[x][1].grid()
-
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(f"C:\\Users\\sbbfti\\Downloads\\comparison_models.png", dpi=300)
-
-
-def fan_use_vs_no_use(v):
-
-    ta_range = np.arange(30, 51, 0.5)
-    rh_range = np.arange(10, 105, 5)
-
-    fig, ax = plt.subplots(1, 2)
-
-    tmp_array = []
-    rh_array = []
-
-    sensible_skin_heat_loss = []
-    sensible_skin_heat_loss_ollie = []
-    max_latent_heat_loss = []
-    max_latent_heat_loss_ollie = []
-
-    for rh in rh_range:
-
-        max_skin_wettedness = fan_use_set(50, 50, v, 100, 1.2, 0.5, wme=0, units="SI")[
-            "skin_wetness"
-        ]
-
-        for ta in ta_range:
-
-            tmp_array.append(ta)
-            rh_array.append(rh)
-
-            r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
-
-            sensible_skin_heat_loss.append(r["hl_evaporation_required"])
-            max_latent_heat_loss.append(r["hl_evaporation_max"] * max_skin_wettedness)
-
-            if v > 1:
-                fan_on = True
-            else:
-                fan_on = False
-
-            r = ollie(fan_on, ta, rh, is_elderly=False)
-
-            sensible_skin_heat_loss_ollie.append(r["e_req_w"])
-            max_latent_heat_loss_ollie.append(r["e_max_w"])
-
-    sensible_skin_heat_loss = [x if x > 0 else 0 for x in sensible_skin_heat_loss]
-    max_latent_heat_loss = [x if x > 0 else 0 for x in max_latent_heat_loss]
-    max_latent_heat_loss_ollie = [x if x > 0 else 0 for x in max_latent_heat_loss_ollie]
-    max_latent_heat_loss_ollie = [x if x > 0 else 0 for x in max_latent_heat_loss_ollie]
-
-    ollie_model = [
-        x[0] - x[1]
-        for x in zip(max_latent_heat_loss_ollie, sensible_skin_heat_loss_ollie)
-    ]
-    ollie_model = [np.nan if x > 0 else 0 for x in ollie_model]
-    set_model = [
-        x[0] - x[1] for x in zip(max_latent_heat_loss, sensible_skin_heat_loss)
-    ]
-    set_model = [np.nan if x > 0 else 0 for x in set_model]
-
-    df = pd.DataFrame(
-        data={"tmp": tmp_array, "rh": rh_array, "ollie": ollie_model, "set": set_model}
-    )
-
-    df_ollie = df.pivot("tmp", "rh", "ollie").sort_index(ascending=False)
-    sns.heatmap(df_ollie, ax=ax[1], cbar=False)
-    ax[1].set(title="Ollie")
-
-    df_set = df.pivot("tmp", "rh", "set").sort_index(ascending=False)
-
-    t = []
-    for col in df_set.columns:
-        t.append(df_set[col].dropna().index[-1])
-
-    ax[0].plot(rh_range, t)
-
-    ax[0].grid()
-    ax[1].grid()
-
-    plt.suptitle(f"air speed {v}m/s")
-    plt.tight_layout()
-    plt.show()
-
-
-def comparison_air_speed():
-
-    ta_range = np.arange(26, 51, 0.5)
-    rh_range = np.arange(10, 105, 5)
-    v_range = [0.1, 0.2, 0.4, 0.8, 1.2, 2, 3, 4.5]
-
-    fig, ax = plt.subplots()
-
-    for v in v_range:
-
-        tmp_array = []
-        rh_array = []
-
-        sensible_skin_heat_loss = []
-        sensible_skin_heat_loss_ollie = []
-        max_latent_heat_loss = []
-        max_latent_heat_loss_ollie = []
-
-        skin_wettedness = []
-        core_tmp = []
-
-        max_skin_wettedness = fan_use_set(50, 50, v, 100, 1.2, 0.5, wme=0, units="SI")[
-            "skin_wetness"
-        ]
-        print(max_skin_wettedness)
-
-        for rh in rh_range:
-
-            for ta in ta_range:
-
-                tmp_array.append(ta)
-                rh_array.append(rh)
-
-                r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
-
-                sensible_skin_heat_loss.append(r["hl_evaporation_required"])
-                # todo check the following assumption since it is very important
-                max_latent_heat_loss.append(
-                    r["hl_evaporation_max"] * max_skin_wettedness
-                )
-                # max_latent_heat_loss.append(r["hl_evaporation_max"] * w)
-
-                skin_wettedness.append(r["skin_wetness"])
-                core_tmp.append(r["temp_core"])
-
-                if v == 0.2:
-                    fan_on = False
-
-                    r = ollie(fan_on, ta, rh, is_elderly=False)
-
-                    sensible_skin_heat_loss_ollie.append(r["e_req_w"])
-                    max_latent_heat_loss_ollie.append(r["e_max_w"])
-
-                elif v == 4.5:
-                    fan_on = True
-
-                    r = ollie(fan_on, ta, rh, is_elderly=False)
-
-                    sensible_skin_heat_loss_ollie.append(r["e_req_w"])
-                    max_latent_heat_loss_ollie.append(r["e_max_w"])
-
-        sensible_skin_heat_loss = [x if x > 0 else 0 for x in sensible_skin_heat_loss]
-        max_latent_heat_loss = [x if x > 0 else 0 for x in max_latent_heat_loss]
-        max_latent_heat_loss_ollie = [
-            x if x > 0 else 0 for x in max_latent_heat_loss_ollie
-        ]
-        max_latent_heat_loss_ollie = [
-            x if x > 0 else 0 for x in max_latent_heat_loss_ollie
-        ]
-
-        ollie_model = [
-            x[0] - x[1]
-            for x in zip(max_latent_heat_loss_ollie, sensible_skin_heat_loss_ollie)
-        ]
-        ollie_model = [np.nan if x > 0 else 0 for x in ollie_model]
-        set_model = [
-            x[0] - x[1] for x in zip(max_latent_heat_loss, sensible_skin_heat_loss)
-        ]
-        set_model = [np.nan if x > 0 else 0 for x in set_model]
-
-        df = pd.DataFrame(data={"tmp": tmp_array, "rh": rh_array, "set": set_model})
-
-        if sensible_skin_heat_loss_ollie != []:
-            df["ollie"] = ollie_model
-            df_ollie = df.pivot("tmp", "rh", "ollie").sort_index(ascending=False)
-            y, x = [], []
-            for col in df_ollie.columns:
-                try:
-                    y.append(df_ollie[col].dropna().index[-1])
-                    x.append(col)
-                except:
-                    pass
-
-            # smooth line
-            f2 = np.poly1d(np.polyfit(x, y, 2))
-            xnew = np.linspace(min(x), max(x), 100)
-            ax.plot(xnew, f2(xnew), linestyle=":", label=f"v = {v} - Ollie")
-
-        df_set = df.pivot("tmp", "rh", "set").sort_index(ascending=False)
-
-        y, x = [], []
-        for col in df_set.columns:
-            try:
-                y.append(df_set[col].dropna().index[-1])
-                x.append(col)
-            except:
-                pass
-
-        # smooth line
-        f2 = np.poly1d(np.polyfit(x, y, 2))
-
-        xnew = np.linspace(min(x), max(x), 100)
-
-        ax.plot(xnew, f2(xnew), label=f"v = {v} - SET")
-
-    ax.grid()
-
-    ax.set(xlabel="Relative Humidity", ylabel="Temperature")
-
-    plt.legend()
-
-    plt.tight_layout()
-    plt.savefig(f"C:\\Users\\sbbfti\\Downloads\\comparison_air_speed.png", dpi=300)
-
-    f, ax = plt.subplots()
-    levels = np.arange(36, 43, 1)
-    X, Y = np.meshgrid(rh_range, ta_range)
-    df = pd.DataFrame({"tmp": tmp_array, "rh": rh_array, "z": core_tmp})
-    df_w = df.pivot("tmp", "rh", "z")
-    cf = ax.contourf(X, Y, df_w.values, levels)
-    plt.colorbar(cf)
-    ax.set(
-        xlabel="Relative Humidity",
-        ylabel="Temperature",
-        title=f"core body tmp - air speed {v}",
-    )
-    plt.show()
-
-
-def plot_other_variables(variable, levels_cbar):
-
-    ta_range = np.arange(26, 51, 1)
-    rh_range = np.arange(10, 105, 5)
-    v_range = [0.2, 4.5]
-
-    f, ax = plt.subplots(len(v_range), 1, sharex="all", sharey="all")
-
-    df_comparison = pd.DataFrame()
-
-    for ix, v in enumerate(v_range):
-
-        tmp_array = []
-        rh_array = []
-        variable_arr = []
-
-        for rh in rh_range:
-
-            for ta in ta_range:
-
-                tmp_array.append(ta)
-                rh_array.append(rh)
-
-                r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
-
-                variable_arr.append(r[variable])
-
-        # dataframe used to plot the two contour plots
-        x, y = np.meshgrid(rh_range, ta_range)
-        df = pd.DataFrame({"tmp": tmp_array, "rh": rh_array, "z": variable_arr})
-        df_comparison[f"index_{ix}"] = [x if x > 0 else 0 for x in variable_arr]
-        df_w = df.pivot("tmp", "rh", "z")
-        cf = ax[ix].contourf(x, y, df_w.values, levels_cbar)
-
-        ax[ix].set(
-            xlabel="Relative Humidity",
-            ylabel="Air Temperature",
-            title=f"{variable} - air speed {v}",
-        )
-
-    f.subplots_adjust(right=0.8)
-    cbar_ax = f.add_axes([0.85, 0.15, 0.05, 0.7])
-    f.colorbar(cf, cax=cbar_ax)
-    plt.show()
-
-    # find point above which heat gains are higher with fans
-    df_comparison["delta"] = df_comparison["index_1"] - df_comparison["index_0"]
-    df_comparison["tmp"] = df["tmp"]
-    df_comparison["rh"] = df["rh"]
-    df_w = df_comparison.pivot("tmp", "rh", "delta")
-
-    f, ax = plt.subplots(constrained_layout=True)
-    origin = "lower"
-    levels = [-0.5, 0, 0.5]
-    cf = ax.contourf(
-        x, y, df_w.values, levels, colors=("b", "r"), extend="both", origin=origin
-    )
-    cf.cmap.set_under("darkblue")
-    cf.cmap.set_over("maroon")
-    ax.contour(x, y, df_w.values, [-0.5, 0, 0.5], colors=("k",), origin=origin)
-
-    ax.set(
-        xlabel="Relative Humidity",
-        ylabel="Air Temperature",
-        title=f"{variable} difference at v {v_range[1]} - {v_range[0]} [m/s]",
-    )
-
-    f.colorbar(cf)
-    plt.show()
-
-
 if __name__ == "__main__":
 
     plt.close("all")
-    # model_comparison()
+
+    self = DataAnalysis()
+
+    self.model_comparison(save_fig=True)
 
     # fan_use_vs_no_use(v=0.2)
-    # fan_use_vs_no_use(v=2)
 
     # comparison_air_speed()
     #
-    plot_other_variables(
-        variable="energy_storage_core", levels_cbar=np.arange(0, 150, 5)
-    )
+    # plot_other_variables(
+    #     variable="energy_storage_core", levels_cbar=np.arange(0, 150, 5)
+    # )
     # plot_other_variables(variable="energy_balance", levels_cbar=np.arange(-20, 160, 10))
     # plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, .5))
 
