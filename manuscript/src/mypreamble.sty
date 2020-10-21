@@ -1,6 +1,13 @@
 \ProvidesPackage{mypreamble}
 
 \usepackage{lineno,hyperref}
+
+\hypersetup{%
+  colorlinks=false,% hyperlinks will be black
+  linkbordercolor=[rgb]{0.7,0.7,0.7},% hyperlink borders will be red
+  pdfborderstyle={/S/U/W 0.5}% border style will be underline of width 1pt
+}
+
 \usepackage{import}
 \modulolinenumbers[5]
 
@@ -26,6 +33,10 @@
 \usepackage[nonumberlist,nogroupskip]{glossaries}
 
 \setglossarystyle{super}
+
+\usepackage[printonlyused]{acronym}
+
+\usepackage{natbib}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Elsevier bibliography styles
@@ -56,5 +67,5 @@
 %\usepackage{numcompress}\bibliographystyle{model6-num-names}
 
 %% `Elsevier LaTeX' style
-\bibliographystyle{elsarticle-num}
+\bibliographystyle{elsarticle-num-names}
 %%%%%%%%%%%%%%%%%%%%%%%
