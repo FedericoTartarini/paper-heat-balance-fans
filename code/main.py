@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pythermalcomfort.psychrometrics import p_sat, units_converter, p_sat_torr
+from pythermalcomfort.models import set_tmp
 import math
 import seaborn as sns
 import os
@@ -726,7 +727,9 @@ def fan_use_set(
     length_time_simulation = 60  # length time simulation
     r_clo = 0.155 * clo  # thermal resistance of clothing, °C M^2 /W
 
-    f_a_cl = 1.0 + 0.15 * clo  # increase in body surface area due to clothing
+    f_a_cl = (
+        1.0 + 0.15 * clo
+    )  # increase in body surface area due to clothing todo the eq 49 fundamentals is 1 + 0.3 icl
     lr = 2.2 / pressure_in_atmospheres  # Lewis ratio
     rm = met * met_factor  # metabolic rate
     m = met * met_factor
@@ -905,6 +908,11 @@ def fan_use_set(
 if __name__ == "__main__":
 
     plt.close("all")
+
+    # todo this in an alternative approach to determine threshold between no fan and fans, by comparing SET temperatures
+    ta = 46
+    print(set_tmp(ta, ta, 0.2, 60, 1.2, 0.5))
+    print(set_tmp(ta, ta, 4.1, 60, 1.2, 0.5))
 
     self = DataAnalysis()
 
