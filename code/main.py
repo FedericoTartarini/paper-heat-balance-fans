@@ -9,6 +9,7 @@ from pythermalcomfort.models import set_tmp
 import math
 import seaborn as sns
 import os
+from pprint import pprint
 
 plt.style.use("seaborn-paper")
 
@@ -18,7 +19,7 @@ class DataAnalysis:
         self.dir_figures = os.path.join(os.getcwd(), "manuscript", "src", "figures")
         self.dir_tables = os.path.join(os.getcwd(), "manuscript", "src", "tables")
 
-        self.ta_range = np.arange(26, 51, 0.5)
+        self.ta_range = np.arange(28, 48, 0.5)
         self.v_range = [0.1, 0.2, 0.4, 0.8, 1.2, 2, 3, 4.5]
         self.rh_range = np.arange(10, 105, 5)
 
@@ -49,6 +50,7 @@ class DataAnalysis:
                 sweat_rate_ollie = []
                 max_latent_heat_loss = []
                 max_latent_heat_loss_ollie = []
+                skin_wettedness = []
 
                 color = self.colors[index_color]
                 index_color += 1
@@ -63,6 +65,7 @@ class DataAnalysis:
                     max_latent_heat_loss.append(
                         r["hl_evaporation_max"] * max_skin_wettedness
                     )
+                    skin_wettedness.append(r["p_wet"])
 
                     if v > 1:
                         fan_on = True
@@ -115,42 +118,38 @@ class DataAnalysis:
                     self.ta_range, dry_heat_loss_ollie, color=color, linestyle=":",
                 )
                 ax_1[0][1].plot(
-                    self.ta_range, sensible_skin_heat_loss, color=color, label=label
-                )
-                ax_1[0][1].plot(
-                    self.ta_range,
-                    sensible_skin_heat_loss_ollie,
-                    color=color,
-                    linestyle=":",
+                    self.ta_range, skin_wettedness, color=color, label=label
                 )
 
-                ax_1[1][0].plot(self.ta_range, sweat_rate, color=color, label=label)
-                ax_1[1][0].plot(
+                ax_1[1][1].plot(self.ta_range, sweat_rate, color=color, label=label)
+                ax_1[1][1].plot(
                     self.ta_range, sweat_rate_ollie, color=color, linestyle=":",
                 )
-                ax_1[1][1].plot(
+                ax_1[1][0].plot(
                     self.ta_range,
                     max_latent_heat_loss,
                     color=color,
-                    label=label + " SET",
+                    label=label + " Gagge et al. (1986)",
                 )
-                ax_1[1][1].plot(
+                ax_1[1][0].plot(
                     self.ta_range,
                     max_latent_heat_loss_ollie,
                     color=color,
-                    label=label + " Ollie et al. (2015)",
+                    label=label + " Jay et al. (2015)",
                     linestyle=":",
                 )
 
                 legend_labels.append(label)
                 legend_labels.append(label)
 
-        ax_0[0][0].set(ylim=(-250, 200), title="SET", ylabel="dry heat loss (W)")
+        ax_0[0][0].set(
+            ylim=(-250, 200), title="SET", ylabel="Sensible heat loss skin (C + R) (W)"
+        )
         ax_0[0][1].set(ylim=(-250, 200), title="Ollie")
         ax_0[1][0].set(ylim=(0, 300), ylabel="Required latent heat loss (W)")
         ax_0[1][1].set(ylim=(0, 300))
 
-        ax_0[2][0].set(ylim=(0, 550), ylabel="Sweat rate (mL/h)")
+        ax_0[2][0].set(ylim=(0, 550), ylabel=r"Sweat rate ($m_{rsw}$) [mL/h]")
         ax_0[2][1].set(ylim=(0, 550))
         ax_0[3][0].set(
             ylim=(0, 600), xlabel="Temperature", ylabel="Maximum latent heat loss (W)"
@@ -172,15 +171,17 @@ class DataAnalysis:
 
         plt.close(fig_0)
 
-        ax_1[0][0].set(ylim=(-250, 200), ylabel="Dry heat loss [W]")
-        ax_1[0][1].set(ylim=(0, 300), ylabel="Required latent heat loss [W]")
-        ax_1[1][0].set(
-            ylim=(0, 700), xlabel="Temperature [°C]", ylabel="Sweat rate [mL/h]"
-        )
+        ax_1[0][0].set(ylim=(-201, 100), ylabel="Sensible heat loss skin (C + R) [W]")
+        ax_1[0][1].set(ylim=(-0.01, 0.7), ylabel="Skin wettendess (w)")
         ax_1[1][1].set(
-            ylim=(0, 400),
-            xlabel="Temperature [°C]",
-            ylabel="Maximum latent heat loss (W]",
+            ylim=(-1, 600),
+            xlabel=r"Operative temperature ($t_{o}$) [°C]",
+            ylabel=r"Sweat rate ($m_{rsw}$) [mL/h]",
+        )
+        ax_1[1][0].set(
+            ylim=(-1, 350),
+            xlabel=r"Operative temperature ($t_{o}$) [°C]",
+            ylabel="Maximum latent heat loss ($E_{max,w_{max}}$) [W/m$^{2}$]",
         )
 
         for x in range(0, 2):
@@ -191,7 +192,20 @@ class DataAnalysis:
             ax_1[x][1].xaxis.set_ticks_position("none")
             ax_1[x][1].yaxis.set_ticks_position("none")
 
-        lines, labels = fig_1.axes[-1].get_legend_handles_labels()
+        ax_1[0][0].text(
+            0.95, 0.87, "A", size=12, ha="center", transform=ax_1[0][0].transAxes
+        )
+        ax_1[0][1].text(
+            0.95, 0.87, "B", size=12, ha="center", transform=ax_1[0][1].transAxes
+        )
+        ax_1[1][0].text(
+            0.95, 0.87, "C", size=12, ha="center", transform=ax_1[1][0].transAxes
+        )
+        ax_1[1][1].text(
+            0.95, 0.87, "D", size=12, ha="center", transform=ax_1[1][1].transAxes
+        )
+
+        lines, labels = fig_1.axes[2].get_legend_handles_labels()
         fig_1.legend(
             lines,
             labels,
@@ -411,133 +425,6 @@ class DataAnalysis:
 
         f.colorbar(cf)
         plt.show()
-
-
-# def fan_use(tdb, tr, vr, rh, met, clo, wme=0, units="SI"):
-#     """
-#         Returns information on whether or not fans should be used during heat waves.
-#         We use the equations developed by Ollie et al (2014) and by Hospers (2020).
-#
-#         Parameters
-#         ----------
-#         tdb : float
-#             dry bulb air temperature, default in [°C] in [°F] if `units` = 'IP'
-#         tr : float
-#             mean radiant temperature, default in [°C] in [°F] if `units` = 'IP'
-#         vr : float
-#             relative air velocity, default in [m/s] in [fps] if `units` = 'IP'
-#
-#             Note: vr is the relative air velocity caused by body movement and not the air
-#             speed measured by the air velocity sensor.
-#             It can be calculate using the function
-#             :py:meth:`pythermalcomfort.psychrometrics.v_relative`.
-#         rh : float
-#             relative humidity, [%]
-#         met : float
-#             metabolic rate, [met]
-#         clo : float
-#             clothing insulation, [clo]
-#
-#             Note: The ASHRAE 55 Standard suggests that the dynamic clothing insulation is
-#             used as input in the PMV model.
-#             The dynamic clothing insulation can be calculated using the function
-#             :py:meth:`pythermalcomfort.psychrometrics.clo_dynamic`.
-#         w : critical skin wettedness, dimensionless
-#         wme : float
-#             external work, [met] default 0
-#         units: str default="SI"
-#             select the SI (International System of Units) or the IP (Imperial Units)
-#             system.
-#         """
-#
-#     is_elderly = True  # todo remove this variable
-#
-#     emissivity = 1
-#     boltzmann_const = 5.67 * 10 ** -8  # Stefan-Boltzmann constant (W/m2K4)
-#
-#     # todo add back these two lines
-#     # met = met * 58.2  # metabolic rate
-#     # wme = wme * 58.2
-#
-#     p_atm = 101325
-#     vapor_pressure = rh * p_sat_torr(tdb) / 100
-#     a_r_bsa = 0.7
-#     t_sk = 35.5
-#     s_w_lat = 2426
-#     bsa = 1.8a
-#     icl = 0.155 * clo  # thermal insulation of the clothing in M2K/W
-#     lr = 16  # Lewis ratio
-#
-#     h_r = 4 * emissivity * boltzmann_const * a_r_bsa * (273.2 + (t_sk + tr) / 2) ** 3
-#
-#     # from the SET equation
-#     # h_cc corrected convective heat transfer coefficient
-#     pressure_in_atmospheres = p_atm / 101325
-#     h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
-#
-#     # h_fc forced convective heat transfer coefficient, W/(m2 °C)
-#     h_fc = 8.600001 * pow((vr * pressure_in_atmospheres), 0.53)
-#     h_cc = max(h_cc, h_fc)
-#
-#     h = h_r + h_cc
-#     f_a_cl = 1.0 + 0.15 * clo  # increase in body surface area due to clothing
-#     r_a = 1.0 / (f_a_cl * h)  # resistance of air layer to dry heat
-#     to = (h_r * tr + h_cc * tdb) / h  # operative temperature
-#     # end from the SET equation
-#
-#     p_a = p_sat(tdb) / 1000 * rh / 100  # water vapor pressure in ambient air, kPa
-#     p_sk_s = p_sat(t_sk) / 1000  # water vapor pressure skin, kPa
-#
-#     # calculation of the clothing area factor
-#     if icl <= 0.078:
-#         fcl = 1 + (1.29 * icl)  # ratio of surface clothed body over nude body
-#     else:
-#         fcl = 1.05 + (0.645 * icl)
-#
-#     c_r = (t_sk - to) / (r_a + 1 / (fcl * h))
-#
-#     c_res_e_res = 0.0014 * met * (34 - tdb) + 0.0173 * met * (5.87 - p_a)
-#
-#     # amount of heat that needs to be loss via evaporation
-#     e_req = met - wme - c_r - c_res_e_res
-#
-#     # todo choose r_cl based on fan on or off
-#     w = 0.65
-#     r_e_cl_f = 0.0112
-#     r_e_cl_r = 0.0161
-#     r_e_cl_mean = (r_e_cl_f + r_e_cl_r) / 2
-#
-#     # evaporative heat transfer coefficient
-#     h_e = 16.5 * h_cc
-#
-#     e_max = w * (p_sk_s - p_a) / (r_e_cl_mean + 1 / (fcl * h_e))
-#
-#     # # from SET
-#     # r_ea = 1.0 / (lr * f_a_cl * h_cc)  # evaporative resistance air layer
-#     # r_ecl = icl / (lr * icl)
-#     # # e_max = maximum evaporative capacity
-#     # e_max = (math.exp(18.6686 - 4030.183 / (t_sk + 235.0)) - vapor_pressure) / (
-#     #     r_ea + r_ecl
-#     # )
-#     # # end from set
-#
-#     w_req = e_req / e_max # ratio heat loss sweating to max heat loss sweating
-#
-#     s_w_eff = 1 - (w_req ** 2) / 2
-#
-#     s_req = (e_req / s_w_eff * 3600) / s_w_lat
-#
-#     e_req_w = e_req * bsa
-#     e_max_w = e_max * bsa
-#     c_r_w = c_r * bsa
-#
-#     return({
-#         "hl_evaporation_required": e_req_w,
-#         "hl_evaporation_max": e_max_w,
-#         "hl_dry": c_r_w,
-#         "sweating_required": s_req,
-#         "hl_sweating_ratio": w_req,
-#     })
 
 
 def ollie(is_fan_on, ta, rh, is_elderly):
@@ -897,11 +784,15 @@ def fan_use_set(
         # "sweating rate": REGSW,
         # "heat lost by vaporization sweat": e_rsw * body_surface_area,
         "temp_core": temp_core,
+        "temp_skin": temp_skin,
         "sweating_required": REGSW,
         # "hl_sweating_ratio": p_rsw,
         "skin_wetness": p_wet,
         "energy_storage_core": s_core,
         "energy_balance": m - hsk - q_res,
+        "w_max": w_crit,
+        "e_rsw": e_rsw,
+        "p_wet": p_wet,
     }
 
 
@@ -909,12 +800,17 @@ if __name__ == "__main__":
 
     plt.close("all")
 
-    # todo this in an alternative approach to determine threshold between no fan and fans, by comparing SET temperatures
-    ta = 46
-    print(set_tmp(ta, ta, 0.2, 60, 1.2, 0.5))
-    print(set_tmp(ta, ta, 4.1, 60, 1.2, 0.5))
+    # # todo this in an alternative approach to determine threshold between no fan and fans, by comparing SET temperatures
+    # ta = 46
+    # print(set_tmp(ta, ta, 0.2, 60, 1.2, 0.5))
+    # print(set_tmp(ta, ta, 4.1, 60, 1.2, 0.5))
 
     self = DataAnalysis()
+
+    ta = 40
+    rh = 60
+    v = 0.2
+    pprint(fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI"))
 
     self.model_comparison(save_fig=True)
 
@@ -925,7 +821,7 @@ if __name__ == "__main__":
     # plot_other_variables(
     #     variable="energy_storage_core", levels_cbar=np.arange(0, 150, 5)
     # )
-    # plot_other_variables(variable="energy_balance", levels_cbar=np.arange(-20, 160, 10))
-    # plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, .5))
+    # self.plot_other_variables(variable="energy_balance", levels_cbar=np.arange(-20, 160, 10))
+    # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, .5))
 
     # todo there is an issue with the SET model the latent heat loss decreases after a certain temperature

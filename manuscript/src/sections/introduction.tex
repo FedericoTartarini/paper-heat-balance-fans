@@ -3,50 +3,61 @@
 
 % Document
 
-\section*{Questions}
-
-\begin{itemize}
-    \item Shall we consider the effect of humidifying the outdoor air to cool it and reduce the thermal strain due to increased sweating?
-    This could be a solution to the problem that sweat rate is limited to 500mL/h
-    \item Which journal shall we target?
-    \item Shall we provide results for an older adult as well?
-    If so how will we calculate the w for the elderly?
-    \item Are we planning to conduct any study in the lab with people, do we have a thermal manikin to estimate latent heat losses?
-    \item Shall we look at the weather model and estimate how the prevalence of hot days will change in the next 50 years or so?
-\end{itemize}
+%\section*{Questions} todo
+%
+%\begin{itemize}
+%    \item Shall we consider the effect of humidifying the outdoor air to cool it and reduce the thermal strain due to increased sweating?
+%    This could be a solution to the problem that sweat rate is limited to 500mL/h
+%    \item Which journal shall we target?
+%    \item Shall we provide results for an older adult as well?
+%    If so how will we calculate the w for the elderly?
+%    \item Are we planning to conduct any study in the lab with people, do we have a thermal manikin to estimate latent heat losses?
+%    \item Shall we look at the weather model and estimate how the prevalence of hot days will change in the next 50 years or so?
+%\end{itemize}
 
 \section{Introduction}\label{sec:introduction}
 
-Discuss and cover the following points.
+Anthropogenic activities are the primary causes of global warming.
+Since the pre-industrial period human activities are estimated to be the primary cause of a 1~°C increase in the Earth's global average temperature~\cite{GlobalWa91:online}.
+However, since 1981 the combined land and ocean temperature has increased at an average rate of 0.18~°C per decade~\cite{GlobalCl28:online}.
+As a consequence, nine of the ten warmest years on records have occurred since 2005~\cite{ClimateC26:online}.
+It is estimated that by 2030 the rate at which temperature increases is going to increase significantly due to the heating imbalance between the greenhouse gases and the oceans's thermal inertia~\cite{ClimateC26:online}.
+Associated risk to rising temperatures such as heatwaves are expected to increase in length, intensity and frequency due to global warming~\cite{Whatharm75:online}.
+There is not an universally definition of heatwave however, the \ac{wmo} and \ac{who} describe them as: ``a periods of unusually hot and dry or hot and humid weather that have a
+subtle onset and cessation, a duration of at least two or three days, usually with a discernible impact on human and natural systems"~\cite{WMO2015}.
+Age (very young and elderly), pre-existing conditions, low income, prolonged outdoor activities, and social isolation all play a negative role and increase the heat risk during heat waves~\cite{WMO2015}.
+Heatwaves may also put an additional burden on the health, emergency, energy, water and transportation sectors.
+For example, during heat waves peak demand consumption increases due to an increase energy demand for cooling, while the efficiency of the grid and the power plant decrease.
+This may result in power shortages and blackouts.
 
-\begin{itemize}
-    \item Global warming is affecting the climate and most of the hottest years on record have been recorded in the last few decades.
-    \item A great number of people live in the tropical and dry climates.
-    This regions inhabited by low income people who may not be able to afford to pay for air-conditioning.
-    \item Electric fans are an economical and efficient solution to the problem.
-    \item Fans increase the air speed around the human body.
-    If the air temperature is higher than the skin temperature, then the air movement causes an heat gain.
-    However, air movement also increases significantly the potential for evaporation, which in turn is affected by the relative humidity in the space.
-    If the latter is higher than then sensible heat gains, then the use of fans is positive.
-    However, it should be considered that the potential greater requirement for sweat production with the use of fans can cause dehydration and cardiovascular strain.
-    \item Review of international standards on the use of air movement during hot days.
-    \item Review of literature Gupta 2012, and describe issues with Ollie 2015 model.
-    \begin{enumerate}
-        \item only focuses on air temperature and relative humidity. Clothing (summer clothing), metabolic rate (1.1 met), and mean radiant temperature (equal to air tmp) are constant.
-        \item is model only works for one type of fan 18", at max speed (4.5 m/s) and placed at 1 m from the occupant.
-        \item skin temperature is considered constant and equal to 35.5 C
-        \item body surface area is also considered constant = 1.8 m2
-        \item he uses met of a standing person but radiative area of sitting one.
-        \item because of the previous assumptions even the evaporative heat transfer coefficient is considered to be constant.
-    \end{enumerate}
-    \item The aim of this manuscript is to determine at which combinations of environmental parameters (i.e., air temperature, relative humidity, mean radiant temperature and air velocity) and personal parameters (i.e., clothing, metabolic rate and body surface area) the use of fan is beneficial.
-    We, therefore, used the standard effective temperature model (SET) heat balance equations to determine the set of environmental and personal conditions above which the use of fans would be detrimental.
-    We also estimated the environmental limits above which elevated cardiovascular strain and thermal strain would occur.
-    We determined the predicted sweat losses and estimated the risk of dehydration.
-    Finally, we developed an open source, free to use, web-based online tool which can be used to estimate all the aforementioned results as a function of environmental and personal variables.
-\end{itemize}
+Both hot and dry conditions can affect the heat balance of the human body.
+Rapid changes in heat gains can compromise the ability of the body to regulate its core temperature and can result in illnesses which may even be life threatening~\cite{WMO2015}.
+Heatwaves can also worsen pre-existing conditions.
+The \ac{who}, and the \ac{wmo} together with national governments provide public health guidance for people to minimise the heat during heat stress.
+For example, they suggest to keep the body hydrated, to keep out of the heat and keep the home cool.
+However, despite the quantitative evidence provided by \mycite{Jay2015} and \mycite{Jay2019a} the \ac{who} does not recommend the use of electric fan for temperatures above 35~°C~\cite{HeatandH28:online, WMO2015}.
+This suggestion, however, could be very detrimental considering the fact that many people during heat waves may not have the financial means to cool the space using air conditioning, nor to visit airconditioned public spaces.
+These people could be in fact the elderly, people with mobility issues or poorer people living either in remote areas or in developing parts of the world.
+These groups are already more at risk than the rest of the population, and by discouraging them from utilizing electrical fans when temperatures exceed 35~°C can exacerbate heat stress.
+Despite the fact that elevated air movement increases the sensible heat gains as the \ac{t-db} exceeds the \ac{t-sk}, it should be noted that the elevated air movement also increases the \ac{e-sk}.
+Consequently, the use of fans is beneficial even if \ac{t-db} is higher than \ac{t-sk}.
+In addition, the critical \ac{t-db} above which the use of fans to increase the air speed becomes detrimental, varies as a function of \ac{rh}.
+With the critical \ac{t-db} decreasing as a function of \ac{rh}.
 
+Electrical fans are relative inexpensive to buy, pedestal fans are available for as low as 20 USD, they are energy efficient and only can consume as low as few Watts of power to operate~\cite{Yang2015a, Lipczynska2018a, Jay2019a}.
+Electrical fans can therefore be used as an alternative or to complement compressor-based air conditioning~\cite{Yang2015a, Lipczynska2018a, Jay2019a}.
+Research has also shown that can be used in tropical hot and humid climates to increase occupants satisfaction with their thermal environment.
 
+\mycite{Jay2015} provide a model to estimate the combinations of \ac{t-db} and \ac{rh} at which the use of electrical fans would be beneficial.
+However, their model has the following limitations, it does not: consider radial asymmetry, estimates iteratively \ac{t-sk} and \ac{t-cr}, allow user to change \ac{met} or \ac{clo}.
+Moreover, their results are based on a single air speed velocity 4.5~m/s which cannot be achieved by ceiling fans~\cite{Raftery2019},and by many pedestal fans~\cite{Yang2015a}.
+Consequently, to overcome the above mentioned limitations, we are proposing the use of the heat balance model developed by~\mycite{GaggeSET} to estimate heat loss and physiological variables as a function of environmental and personal factors.
+Our models, allowed us to estimate the combinations of \ac{t-db} and \ac{rh} above which the use of elevated air speed would no longer provide benefits during heatwaves.
+In addition, to help the overall community we developed an open-source, free to use, web-based online tool which provides interactive plots and displays the results to the user.
 
-
-
+%\begin{itemize}
+%    \item A great number of people live in the tropical and dry climates.
+%    This regions inhabited by low income people who may not be able to afford to pay for air-conditioning.
+%    \item Review of international standards on the use of air movement during hot days.
+%    \item Review of literature Gupta 2012, and describe issues with Ollie 2015 model.
+%\end{itemize}

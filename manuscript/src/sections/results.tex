@@ -5,15 +5,17 @@
 \section{Results}\label{sec:results}
 
 The sensible heat losses from the skin to the environment are proportional to the difference between the \ac{t-sk} and \ac{t-op}.
-Consequently for values of \ac{t-op} higher than \ac{t-sk} the term \ac{c-r} becomes negative, or in other terms the body gains sensible heat from its environment.
+Consequently for values of \ac{t-op} higher than \ac{t-sk} the term \ac{c-r} becomes negative, or in other words the body gains sensible heat from its environment.
 Figure~\ref{fig:comparison_models}A shows how the sensible heat losses estimated with the \mycite{GaggeSET} and the \mycite{Jay2015} models vary as a function of the \ac{t-op}, \ac{rh}, and \ac{v}.
-% todo explain less marked increase in set model of sensible heat losses
-For \ac{t-op} higher that \ac{t-sk} the required \ac{e-sk} to maintain thermal neutrality increases, as shown in Figure~\ref{fig:comparison_models}B.
-% todo say something about the fact that Jay results are different from Gagge
-% todo say why E_req drops after certain tmmp value
-The negative effect that \ac{v} has on the sensible heat losses is compensated by the increase in the \ac{e-max}.
-\ac{e-max} can be estimated by replacing \ac{w} in Eq.~\ref{eq:latent-skin} with \ac{w-max}.
-The values of \ac{e-max} are shown in Figure~\ref{fig:comparison_models}D and it can be observed that the increase in \ac{e-max} due to the increase of \ac{v}, decreases as the \ac{rh} decreases.
+While the \mycite{Jay2015} models assumes the \ac{t-sk} to be constant and equal to 35~°C \mycite{GaggeSET} models iteratively determine skin temperature.
+This explains the difference in \ac{c-r} determined by the two models.
+For \ac{t-op} higher than those at which \ac{w-max} occurs, \ac{t-sk} increases and consequently the sensible heat gains do not increase as much as estimated by \mycite{Jay2015}.
+The values of \ac{w} and the respective values of \ac{w-max} for two air speeds are shown in Figure~\ref{fig:comparison_models}B.
+
+The negative effect that \ac{v} has on the sensible heat losses is, however, compensated by a larger increase in the value of \ac{e-max}.
+Figure~\ref{fig:comparison_models}D shows the values of \ac{e-max} estimated by replacing \ac{w} in Eq.~\ref{eq:latent-skin} with \ac{w-max}.
+
+It can be observed that for a fixed increase in \ac{v}, the relative increase in \ac{e-max} decreases as the \ac{rh} increase.
 Finally, Figure~\ref{fig:comparison_models}C shows the estimated \ac{m-sweat}.
 While, \mycite{Jay2015} does not set an upper limit for \ac{m-sweat}, \mycite{GaggeSET} imposes that the maximum value of \ac{m-sweat} cannot exceed 500 mL/h. % todo check units
 In addition, it can be observed that the sweating rate estimated by the two models significantly differs.
@@ -22,10 +24,13 @@ In addition, it can be observed that the sweating rate estimated by the two mode
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_models_v2.png}
-    \caption{Caption}
+    \caption{Shows how the results obtained with the the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET} vary as a function of the \ac{t-op}.
+    Each Figure shows the results obtained using a combination of two values of \ac{rh} and \ac{v}.
+    Figure A - sensible heat losses from the skin vary.
+    Figure B - skin wettendess.
+    Figure C - Maximum latent heat loss estimated using \ac{w} = \ac{w-max}.
+    Figure D - Sweat rate.}
     \label{fig:comparison_models}
-%    todo change xlabel to operative temperature, ylabel fig a to latent heat loss.
-%    todo in all the captions I need to specify the values I inputed to the model, e.g., met, clo
 \end{figure}
 
 The \mycite{GaggeSET} model was then used to determine at which combination of \ac{t-op}, \ac{rh}, and \ac{v} \ac{w} would exceed \ac{w-max}, hence the maximum skin wettedness would not longer increase, results are presented in Figure~\ref{fig:comparison_air_speed}.
