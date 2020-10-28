@@ -4,24 +4,16 @@
 
 \section{Results}\label{sec:results}
 
-The sensible heat losses from the skin to the environment are proportional to the difference between the \ac{t-sk} and \ac{t-op}.
-Consequently for values of \ac{t-op} higher than \ac{t-sk} the term \ac{c-r} becomes negative, or in other words the body gains sensible heat from its environment.
+The sensible heat losses from the skin to the environment are proportional to the difference between the \ac{t-sk} and \ac{t-op}, as shown in Equation~\ref{eq:c-r}.
+Consequently for values of \ac{t-op} higher than \ac{t-sk} the term \ac{c-r} becomes negative and the body gains sensible heat from its environment.
 Figure~\ref{fig:comparison_models}A shows how the sensible heat losses estimated with the \mycite{GaggeSET} and the \mycite{Jay2015} models vary as a function of the \ac{t-op}, \ac{rh}, and \ac{v}.
-While the \mycite{Jay2015} models assumes the \ac{t-sk} to be constant and equal to 35~°C \mycite{GaggeSET} models iteratively determine skin temperature.
+The former model iteratively determines \ac{t-sk}, while the latter assumes it to be constant and equal to 35~°C.
 This explains the difference in \ac{c-r} determined by the two models.
-For \ac{t-op} higher than those at which \ac{w-max} occurs, \ac{t-sk} increases and consequently the sensible heat gains do not increase as much as estimated by \mycite{Jay2015}.
+For \ac{t-op} higher than those at which \ac{w-max} occurs (Figure~\ref{fig:comparison_models}B), our model estimates that heat energy gets stored in the body and consequently \ac{t-sk} increases, as shown in Figure~\ref{fig:results_model_2}C.
+This reduces the sensible heat gains estimated by our model when compared with the results obtained by \mycite{Jay2015}.
 The values of \ac{w} and the respective values of \ac{w-max} for two air speeds are shown in Figure~\ref{fig:comparison_models}B.
 
-The negative effect that \ac{v} has on the sensible heat losses is, however, compensated by a larger increase in the value of \ac{e-max}.
-Figure~\ref{fig:comparison_models}D shows the values of \ac{e-max} estimated by replacing \ac{w} in Eq.~\ref{eq:latent-skin} with \ac{w-max}.
-
-It can be observed that for a fixed increase in \ac{v}, the relative increase in \ac{e-max} decreases as the \ac{rh} increase.
-Finally, Figure~\ref{fig:comparison_models}C shows the estimated \ac{m-sweat}.
-While, \mycite{Jay2015} does not set an upper limit for \ac{m-sweat}, \mycite{GaggeSET} imposes that the maximum value of \ac{m-sweat} cannot exceed 500 mL/h. % todo check units
-In addition, it can be observed that the sweating rate estimated by the two models significantly differs.
-% todo describe discrepancies
-
-\begin{figure}
+\begin{figure}[b!]
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_models_v2.png}
     \caption{Shows how the results obtained with the the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET} vary as a function of the \ac{t-op}.
@@ -33,10 +25,40 @@ In addition, it can be observed that the sweating rate estimated by the two mode
     \label{fig:comparison_models}
 \end{figure}
 
-The \mycite{GaggeSET} model was then used to determine at which combination of \ac{t-op}, \ac{rh}, and \ac{v} \ac{w} would exceed \ac{w-max}, hence the maximum skin wettedness would not longer increase, results are presented in Figure~\ref{fig:comparison_air_speed}.
+The negative effect that an increase in \ac{v} has on the sensible heat gains is, however, compensated by a larger increase in the value of \ac{e-sk} that the body can dissipate towards the environment.
+For example, when \ac{t-op}~=~45~°C and \ac{rh}~=~30~\%, an increase in \ac{v} from 0.2 to 4.5~m/s increases the sensible heat gains (\acs{c-r}) by 29 W/m\textsuperscript{2} while \ac{e-sk} increases by 45~W/m\textsuperscript{2}, hence, it has a net positive effect.
+Figure~\ref{fig:comparison_models}C shows the values of \ac{e-max} estimated by replacing \ac{w} in Equation~\ref{eq:latent-skin} with \ac{w-max}.
+The value of \ac{e-max} decreases as the \ac{t-op} increases since \ac{p-a} grows more rapidly than \ac{p-sk}.
+The reduction in \ac{e-max} estimated by our model is lower than the one estimated by \mycite{Jay2015} since the former assumes that the skin temperature increases as the value of \ac{t-op} increases.
+For a set combination of \ac{v} and \ac{t-op} the value of \ac{e-max} decreases as the value of \ac{rh} increases since humid air has a higher \ac{p-a} than dry air.
+Finally, it can be observed that for a fixed increase in \ac{v}, the relative increase in \ac{e-max} decreases as the \ac{rh} increase.
+
+Figure~\ref{fig:comparison_models}D shows the estimated \ac{m-sweat}.
+The difference between the results obtained with the two heat balance models can be attributed to the fact that \citeauthor{Jay2015} calculates the value of \ac{m-sweat} as a function of only the required latent energy that the body should in theory dissipate to achieve thermal neutrality.
+However, \citeauthor{GaggeSET} assumes that the human body cannot always achieve thermal neutrality in all conditions (as shown in Figure~\ref{fig:results_model_2}B) and consequently for a set of specific environmental conditions the value of \ac{e-sk} has an upper limit.
+This in turns affect the value of \ac{m-sweat}.
+Moreover, conversely to \citeauthor{Jay2015}, \citeauthor{GaggeSET} assumes that \ac{m-sweat} cannot exceed 500~mL/h.
+
+\begin{figure}[b!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/results_model_2.png}
+    \caption{Caption}
+    \label{fig:results_model_2}
+\end{figure}
+
+The estimated values of \ac{t-cr} and excess heat stored in the human body are shown in Figure~\ref{fig:results_model_2}D and ~\ref{fig:results_model_2}A, respectively.
+The two values are related to each other and as soon as the body cannot longer dissipate the exogenous and endogenous heat gains, the excess heat gets stored in the body and causes an increase in both \ac{t-sk} and \ac{t-cr}.
+The \ac{t-op} at which the energy stored in the human body with elevated air speed exceeds the `still air' condition is when the use of air movement becomes detrimental.
+While, when the energy stored becomes greater than 0 is the conditions which demarcates when heat strain would start to occur.
+
+The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat strain would start to occur since the body is no longer able to dissipate all the heat gains are presented in Figure~\ref{fig:comparison_air_speed}.
 The Figure shows both the results obtained with the\mycite{GaggeSET} and the \mycite{Jay2015} models.
-It should, however, be noted that the limit presented in Figure~\ref{fig:comparison_air_speed} is not the limit above which an increase in \ac{v} is no longer beneficial and would lead to higher thermal loads to the human body than the still air scenario.
-The limit only demarcates the region in which thermal stress is estimated to occur.
+It should be noted that the limit presented in Figure~\ref{fig:comparison_air_speed} is not the limit above which an increase in \ac{v} is no longer beneficial.
+Each line demarcates the region in which thermal stress is estimated to occur and not all individuals would be able to compensate for endogenous and exogenous heat gains.
+For a specific value of \ac{v}, the maximum \ac{t-op} at which cardiovascular strain is estimated to occur decreases as the value of \ac{rh} increases.
+In addition, it can be observed that for a specific value of \ac{rh}, as the value of \ac{v} increases the overall increase in the maximum critical temperature rapidly decreases.
+For example, in an environment with \ac{rh}~=~60~\%, increasing \ac{v} from 0.1~m/s to 0.8~m/s then to 4.5~m/s lead to an increase of the critical temperature of approximately 2.3~°C and 0.8~°C, respectively.
+
 The environmental conditions above which the use of elevated air speeds would actually be detrimental for the health of the people is shown in Figure~\ref{fig:energy_storage_delta}.
 This figure depicts the environmental conditions above which the heat balance model would estimate that the \ac{t-cr} would be higher with \ac{v} of XX~m/s rather than with 0.1~m/s.
 This would occur since the sensible heat gains caused by forced convection, would exceed the heat losses from the body towards its surrounding environment.
@@ -59,10 +81,6 @@ This would occur since the sensible heat gains caused by forced convection, woul
     \label{fig:comparison_air_speed}
     % todo extend the lines to the top left border, add units to axis and change label to opertative temperature
 \end{figure}
-
-For a set value of \ac{v}, the maximum \ac{t-op} at which cardiovascular strain is estimated to occur by the model decreases as the value of \ac{rh} increases.
-In addition, it can be observed that for a specific value of \ac{rh}, as the value of \ac{v} increases the overall increase in the maximum critical temperature rapidly decreases.
-Consequently, for example in an environment at 60~\% \ac{rh}, increasing \ac{v} from 0.1~m/s to 0.8~m/s then to 4.5~m/s lead to an increase of the critical temperature of approximately 2~°C and 0.5~°C, respectively.
 
 \begin{figure}
     \centering

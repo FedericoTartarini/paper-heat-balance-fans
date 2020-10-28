@@ -3,44 +3,42 @@
 
 \section{Methodology}\label{sec:methodology}
 
-In this manuscript, we used the heat balance model that \mycite{GaggeSET} developed to derive the \ac{set}.
-This model allowed us to estimate how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (\ac{clo}, \ac{met}) influence both the latent and sensible components of the \ac{q-sk}, and \ac{q-res}.
-Moreover, it allowed to derive physiological variables such as, \ac{t-sk}, and \ac{t-cr}.
+In this manuscript, we used the heat balance model that \mycite{GaggeSET} developed to derive the \ac{set} to determine when the use of elevated air moment would be beneficial.
+The heat balance allowed us to estimate how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (\ac{clo}, \ac{met}) influence both the latent and sensible components of the \ac{q-sk}, and \ac{q-res}.
+Moreover, it allowed us to estimate the value of some physiological variables such as, \ac{t-sk}, and \ac{t-cr}.
 
-The following Sections describe the main Equations used to calculate the results.
-We have open sourced the algorithm we used to calculate the results and published to code on a public repository.
+Section~\ref{subsec:energy-balance} describe the main Equations used by the model to derive the results.
+We have published the algorithm we used to calculate the results in a public repository.
+% todo add link to repository
 % todo say that Gagge's equation is written in a un-used language, hence we have converted it to Python and JavaScript
 Moreover, we added it to the pythermalcomfort Python package~\cite{Tartarini2020a} and the CBE thermal comfort tool~\cite{Tartarini2020}.
 The former can be used by Python users to calculate the results presented in this manuscript.
-The latter is a web-based tool that can be used to generate interactive figures which show the set of environmental conditions under which the use of elevated air speeds is beneficial.
+The latter is a web-based tool that can be used to generate interactive figures which show the environmental conditions under which the use of elevated air speeds is beneficial.
 
 \subsection{Energy Balance}\label{subsec:energy-balance}
 
 The human body exchanges both sensible and latent heat with its surrounding environment.
-Sensible heat flow comprises a combination of conduction, convection and radiation (\acs{c-r} + \acs{c-res}).
-While latent heat losses occur from evaporation of sweat  (\acs{e-rsw}), moisture diffused through the skin  (\acs{e-dif}), and moisture during respiration (\acs{e-res})
-The energy balance in the human body is summarized in Eq.~\ref{eq:heat-balance}.
+Sensible heat is transferred via conduction, convection and radiation (\acs{c-r} + \acs{c-res}).
+While latent heat losses occur from evaporation of sweat  (\acs{e-rsw}), moisture diffused through the skin  (\acs{e-dif}), and respiration (\acs{e-res})
+The energy balance in the human body is described by:
 
 \begin{equation}
     M - W = (C + R + E_{sk}) + (C_{res} + E_{res}) + (S_{sk} + S_{cr})\label{eq:heat-balance}
 \end{equation}
 
-This equation assumes that the body comprises two thermal compartments: the skin and the core.
-In steady state condition (i.e., the \ac{t-sk}, and \ac{t-cr} remain constant) the \ac{s-cr}, and the \ac{s-sk} are equal to zero.
+This equation assumes that the body comprises two main thermal compartments: the skin and the core.
+If the exogenous and endogenous heat gains cannot be compensated by the heat losses, then the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr}, increase respectively.
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental, and personal factors.
 The former are \ac{t-db}, \ac{t-db}, \ac{v}, and \ac{rh}.
 While the independent personal factors are \ac{met}, and \ac{clo}~\cite{ASHRA2017}.
 
-\subsubsection{Thermal Exchanges with Environment}\label{subsubsec:thermal-exchanges-with-environment}
+The equations used to estimate sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficient used were estimated empirically~\cite{ASHRA2017}.
 
-This section summarizes the main equations used by the energy balance model to calculate the various terms presented in Eq.~\ref{eq:heat-balance}.
-The equations to estimate sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficient used were estimated empirically~\cite{ASHRA2017}.
+\subsubsection{Body Surface Area, (\acs{body-a})}
 
-\paragraph{Body Surface Area}
-
-All the terms presented in Eq.~\ref{eq:heat-balance} are reported in power per unit of human \ac{body-a}.
-\mycite{DuBois} Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of the \ac{body-w} and \ac{body-h} of the person.
+All the terms presented in Equation~\ref{eq:heat-balance} are reported in power per unit of human \ac{body-a}.
+Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of the \ac{body-w} and \ac{body-h} of the person~\cite{DuBois}.
 
 \begin{equation}
     A_{body} = 0.202 m^{0.425} l^{0.725}\label{eq:dubois}
@@ -48,7 +46,7 @@ All the terms presented in Eq.~\ref{eq:heat-balance} are reported in power per u
 
 % look at this source
 
-\paragraph{Sensible Heat Loss from Skin}
+\subsubsection{Sensible Heat Loss from Skin, (\acs{c-r})}
 
 Sensible heat losses from the human body mainly occur from convection and radiation from the skin to the environment.
 The total amount of \ac{c-r} can be described as a function of the \ac{t-sk}, \ac{t-op}, \ac{r-cl}, \ac{f-cl}, and \ac{h}.
@@ -66,7 +64,6 @@ The equation can be expressed as:
     h=h_{c} + h_{r} = \max(3, 8.6 v^{0.53}) p_{atm}^{0.53} + 4 \varepsilon \sigma \frac{A_{\mathrm{r}}}{A_{body}}\left[273.2+\frac{\left(t_{\mathrm{cl}}+\overline{t_{r}}\right)}{2}\right]^{3}\label{eq:h}
 \end{equation}
 
-% todo say that skin temperature is calc iteratively
 % todo describe variables that did not appear in the text before
 
 Where \ac{t-op} varies as a function of \ac{h-c}, \ac{h-r}, \ac{t-r} and \ac{t-db}, and it is described by:
@@ -75,35 +72,31 @@ Where \ac{t-op} varies as a function of \ac{h-c}, \ac{h-r}, \ac{t-r} and \ac{t-d
     t_{o}=\frac{h_{r} \bar{t}_{r}+h_{c} t_{db}}{h_{r}+h_{c}}\label{eq:t-op}
 \end{equation}
 
-The \ac{t-sk} is calculated iteratively since it varies as a function of the heat loss from the human body towards its environment and the heat transferred from the core to the skin node.
-While \ac{t-cl} can be caclualted as a function of the \ac{t-op}, \ac{t-sk}, \ac{r-cl} and the resistance of the air layer.
+The \ac{t-sk} is calculated iteratively by the heat balance model since it varies as a function of the heat loss from the human body towards its environment and the heat transferred from the core to the skin node.
+\Ac{t-cl} can be calculated as a function of the \ac{t-op}, \ac{t-sk}, \ac{r-cl} and the resistance of the air layer.
 
-\paragraph{Latent Heat Loss from Skin}
+\subsubsection{Latent Heat Loss from Skin, (\acs{e-sk})}
 
-The \ac{e-sk} comprises two terms the \ac{e-rsw} and the \ac{e-dif}.
-The \ac{e-sk} depends on the \ac{w}, \ac{p-sk} normally assumed to be that of saturated water vapor at \ac{t-sk}, \ac{p-a}, \ac{f-cl}, \ac{h-e}, and \ac{r-e-cl}:
+The \acf{e-sk} comprises two terms the \ac{e-rsw} and the \ac{e-dif}.
+\ac{e-sk} depends on the \ac{w}, \ac{p-sk} normally assumed to be that of saturated water vapor at \ac{t-sk}, \ac{p-a}, \ac{f-cl}, \ac{h-e}, and \ac{r-e-cl}.
 
 \begin{equation}
     E_{s k}=E_{rsw}+E_{dif}=\frac{w\left(p_{s k, s}-p_{a}\right)}{R_{e, c l}+1 /\left(f_{c l} h_{e}\right)}\label{eq:latent-skin}
 \end{equation}
 
-Where the \ac{w} can vary from 0 and 1.
-
-% todo describe variables that did not appear in the text before
-
-Despite the fact that Eq.~\ref{eq:latent-skin} is expressed as a function of \ac{w}.
-The human body does not regulates the \acl{w} but, rather, it regulates the sweat rate~\cite{ASHRA2017}.
+Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}.
+The human body does not regulates the \ac{w} but, rather, it regulates the sweat rate~\cite{ASHRA2017}.
 Skin wettedness varies as a function of the activity of the sweat glands and the environmental conditions~\cite{ASHRA2017}.
-While theoretically skin wettedness can range from 0 to 1.
-In practice, \ac{w} is strongly correlated with thermal stress and warm discomfort, consequently there is a practical upper limit for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
+While theoretically \ac{w} can range from 0 to 1.
+In practice, it is strongly correlated with thermal stress and warm discomfort, consequently there is a practical upper limit for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
 
 We estimated the \ac{w-max} value and the \ac{m-sweat} using the \mycite{GaggeSET} model.
 
 % todo write equation to estimate sweat losses
 
-\paragraph{Respiratory Losses}
+\subsubsection{Respiratory Losses, (\acs{q-res})}
 The human body exchanges both sensible and latent heat with its environment.
-The \ac{q-res} equals the sum of \ac{c-res} and the \ac{e-res}.
+The \acf{q-res} equals the sum of the \ac{c-res} and the \ac{e-res}.
 The value of \ac{q-res} is can be determined using the following simplified equation~\cite{ASHRA2017}:
 
 \begin{equation}
@@ -112,15 +105,22 @@ The value of \ac{q-res} is can be determined using the following simplified equa
 
 \subsection{Data Analysis}\label{subsec:data-analysis}
 
-The above mentioned equations were used to calculate \ac{c-r}, \ac{e-sk}, \ac{m-sweat}, \ac{t-cr}.
-We calculated the above mentioned variables for \ac{t-db} ranging from 25 and 50~°C, \ac{rh} ranging from 0 to 100 \% and \ac{v} from 0.1 and 4.5~m/s.
-Were \ac{v}~=~0.1 m/s is considered to be the `still air condition' in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017}.
-We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5 clo, and \ac{met} = 1.0 met, unless otherwise specified.
-We multiplied all the values that are expressed per unit of surface area (i.e., \ac{e-sk}) by \ac{body-a} to obtain the total heat exchanged by the human body.
+The heat balance model was used to estimate the sensible and latent heat loss and physiological parameters (e.g., \ac{m-sweat}, \ac{t-cr}).
+We calculated the results for \ac{t-op} ranging from 28 and 55~°C at 0.5~°C intervals, \ac{rh} ranging from 0 to 100~\% at 5~\% intervals and \ac{v} from 0.1 and 4.5~m/s.
+Air velocities below \ac{v}~=~0.2 m/s were considered to be `still air' conditions in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017}.
+In this manuscript, we assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5 clo, and \ac{met} = 1.0 met, unless otherwise specified.
+However, the results for different combinations of environmental and personal conditions can be generated using our online tool.
+We decided to expressed heat loss per unit of surface area (i.e., \ac{e-sk}).
+To obtain the absolute value of heat loss or gain from the human body towards the environment these values can be multiplied by \ac{body-a}.
 The limit above which thermal stress would occur was assumed to be when the value of \ac{w} was equal to the value of \ac{w-max}.
-We assumed that the use of electrical fans is detrimental when the \ac{t-cr} estimated using elevated air speed was higher than the `still air' condition.
+We assumed that the use of electrical fans is detrimental when the sum of the excess heat stored both in the skin (\acs{s-sk}), and in the core (\acs{s-cr}) exceeded the value determined for the `still air' condition.
 
-% todo descibe weather data used for comparison
+\subsection{Heatwave weather data}
+
+% todo descibe weather data used
+
+\subsection{Elderly}
+
 % todo say something how we calculated w for the elderly
 
 \subsection{Open-source tools}

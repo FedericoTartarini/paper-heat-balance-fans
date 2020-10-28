@@ -19,7 +19,7 @@ class DataAnalysis:
         self.dir_figures = os.path.join(os.getcwd(), "manuscript", "src", "figures")
         self.dir_tables = os.path.join(os.getcwd(), "manuscript", "src", "tables")
 
-        self.ta_range = np.arange(28, 48, 0.5)
+        self.ta_range = np.arange(28, 55, 0.5)
         self.v_range = [0.1, 0.2, 0.4, 0.8, 1.2, 2, 3, 4.5]
         self.rh_range = np.arange(10, 105, 5)
 
@@ -143,13 +143,15 @@ class DataAnalysis:
                 legend_labels.append(label)
 
         ax_0[0][0].set(
-            ylim=(-250, 200), title="SET", ylabel="Sensible heat loss skin (C + R) (W)"
+            ylim=(-250, 200),
+            title="SET",
+            ylabel="Sensible heat loss skin (C + R) (W/m$^2$)",
         )
         ax_0[0][1].set(ylim=(-250, 200), title="Ollie")
-        ax_0[1][0].set(ylim=(0, 300), ylabel="Required latent heat loss (W)")
+        ax_0[1][0].set(ylim=(0, 300), ylabel="Required latent heat loss (W/m$^2$)")
         ax_0[1][1].set(ylim=(0, 300))
 
-        ax_0[2][0].set(ylim=(0, 550), ylabel=r"Sweat rate ($m_{rsw}$) [mL/h]")
+        ax_0[2][0].set(ylim=(0, 550), ylabel=r"Sweat rate ($m_{rsw}$) [mL/(hm$^2$)]")
         ax_0[2][1].set(ylim=(0, 550))
         ax_0[3][0].set(
             ylim=(0, 600), xlabel="Temperature", ylabel="Maximum latent heat loss (W)"
@@ -171,17 +173,19 @@ class DataAnalysis:
 
         plt.close(fig_0)
 
-        ax_1[0][0].set(ylim=(-201, 100), ylabel="Sensible heat loss skin (C + R) [W]")
+        ax_1[0][0].set(
+            ylim=(-201, 100), ylabel="Sensible heat loss skin (C + R) [W/m$^2$]"
+        )
         ax_1[0][1].set(ylim=(-0.01, 0.7), ylabel="Skin wettendess (w)")
         ax_1[1][1].set(
             ylim=(-1, 600),
             xlabel=r"Operative temperature ($t_{o}$) [°C]",
-            ylabel=r"Sweat rate ($m_{rsw}$) [mL/h]",
+            ylabel=r"Sweat rate ($m_{rsw}$) [mL/(hm$^2$)]",
         )
         ax_1[1][0].set(
-            ylim=(-1, 350),
+            ylim=(-1, 200),
             xlabel=r"Operative temperature ($t_{o}$) [°C]",
-            ylabel="Maximum latent heat loss ($E_{max,w_{max}}$) [W/m$^{2}$]",
+            ylabel="Max latent heat loss ($E_{max,w_{max}}$) [W/m$^{2}$]",
         )
 
         for x in range(0, 2):
@@ -193,16 +197,16 @@ class DataAnalysis:
             ax_1[x][1].yaxis.set_ticks_position("none")
 
         ax_1[0][0].text(
-            0.95, 0.87, "A", size=12, ha="center", transform=ax_1[0][0].transAxes
+            -0.2, 0.97, "A", size=12, ha="center", transform=ax_1[0][0].transAxes
         )
         ax_1[0][1].text(
-            0.95, 0.87, "B", size=12, ha="center", transform=ax_1[0][1].transAxes
+            -0.2, 0.97, "B", size=12, ha="center", transform=ax_1[0][1].transAxes
         )
         ax_1[1][0].text(
-            0.95, 0.87, "C", size=12, ha="center", transform=ax_1[1][0].transAxes
+            -0.2, 0.97, "C", size=12, ha="center", transform=ax_1[1][0].transAxes
         )
         ax_1[1][1].text(
-            0.95, 0.87, "D", size=12, ha="center", transform=ax_1[1][1].transAxes
+            -0.2, 0.97, "D", size=12, ha="center", transform=ax_1[1][1].transAxes
         )
 
         lines, labels = fig_1.axes[2].get_legend_handles_labels()
@@ -220,6 +224,114 @@ class DataAnalysis:
             plt.savefig(
                 os.path.join(self.dir_figures, "comparison_models_v2.png"), dpi=300
             )
+        else:
+            plt.show()
+
+    def figure_2(self, save_fig=True):
+
+        fig_1, ax_1 = plt.subplots(2, 2, figsize=(7, 7), sharex="all")
+
+        index_color = 0
+
+        legend_labels = []
+
+        for v in [0.2, 4.5]:
+
+            for rh in [30, 60]:
+
+                max_skin_wettedness = fan_use_set(
+                    50, 50, v, 100, 1.2, 0.5, wme=0, units="SI"
+                )["skin_wetness"]
+
+                energy_balance = []
+                dry_heat_loss_ollie = []
+                sensible_skin_heat_loss = []
+                sensible_skin_heat_loss_ollie = []
+                tmp_core = []
+                sweat_rate_ollie = []
+                temp_skin = []
+                max_latent_heat_loss_ollie = []
+                skin_wettedness = []
+
+                color = self.colors[index_color]
+                index_color += 1
+
+                for ta in self.ta_range:
+
+                    r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
+
+                    energy_balance.append(r["energy_balance"])
+                    sensible_skin_heat_loss.append(r["hl_evaporation_required"])
+                    tmp_core.append(r["temp_core"])
+                    temp_skin.append(r["temp_skin"])
+                    skin_wettedness.append(r["p_wet"])
+
+                label = f"v = {v}m/s; RH = {rh}%"
+
+                ax_1[0][0].plot(self.ta_range, energy_balance, color=color, label=label)
+                ax_1[0][1].plot(
+                    self.ta_range, sensible_skin_heat_loss, color=color, label=label
+                )
+
+                ax_1[1][1].plot(self.ta_range, tmp_core, color=color, label=label)
+                ax_1[1][0].plot(
+                    self.ta_range, temp_skin, color=color, label=label,
+                )
+
+                legend_labels.append(label)
+                legend_labels.append(label)
+
+        ax_1[0][0].set(
+            ylim=(-1, 200), ylabel="Excess heat stored ($S_{cr} + S_{sk}$) [W/m$^2$]"
+        )
+        ax_1[0][1].set(
+            ylim=(-1, 160), ylabel="Evaporative heat loss skin ($E_{sk}$) [W/m$^2$]"
+        )
+        ax_1[1][1].set(
+            ylim=(31.9, 42),
+            xlabel=r"Operative temperature ($t_{o}$) [°C]",
+            ylabel=r"Core mean temperature ($t_{cr}$) [°C]",
+        )
+        ax_1[1][0].set(
+            ylim=(31.9, 42),
+            xlabel=r"Operative temperature ($t_{o}$) [°C]",
+            ylabel="Skin mean temperature ($t_{sk}$) [°C]",
+        )
+
+        for x in range(0, 2):
+            ax_1[x][0].grid(c="lightgray")
+            ax_1[x][1].grid(c="lightgray")
+            ax_1[x][0].xaxis.set_ticks_position("none")
+            ax_1[x][1].xaxis.set_ticks_position("none")
+            ax_1[x][1].xaxis.set_ticks_position("none")
+            ax_1[x][1].yaxis.set_ticks_position("none")
+
+        ax_1[0][0].text(
+            -0.2, 0.97, "A", size=12, ha="center", transform=ax_1[0][0].transAxes
+        )
+        ax_1[0][1].text(
+            -0.2, 0.97, "B", size=12, ha="center", transform=ax_1[0][1].transAxes
+        )
+        ax_1[1][0].text(
+            -0.2, 0.97, "C", size=12, ha="center", transform=ax_1[1][0].transAxes
+        )
+        ax_1[1][1].text(
+            -0.2, 0.97, "D", size=12, ha="center", transform=ax_1[1][1].transAxes
+        )
+
+        lines, labels = fig_1.axes[2].get_legend_handles_labels()
+        fig_1.legend(
+            lines,
+            labels,
+            loc="upper center",  # Position of legend
+            ncol=2,
+            frameon=False,
+        )
+        sns.despine(left=True, bottom=True, right=True)
+        fig_1.tight_layout()
+        plt.subplots_adjust(top=0.92)
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "results_model_2.png"), dpi=300)
         else:
             plt.show()
 
@@ -502,14 +614,14 @@ def ollie(is_fan_on, ta, rh, is_elderly):
 
     s_req = (e_req / s_w_eff * 3600) / s_w_lat
 
-    e_req_w = e_req * bsa
-    e_max_w = e_max * bsa
-    c_r_w = c_r * bsa
+    # e_req_w = e_req * bsa
+    # e_max_w = e_max * bsa
+    # c_r_w = c_r * bsa
 
     return {
-        "e_req_w": e_req_w,
-        "e_max_w": e_max_w,
-        "hl_dry": c_r_w,
+        "e_req_w": e_req,
+        "e_max_w": e_max,
+        "hl_dry": c_r,
         "s_req": s_req,
         "w_req": w_req,
     }
@@ -776,13 +888,13 @@ def fan_use_set(
 
     return {
         # "set": _set,
-        "hl_evaporation_required": e_sk * body_surface_area,
-        "hl_evaporation_max": e_max * body_surface_area,
-        "hl_dry": dry * body_surface_area,
+        "hl_evaporation_required": e_sk,
+        "hl_evaporation_max": e_max,
+        "hl_dry": dry,
         # "temp_skin": temp_skin,
         # "t_clothing": t_cl,
         # "sweating rate": REGSW,
-        # "heat lost by vaporization sweat": e_rsw * body_surface_area,
+        # "heat lost by vaporization sweat": e_rsw,
         "temp_core": temp_core,
         "temp_skin": temp_skin,
         "sweating_required": REGSW,
@@ -807,12 +919,22 @@ if __name__ == "__main__":
 
     self = DataAnalysis()
 
-    ta = 40
-    rh = 60
-    v = 0.2
+    ta = 45
+    rh = 30
+    v = 4.5
     pprint(fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI"))
 
+    for t in np.arange(33, 39, 0.1):
+        rh = 60
+        v = 0.1
+        print(
+            t,
+            " ",
+            fan_use_set(t, t, v, rh, 1.2, 0.5, wme=0, units="SI")["energy_balance"],
+        )
+
     self.model_comparison(save_fig=True)
+    self.figure_2(save_fig=True)
 
     # fan_use_vs_no_use(v=0.2)
 
@@ -821,7 +943,9 @@ if __name__ == "__main__":
     # plot_other_variables(
     #     variable="energy_storage_core", levels_cbar=np.arange(0, 150, 5)
     # )
-    # self.plot_other_variables(variable="energy_balance", levels_cbar=np.arange(-20, 160, 10))
+    self.plot_other_variables(
+        variable="energy_balance", levels_cbar=np.arange(-20, 160, 10)
+    )
     # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, .5))
 
     # todo there is an issue with the SET model the latent heat loss decreases after a certain temperature
