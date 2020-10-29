@@ -1239,19 +1239,14 @@ def fan_use_set(
 
 if __name__ == "__main__":
 
-    plt.close("all")
-
-    # # todo this in an alternative approach to determine threshold between no fan and fans, by comparing SET temperatures
-    # ta = 46
-    # print(set_tmp(ta, ta, 0.2, 60, 1.2, 0.5))
-    # print(set_tmp(ta, ta, 4.1, 60, 1.2, 0.5))
-
+    # plt.close("all")
+    #
     self = DataAnalysis()
 
     # ta = 45
     # rh = 30
     # v = 4.5
-    # pprint(fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI"))
+    # pprint(fan_use_set(tdb=ta, tr=ta, v=v, rh=rh, met=1.2, clo=0.5, wme=0, units="SI"))
     #
     # for t in np.arange(33, 39, 0.1):
     #     rh = 60
@@ -1263,10 +1258,10 @@ if __name__ == "__main__":
     #     )
 
     # # Figure 1
-    # self.model_comparison(save_fig=True)
+    self.model_comparison(save_fig=True)
     #
     # # Figure 2
-    # self.figure_2(save_fig=True)
+    self.figure_2(save_fig=True)
     #
     # # Figure 3
     self.comparison_air_speed(save_fig=True)
@@ -1276,6 +1271,10 @@ if __name__ == "__main__":
     #
     # Figure 3
     # self.met_clo(save_fig=True)
+
+    # # benefit of increasing air speed
+    # benefit = self.heat_strain[0.8]["y"] - self.heat_strain[0.2]["y"]
+    # pd.DataFrame({"benefit": benefit}).describe().round(1)
 
     # # Figure 4
     # self.plot_other_variables(
