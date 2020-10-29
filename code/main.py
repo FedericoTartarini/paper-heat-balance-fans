@@ -9,6 +9,8 @@ from pythermalcomfort.models import set_tmp
 import math
 import seaborn as sns
 import os
+import scipy
+from scipy import optimize
 from pprint import pprint
 
 plt.style.use("seaborn-paper")
@@ -20,10 +22,13 @@ class DataAnalysis:
         self.dir_tables = os.path.join(os.getcwd(), "manuscript", "src", "tables")
 
         self.ta_range = np.arange(28, 55, 0.5)
-        self.v_range = [0.1, 0.2, 0.4, 0.8, 1.2, 2, 3, 4.5]
-        self.rh_range = np.arange(10, 105, 5)
+        self.v_range = [0.2, 0.8, 4.5]
+        self.rh_range = np.arange(0, 105, 5)
 
         self.colors = ["tab:orange", "tab:blue", "tab:green", "tab:red"]
+        self.colors_f3 = ["tab:gray", "tab:cyan", "tab:olive"]
+
+        self.heat_strain = {}
 
     def model_comparison(self, save_fig=True):
 
@@ -115,7 +120,7 @@ class DataAnalysis:
 
                 ax_1[0][0].plot(self.ta_range, dry_heat_loss, color=color, label=label)
                 ax_1[0][0].plot(
-                    self.ta_range, dry_heat_loss_ollie, color=color, linestyle=":",
+                    self.ta_range, dry_heat_loss_ollie, color=color, linestyle="-.",
                 )
                 ax_1[0][1].plot(
                     self.ta_range, skin_wettedness, color=color, label=label
@@ -123,7 +128,7 @@ class DataAnalysis:
 
                 ax_1[1][1].plot(self.ta_range, sweat_rate, color=color, label=label)
                 ax_1[1][1].plot(
-                    self.ta_range, sweat_rate_ollie, color=color, linestyle=":",
+                    self.ta_range, sweat_rate_ollie, color=color, linestyle="-.",
                 )
                 ax_1[1][0].plot(
                     self.ta_range,
@@ -136,7 +141,7 @@ class DataAnalysis:
                     max_latent_heat_loss_ollie,
                     color=color,
                     label=label + " Jay et al. (2015)",
-                    linestyle=":",
+                    linestyle="-.",
                 )
 
                 legend_labels.append(label)
@@ -193,7 +198,7 @@ class DataAnalysis:
             ax_1[x][1].grid(c="lightgray")
             ax_1[x][0].xaxis.set_ticks_position("none")
             ax_1[x][1].xaxis.set_ticks_position("none")
-            ax_1[x][1].xaxis.set_ticks_position("none")
+            ax_1[x][0].yaxis.set_ticks_position("none")
             ax_1[x][1].yaxis.set_ticks_position("none")
 
         ax_1[0][0].text(
@@ -303,7 +308,7 @@ class DataAnalysis:
             ax_1[x][1].grid(c="lightgray")
             ax_1[x][0].xaxis.set_ticks_position("none")
             ax_1[x][1].xaxis.set_ticks_position("none")
-            ax_1[x][1].xaxis.set_ticks_position("none")
+            ax_1[x][0].yaxis.set_ticks_position("none")
             ax_1[x][1].yaxis.set_ticks_position("none")
 
         ax_1[0][0].text(
@@ -335,11 +340,11 @@ class DataAnalysis:
         else:
             plt.show()
 
-    def comparison_air_speed(self):
+    def comparison_air_speed(self, save_fig):
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(7, 4))
 
-        for v in self.v_range:
+        for ix, v in enumerate(self.v_range):
 
             tmp_array = []
             rh_array = []
@@ -356,9 +361,11 @@ class DataAnalysis:
                 50, 50, v, 100, 1.2, 0.5, wme=0, units="SI"
             )["skin_wetness"]
 
+            color = self.colors_f3[ix]
+
             for rh in self.rh_range:
 
-                for ta in self.ta_range:
+                for ta in np.arange(28, 66, 1):
 
                     tmp_array.append(ta)
                     rh_array.append(rh)
@@ -428,7 +435,14 @@ class DataAnalysis:
                 # smooth line
                 f2 = np.poly1d(np.polyfit(x, y, 2))
                 xnew = np.linspace(min(x), max(x), 100)
-                ax.plot(xnew, f2(xnew), linestyle=":", label=f"v = {v} - Ollie")
+
+                ax.plot(
+                    xnew,
+                    f2(xnew),
+                    linestyle="-.",
+                    label=f"v = {v}; Jay et al. (2015)",
+                    c=color,
+                )
 
             df_set = df.pivot("tmp", "rh", "set").sort_index(ascending=False)
 
@@ -445,30 +459,162 @@ class DataAnalysis:
 
             xnew = np.linspace(min(x), max(x), 100)
 
-            ax.plot(xnew, f2(xnew), label=f"v = {v} - SET")
+            self.heat_strain[v] = {"x": xnew, "y": f2(xnew)}
 
-        ax.grid()
+            ax.plot(xnew, f2(xnew), label=f"v = {v}; Gagge et al. (1986)", c=color)
 
-        ax.set(xlabel="Relative Humidity", ylabel="Temperature")
+        ax.grid(c="lightgray")
 
-        plt.legend()
+        ax.xaxis.set_ticks_position("none")
+        ax.yaxis.set_ticks_position("none")
+
+        ax.set(
+            xlabel="Relative Humidity ($RH$) [%]",
+            ylabel="Operative temperature ($t_{o}$) [°C]",
+            ylim=(28, 55),
+            xlim=(-1, 100),
+        )
+
+        sns.despine(left=True, bottom=True, right=True)
+
+        plt.legend(frameon=False)
 
         plt.tight_layout()
-        plt.savefig(os.path.join(self.dir_figures, "comparison_air_speed.png"), dpi=300)
+        if save_fig:
+            plt.savefig(
+                os.path.join(self.dir_figures, "comparison_air_speed.png"), dpi=300
+            )
+        else:
+            plt.show()
 
-        f, ax = plt.subplots()
-        levels = np.arange(36, 43, 1)
-        x, y = np.meshgrid(self.rh_range, self.ta_range)
-        df = pd.DataFrame({"tmp": tmp_array, "rh": rh_array, "z": core_tmp})
-        df_w = df.pivot("tmp", "rh", "z")
-        cf = ax.contourf(x, y, df_w.values, levels)
-        plt.colorbar(cf)
+        # f, ax = plt.subplots()
+        # levels = np.arange(36, 43, 1)
+        # x, y = np.meshgrid(self.rh_range, self.ta_range)
+        # df = pd.DataFrame({"tmp": tmp_array, "rh": rh_array, "z": core_tmp})
+        # df_w = df.pivot("tmp", "rh", "z")
+        # cf = ax.contourf(x, y, df_w.values, levels)
+        # plt.colorbar(cf)
+        # ax.set(
+        #     xlabel="Relative Humidity",
+        #     ylabel="Temperature",
+        #     title=f"core body tmp - air speed {v}",
+        # )
+        # plt.show()
+
+    def met_clo(self, save_fig):
+
+        fig, ax = plt.subplots(figsize=(7, 4))
+
+        combinations = [
+            {"clo": 0.36, "met": 1, "ls": "dashed"},
+            {"clo": 0.5, "met": 1, "ls": "dotted"},
+            {"clo": 0.36, "met": 1.2, "ls": "dashdot"},
+            {"clo": 0.5, "met": 1.2, "ls": "solid"},
+        ]
+
+        for combination in combinations:
+
+            clo = combination["clo"]
+            met = combination["met"]
+            ls = combination["ls"]
+
+            for ix, v in enumerate([0.2, 0.8]):
+
+                tmp_array = []
+                rh_array = []
+
+                sensible_skin_heat_loss = []
+                max_latent_heat_loss = []
+
+                skin_wettedness = []
+                core_tmp = []
+
+                max_skin_wettedness = fan_use_set(
+                    50, 50, v, 100, met, clo, wme=0, units="SI"
+                )["skin_wetness"]
+
+                color = self.colors_f3[ix]
+
+                for rh in self.rh_range:
+
+                    for ta in np.arange(28, 66, 1):
+
+                        tmp_array.append(ta)
+                        rh_array.append(rh)
+
+                        r = fan_use_set(ta, ta, v, rh, met, clo, wme=0, units="SI")
+
+                        sensible_skin_heat_loss.append(r["hl_evaporation_required"])
+                        # todo check the following assumption since it is very important
+                        max_latent_heat_loss.append(
+                            r["hl_evaporation_max"] * max_skin_wettedness
+                        )
+                        # max_latent_heat_loss.append(r["hl_evaporation_max"] * w)
+
+                        skin_wettedness.append(r["skin_wetness"])
+                        core_tmp.append(r["temp_core"])
+
+                sensible_skin_heat_loss = [
+                    x if x > 0 else 0 for x in sensible_skin_heat_loss
+                ]
+                max_latent_heat_loss = [x if x > 0 else 0 for x in max_latent_heat_loss]
+
+                set_model = [
+                    x[0] - x[1]
+                    for x in zip(max_latent_heat_loss, sensible_skin_heat_loss)
+                ]
+                set_model = [np.nan if x > 0 else 0 for x in set_model]
+
+                df = pd.DataFrame(
+                    data={"tmp": tmp_array, "rh": rh_array, "set": set_model}
+                )
+
+                df_set = df.pivot("tmp", "rh", "set").sort_index(ascending=False)
+
+                y, x = [], []
+                for col in df_set.columns:
+                    try:
+                        y.append(df_set[col].dropna().index[-1])
+                        x.append(col)
+                    except:
+                        pass
+
+                # smooth line
+                f2 = np.poly1d(np.polyfit(x, y, 2))
+
+                xnew = np.linspace(min(x), max(x), 100)
+
+                self.heat_strain[v] = {"x": xnew, "y": f2(xnew)}
+
+                ax.plot(
+                    xnew,
+                    f2(xnew),
+                    label=f"v = {v}, clo = {clo}, met = {met}",
+                    c=color,
+                    linestyle=ls,
+                )
+
+        ax.grid(c="lightgray")
+
+        ax.xaxis.set_ticks_position("none")
+        ax.yaxis.set_ticks_position("none")
+
         ax.set(
-            xlabel="Relative Humidity",
-            ylabel="Temperature",
-            title=f"core body tmp - air speed {v}",
+            xlabel="Relative Humidity ($RH$) [%]",
+            ylabel="Operative temperature ($t_{o}$) [°C]",
+            ylim=(28, 55),
+            xlim=(-1, 100),
         )
-        plt.show()
+
+        sns.despine(left=True, bottom=True, right=True)
+
+        plt.legend(frameon=False)
+
+        plt.tight_layout()
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "met_clo.png"), dpi=300)
+        else:
+            plt.show()
 
     def plot_other_variables(self, variable, levels_cbar):
 
@@ -497,8 +643,10 @@ class DataAnalysis:
 
             # dataframe used to plot the two contour plots
             x, y = np.meshgrid(self.rh_range, self.ta_range)
+
+            variable_arr = [x if x > 1 else 0 for x in variable_arr]
             df = pd.DataFrame({"tmp": tmp_array, "rh": rh_array, "z": variable_arr})
-            df_comparison[f"index_{ix}"] = [x if x > 0 else 0 for x in variable_arr]
+            df_comparison[f"index_{ix}"] = variable_arr
             df_w = df.pivot("tmp", "rh", "z")
             cf = ax[ix].contourf(x, y, df_w.values, levels_cbar)
 
@@ -514,6 +662,8 @@ class DataAnalysis:
         plt.show()
 
         # find point above which heat gains are higher with fans
+        df_comparison.describe()
+
         df_comparison["delta"] = df_comparison["index_1"] - df_comparison["index_0"]
         df_comparison["tmp"] = df["tmp"]
         df_comparison["rh"] = df["rh"]
@@ -537,6 +687,185 @@ class DataAnalysis:
 
         f.colorbar(cf)
         plt.show()
+
+    def summary_use_fans(self, save_fig):
+        results_v_high = []
+        results_v_low = []
+
+        tmp = np.arange(38.85, 55, 1)
+
+        for t in tmp:
+
+            def function(x):
+                return (
+                    fan_use_set(t, t, 4.5, 100 - x, 1.2, 0.5, wme=0, units="SI")[
+                        "temp_core"
+                    ]
+                    - fan_use_set(t, t, 0.2, 100, 1.2, 0.5, wme=0, units="SI")[
+                        "temp_core"
+                    ]
+                )
+
+            results_v_high.append(100 - optimize.brentq(function, 0.0, 60))
+
+            def function_v_low(x):
+                return (
+                    fan_use_set(t, t, 0.8, 100 - x, 1.2, 0.5, wme=0, units="SI")[
+                        "energy_balance"
+                    ]
+                    - fan_use_set(t, t, 0.2, 100, 1.2, 0.5, wme=0, units="SI")[
+                        "energy_balance"
+                    ]
+                )
+
+            results_v_low.append(100 - optimize.brentq(function_v_low, 0.0, 60))
+
+        fig, ax = plt.subplots()
+
+        # plot heat strain lines
+        for key in self.heat_strain.keys():
+            if key == 0.2:
+                (ln_2,) = ax.plot(
+                    self.heat_strain[key]["x"],
+                    self.heat_strain[key]["y"],
+                    c="k",
+                    linestyle=":",
+                    label="v = 0.2 m/s",
+                )
+            if key == 0.8:
+                ax.plot(
+                    self.heat_strain[key]["x"],
+                    self.heat_strain[key]["y"],
+                    c="k",
+                    linestyle="-.",
+                )
+            if key == 4.5:
+                ax.plot(
+                    self.heat_strain[key]["x"], self.heat_strain[key]["y"], c="k",
+                )
+
+        # smooth line
+        def interpolate(x, y):
+            f2 = np.poly1d(np.polyfit(x, y, 3))
+            xnew = np.linspace(0, 100, 100)
+            return xnew, f2(xnew)
+
+        x_new, y_new = interpolate(results_v_low, tmp)
+
+        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="v = 0.8 m/s")
+
+        fb_0 = ax.fill_between(
+            x_new,
+            y_new,
+            100,
+            color="tab:red",
+            alpha=0.2,
+            zorder=100,
+            label="No fan - v = 4.5 m/s",
+        )
+
+        x_new, y_min = interpolate(
+            self.heat_strain[0.8]["x"], self.heat_strain[0.8]["y"]
+        )
+        # ax.fill_between(x_new, y_min, y_new, alpha=0, zorder=100, hatch="/")
+
+        x_new, y_new = interpolate(results_v_high, tmp)
+        (ln_1,) = ax.plot(x_new, y_new, c="k", label="v = 4.5 m/s")
+
+        # x_new, y_min = interpolate(
+        #     self.heat_strain[4.5]["x"], self.heat_strain[4.5]["y"]
+        # )
+        ax.fill_between(
+            x_new,
+            y_min,
+            y_new,
+            facecolor="none",
+            zorder=100,
+            hatch="/",
+            edgecolor="silver",
+        )
+
+        fb_1 = ax.fill_between(
+            x_new,
+            y_new,
+            100,
+            color="tab:orange",
+            alpha=0.2,
+            label="No fan - v = 4.5 m/s",
+        )
+        fb_2 = ax.fill_between(x_new, 0, y_new, color="tab:green", alpha=0.2)
+        ax.fill_between([0, min(x_new)], 0, 60, color="tab:green", alpha=0.2)
+        ax.set(
+            ylim=(29, 55),
+            xlim=(0, 100),
+            xlabel=r"Relative Humidity ($RH$) [%]",
+            ylabel=r"Operative temperature ($t_{o}$) [°C]",
+        )
+        ax.text(
+            0.25, 0.25, "Use fans", size=12, ha="center", transform=ax.transAxes,
+        )
+        ax.text(
+            0.85,
+            0.75,
+            "Do not\nuse fans",
+            size=12,
+            ha="center",
+            transform=ax.transAxes,
+        )
+        ax.text(
+            0.33,
+            0.8,
+            "Move to a\ncooler place\nif possible",
+            size=12,
+            zorder=200,
+            ha="center",
+            transform=ax.transAxes,
+        )
+        text_dic = [
+            {"txt": "Thermal strain, v = 0.2m/s", "x": 38, "y": 41.25, "r": -36},
+            {"txt": "Thermal strain, v = 0.8m/s", "x": 13.5, "y": 50.87, "r": -47},
+            {"txt": "Thermal strain, v = 4.5m/s", "x": 40, "y": 43.5, "r": -38},
+            {"txt": "No fans, v = 4.5m/s", "x": 70, "y": 45, "r": -34},
+            {"txt": "No fans, v = 0.8m/s", "x": 80, "y": 44.5, "r": -36},
+        ]
+        for obj in text_dic:
+            ax.text(
+                obj["x"],
+                obj["y"],
+                obj["txt"],
+                size=8,
+                ha="center",
+                va="center",
+                rotation=obj["r"],
+                zorder=200,
+                # bbox=dict(boxstyle="round", ec=(0, 0, 0, 0), fc=(1, 1, 1, 0.5),),
+            )
+        plt.legend(
+            [ln_2, ln_0, ln_1, fb_0, fb_1, fb_2],
+            [
+                "v = 0.2 m/s",
+                "v = 0.8 m/s",
+                "v = 4.5 m/s",
+                "No fans - v = 0.8 m/s",
+                "No fans - v = 4.5 m/s",
+                "Use fans",
+            ],
+            loc="lower left",
+            ncol=2,
+            # frameon=False,  # Position of legend
+            facecolor="w",
+        )
+        fig.tight_layout()
+        ax.grid(c="lightgray")
+        ax.xaxis.set_ticks_position("none")
+        ax.yaxis.set_ticks_position("none")
+        sns.despine(left=True, bottom=True, right=True)
+        fig.tight_layout()
+
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "use_fans.png"), dpi=300)
+        else:
+            plt.show()
 
 
 def ollie(is_fan_on, ta, rh, is_elderly):
@@ -919,33 +1248,37 @@ if __name__ == "__main__":
 
     self = DataAnalysis()
 
-    ta = 45
-    rh = 30
-    v = 4.5
-    pprint(fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI"))
-
-    for t in np.arange(33, 39, 0.1):
-        rh = 60
-        v = 0.1
-        print(
-            t,
-            " ",
-            fan_use_set(t, t, v, rh, 1.2, 0.5, wme=0, units="SI")["energy_balance"],
-        )
-
-    self.model_comparison(save_fig=True)
-    self.figure_2(save_fig=True)
-
-    # fan_use_vs_no_use(v=0.2)
-
-    # comparison_air_speed()
+    # ta = 45
+    # rh = 30
+    # v = 4.5
+    # pprint(fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI"))
     #
-    # plot_other_variables(
-    #     variable="energy_storage_core", levels_cbar=np.arange(0, 150, 5)
-    # )
-    self.plot_other_variables(
-        variable="energy_balance", levels_cbar=np.arange(-20, 160, 10)
-    )
-    # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, .5))
+    # for t in np.arange(33, 39, 0.1):
+    #     rh = 60
+    #     v = 0.1
+    #     print(
+    #         t,
+    #         " ",
+    #         fan_use_set(t, t, v, rh, 1.2, 0.5, wme=0, units="SI")["energy_balance"],
+    #     )
 
-    # todo there is an issue with the SET model the latent heat loss decreases after a certain temperature
+    # # Figure 1
+    # self.model_comparison(save_fig=True)
+    #
+    # # Figure 2
+    # self.figure_2(save_fig=True)
+    #
+    # # Figure 3
+    self.comparison_air_speed(save_fig=True)
+    #
+    # Figure 4
+    self.summary_use_fans(save_fig=True)
+    #
+    # Figure 3
+    # self.met_clo(save_fig=True)
+
+    # # Figure 4
+    # self.plot_other_variables(
+    #     variable="energy_balance", levels_cbar=np.arange(0, 200, 10)
+    # )
+    # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, .5))
