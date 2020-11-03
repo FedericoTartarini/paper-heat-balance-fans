@@ -12,6 +12,10 @@ import os
 import scipy
 from scipy import optimize
 from pprint import pprint
+import sqlite3
+import psychrolib
+
+psychrolib.SetUnitSystem(psychrolib.SI)
 
 plt.style.use("seaborn-paper")
 
@@ -802,7 +806,7 @@ class DataAnalysis:
             ylabel=r"Operative temperature ($t_{o}$) [°C]",
         )
         ax.text(
-            0.25, 0.25, "Use fans", size=12, ha="center", transform=ax.transAxes,
+            10, 37.5, "Use fans", size=12, ha="center", va="center",
         )
         ax.text(
             0.85,
@@ -822,12 +826,39 @@ class DataAnalysis:
             transform=ax.transAxes,
         )
         text_dic = [
-            {"txt": "Thermal strain, v = 0.2m/s", "x": 38, "y": 41.25, "r": -36},
-            {"txt": "Thermal strain, v = 0.8m/s", "x": 13.5, "y": 50.87, "r": -47},
-            {"txt": "Thermal strain, v = 4.5m/s", "x": 40, "y": 43.5, "r": -38},
+            {"txt": "Thermal strain, v = 0.2m/s", "x": 9.9, "y": 50.85, "r": -46},
+            {"txt": "Thermal strain, v = 0.8m/s", "x": 13.5, "y": 50.85, "r": -47},
+            {"txt": "Thermal strain, v = 4.5m/s", "x": 19, "y": 50.85, "r": -46},
             {"txt": "No fans, v = 4.5m/s", "x": 70, "y": 45, "r": -34},
             {"txt": "No fans, v = 0.8m/s", "x": 80, "y": 44.5, "r": -36},
         ]
+
+        # create a db to hold the data
+        conn = sqlite3.connect(os.path.join(os.getcwd(), "code", "weather_ashrae.db"))
+
+        # plot extreme weather events
+        df_queried = pd.read_sql(
+            "SELECT wmo, "
+            '"n-year_return_period_values_of_extreme_DB_50_max" as db_max, '
+            '"n-year_return_period_values_of_extreme_WB_50_max" as wb_max '
+            "FROM data",
+            con=conn,
+        )
+
+        arr_rh = []
+        df_queried[["db_max", "wb_max"]] = df_queried[["db_max", "wb_max"]].apply(
+            pd.to_numeric, errors="coerce"
+        )
+        df_queried.dropna(inplace=True)
+        for ix, row in df_queried.iterrows():
+            arr_rh.append(
+                psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
+            )
+
+        df_queried["rh"] = [x * 100 for x in arr_rh]
+
+        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c="tab:gray")
+
         for obj in text_dic:
             ax.text(
                 obj["x"],
@@ -1239,7 +1270,7 @@ def fan_use_set(
 
 if __name__ == "__main__":
 
-    # plt.close("all")
+    plt.close("all")
     #
     self = DataAnalysis()
 
@@ -1258,16 +1289,16 @@ if __name__ == "__main__":
     #     )
 
     # # Figure 1
-    self.model_comparison(save_fig=True)
+    # self.model_comparison(save_fig=True)
     #
     # # Figure 2
-    self.figure_2(save_fig=True)
+    # self.figure_2(save_fig=True)
     #
     # # Figure 3
     self.comparison_air_speed(save_fig=True)
     #
-    # Figure 4
-    self.summary_use_fans(save_fig=True)
+    # Figure 4 - you also need to generate fig 3
+    self.summary_use_fans(save_fig=False)
     #
     # Figure 3
     # self.met_clo(save_fig=True)

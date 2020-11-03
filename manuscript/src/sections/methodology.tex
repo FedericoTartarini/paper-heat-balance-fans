@@ -5,9 +5,9 @@
 
 % todo the set model has the issue with the fact that it iterates over that strange parameter lenght of time = 6o
 
-In this manuscript, we used the heat balance model that \mycite{GaggeSET} developed to derive the \ac{set} to determine when the use of elevated air moment would be beneficial.
-The heat balance allowed us to estimate how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (\ac{clo}, \ac{met}) influence both the latent and sensible components of the \ac{q-sk}, and \ac{q-res}.
-Moreover, it allowed us to estimate the value of some physiological variables such as, \ac{t-sk}, and \ac{t-cr}.
+In this manuscript, we used the heat balance model that \mycite{GaggeSET} developed to derive the \ac{set} to determine when the use of elevated air moment (e.g.. \ac{v} $>$ 0.2 m/s) would be beneficial to cool the human body.
+The heat balance model allows us to estimate how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
+Moreover, it can be used to estimate the value of some physiological variables such as, \ac{t-sk}, and \ac{t-cr}.
 
 Section~\ref{subsec:energy-balance} describe the main Equations used by the model to derive the results.
 We have published the algorithm we used to calculate the results in a public repository.
@@ -29,13 +29,13 @@ The energy balance in the human body is described by:
 \end{equation}
 
 This equation assumes that the body comprises two main thermal compartments: the skin and the core.
-If the exogenous and endogenous heat gains cannot be compensated by the heat losses, then the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr}, increase respectively.
+If the exogenous and endogenous heat gains cannot be compensated by the heat losses, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental, and personal factors.
-The former are \ac{t-db}, \ac{t-db}, \ac{v}, and \ac{rh}.
-While the independent personal factors are \ac{met}, and \ac{clo}~\cite{ASHRA2017}.
+The former are \ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}.
+While the latter are \ac{met}, and \ac{clo}~\cite{ASHRA2017}.
 
-The equations used to estimate sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficient used were estimated empirically~\cite{ASHRA2017}.
+The equations used to determine sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficient were estimated empirically~\cite{ASHRA2017}.
 
 \subsubsection{Body Surface Area, (\acs{body-a})}
 
@@ -87,14 +87,11 @@ The \acf{e-sk} comprises two terms the \ac{e-rsw} and the \ac{e-dif}.
 \end{equation}
 
 Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}.
-The human body does not regulates the \ac{w} but, rather, it regulates the sweat rate~\cite{ASHRA2017}.
+The human body does not regulates \ac{w} directly but, rather, it regulates the sweat rate~\cite{ASHRA2017}.
 Skin wettedness varies as a function of the activity of the sweat glands and the environmental conditions~\cite{ASHRA2017}.
-While theoretically \ac{w} can range from 0 to 1.
-In practice, it is strongly correlated with thermal stress and warm discomfort, consequently there is a practical upper limit for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
+While, theoretically \ac{w} can range from 0 to 1, in practice, \ac{w} is strongly correlated with thermal stress and warm discomfort, consequently there is a \ac{w-max} for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
 
 We estimated the \ac{w-max} value and the \ac{m-sweat} using the \mycite{GaggeSET} model.
-
-% todo write equation to estimate sweat losses
 
 \subsubsection{Respiratory Losses, (\acs{q-res})}
 The human body exchanges both sensible and latent heat with its environment.
@@ -108,14 +105,15 @@ The value of \ac{q-res} is can be determined using the following simplified equa
 \subsection{Data Analysis}\label{subsec:data-analysis}
 
 The heat balance model was used to estimate the sensible and latent heat loss and physiological parameters (e.g., \ac{m-sweat}, \ac{t-cr}).
-We calculated the results for \ac{t-op} ranging from 28 and 55~°C at 0.5~°C intervals, \ac{rh} ranging from 0 to 100~\% at 5~\% intervals and \ac{v} from 0.1 and 4.5~m/s.
-Air velocities below \ac{v}~=~0.2 m/s were considered to be `still air' conditions in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017}.
-In this manuscript, we assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5 clo, and \ac{met} = 1.0 met, unless otherwise specified.
-However, the results for different combinations of environmental and personal conditions can be generated using our online tool.
-We decided to expressed heat loss per unit of surface area (i.e., \ac{e-sk}).
-To obtain the absolute value of heat loss or gain from the human body towards the environment these values can be multiplied by \ac{body-a}.
-The limit above which thermal stress would occur was assumed to be when the value of \ac{w} was equal to the value of \ac{w-max}.
-We assumed that the use of electrical fans is detrimental when the sum of the excess heat stored both in the skin (\acs{s-sk}), and in the core (\acs{s-cr}) exceeded the value determined for the `still air' condition.
+We calculated the results for \ac{t-op} ranging from 28 and 55~$^{\circ}$C at 0.5~$^{\circ}$C intervals, \ac{rh} ranging from 0 to 100~\% at 5~\% intervals and for the discrete values of \ac{v} = 0.2, 0.8 and 4.5~m/s.
+In this paper we will be referring to `still air' condition when air velocities are below \ac{v}~=~0.2 m/s.
+This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017} and allowed us to compare our results with~\mycite{Jay2015}.
+We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5 clo, and \ac{met}~=~1.0 met, unless otherwise stated.
+Results for different combinations of environmental and personal conditions can be generated using our online tool.
+We reported heat loss per unit of surface area (i.e., \ac{e-sk}).
+To obtain the absolute value of heat loss or gain the results can be multiplied by \ac{body-a}.
+Thermal stress was assumed to occur when \ac{w} (which only depends on the value of \ac{v}) reaches its maximum value \ac{w-max}.
+We assumed that the use of electrical fans is detrimental when the value of \ac{t-cr} calculated for values of \ac{v} higher than 0.2~m/s exceeds the value determined for the `still air' condition.
 
 \subsection{Heatwave weather data}
 
