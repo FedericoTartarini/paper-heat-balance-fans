@@ -6,6 +6,7 @@
 % todo the set model has the issue with the fact that it iterates over that strange parameter lenght of time = 6o
 
 In this manuscript, we used the heat balance model that \mycite{GaggeSET} developed to derive the \ac{set} to determine when the use of elevated air moment (e.g.. \ac{v} $>$ 0.2 m/s) would be beneficial to cool the human body.
+% todo say something that v is the average air speed and not the speed of the air coming out from the fan
 The heat balance model allows us to estimate how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as, \ac{t-sk}, and \ac{t-cr}.
 
@@ -109,15 +110,29 @@ We calculated the results for \ac{t-op} ranging from 28 and 55~$^{\circ}$C at 0.
 In this paper we will be referring to `still air' condition when air velocities are below \ac{v}~=~0.2 m/s.
 This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017} and allowed us to compare our results with~\mycite{Jay2015}.
 We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5 clo, and \ac{met}~=~1.0 met, unless otherwise stated.
+It could be argued that \ac{clo} of people during heatwaves may be even lower than 0.36 clo (i.e., walking shorts, short-sleeve shirt and sandals), however, we wanted to consider a conservative scenario.
 Results for different combinations of environmental and personal conditions can be generated using our online tool.
 We reported heat loss per unit of surface area (i.e., \ac{e-sk}).
 To obtain the absolute value of heat loss or gain the results can be multiplied by \ac{body-a}.
 Thermal stress was assumed to occur when \ac{w} (which only depends on the value of \ac{v}) reaches its maximum value \ac{w-max}.
 We assumed that the use of electrical fans is detrimental when the value of \ac{t-cr} calculated for values of \ac{v} higher than 0.2~m/s exceeds the value determined for the `still air' condition.
 
-\subsection{Heatwave weather data}
+\subsection{Weather data}\label{subsec:weather-data}
 
-% todo descibe weather data used
+The results obtained with the proposed heat balance model were compared with the climatic data provided in the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
+We used the ASHRAE climatic design database to extract information regarding the maximum extreme dry-bulb and wet-bulb temperatures recorded across more than 5000 stations worldwide over the last 50 years.
+For more information about the ASHRAE climate database please refer to Chapter 14 of the 2017 ASHRAE Handbook--Fundamentals.
+Maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}, in which we present data from all the stations with values higher than 20 $^\circ$C\@.
+
+\begin{figure}[thb!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/world-map.png}
+    \caption{Shows the location of each weather station that was included in the analysis and the maximum extreme dry-bulb temperature that was recorded in that location over the last 50 years.}
+    \label{fig:world-map}
+\end{figure}
+
+The five highest dry-bulb air temperatures were recorded in Morocco, USA, Iran, Algeria and Saudi Arabia, while the five highest wet-bulb air temperatures were all recorded in Australia.
+Figure~\ref{fig:world-map} also shows that few data was available for the Sub-Saharan Africa where approximately 40\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
 
 \subsection{Elderly}
 

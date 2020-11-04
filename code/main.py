@@ -2,6 +2,7 @@ import matplotlib as mpl
 
 mpl.use("Qt5Agg")  # or can use 'TkAgg', whatever you have/prefer
 import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap, interp, maskoceans
 import numpy as np
 import pandas as pd
 from pythermalcomfort.psychrometrics import p_sat, units_converter, p_sat_torr
@@ -33,6 +34,120 @@ class DataAnalysis:
         self.colors_f3 = ["tab:gray", "tab:cyan", "tab:olive"]
 
         self.heat_strain = {}
+
+        self.conn = sqlite3.connect(
+            os.path.join(os.getcwd(), "code", "weather_ashrae.db")
+        )
+
+        # define map extent
+        self.lllon = -180
+        self.lllat = -60
+        self.urlon = 180
+        self.urlat = 60
+
+    def draw_map_contours(self, draw_par_mer="Yes"):
+        # set up plot
+        ax = plt.gca()
+
+        # set up Basemap instance
+        m = Basemap(
+            projection="merc",
+            llcrnrlon=self.lllon,
+            llcrnrlat=self.lllat,
+            urcrnrlon=self.urlon,
+            urcrnrlat=self.urlat,
+            resolution="l",
+        )
+
+        # draw map
+        m.drawmapboundary(fill_color="white")
+        m.drawcountries(
+            linewidth=0.5,
+            linestyle="solid",
+            color="k",
+            antialiased=True,
+            ax=ax,
+            zorder=3,
+        )
+
+        if draw_par_mer == "Yes":
+            m.drawparallels(
+                np.arange(self.lllat, self.urlat + 10, 10.0),
+                color="black",
+                linewidth=0.5,
+                labels=[True, False, False, False],
+            )
+            m.drawmeridians(
+                np.arange(self.lllon, self.urlon, 30),
+                color="0.25",
+                linewidth=0.5,
+                labels=[False, False, False, True],
+            )
+
+        m.drawcoastlines(linewidth=0.5, color="k")
+        m.drawstates(
+            linewidth=0.5, linestyle="solid", color="gray",
+        )
+
+        return ax, m
+
+    def plot_map_world(self, save_fig):
+
+        # draw map contours
+        plt.figure(figsize=(7, 3.78))
+        [ax, m] = self.draw_map_contours(draw_par_mer="Yes")
+
+        df = pd.read_sql(
+            "SELECT wmo, lat, long, place, "
+            '"n-year_return_period_values_of_extreme_DB_50_max" as db_max, '
+            '"n-year_return_period_values_of_extreme_WB_50_max" as wb_max '
+            "FROM data",
+            con=self.conn,
+        )
+        df[["lat", "long", "db_max", "wb_max"]] = df[
+            ["lat", "long", "db_max", "wb_max"]
+        ].apply(pd.to_numeric, errors="coerce")
+        df.dropna(inplace=True)
+
+        df = df[
+            (df["lat"] > self.lllat)
+            & (df["lat"] < self.urlat)
+            & (df["long"] > self.lllon)
+            & (df["lat"] < self.urlon)
+            & (df["db_max"] > 19.9)
+        ]
+
+        df = df.sort_values(["db_max"])
+
+        # # print where the max dry bulb temperatures were recorded
+        # df.place.str.split(",", expand=True)[1][-10:]
+        # df_ = df.sort_values(["wb_max"])
+        # df_[["place", "wb_max"]][-20:]
+
+        # transform lon / lat coordinates to map projection
+        proj_lon, proj_lat = m(df.long.values, df.lat.values)
+
+        sc = plt.scatter(
+            proj_lon, proj_lat, 10, marker="o", c=df["db_max"], cmap="plasma"
+        )
+        bounds = np.arange(
+            math.floor(df["db_max"].min()), math.ceil(df["db_max"].max()), 4
+        )
+        plt.colorbar(
+            sc,
+            fraction=0.1,
+            pad=0.1,
+            aspect=40,
+            label="Extreme dry-bulb air temperature 50 years ($t_{db}$) [°C]",
+            ticks=bounds,
+            orientation="horizontal",
+        )
+        sns.despine(left=True, bottom=True, right=True, top=True)
+        plt.tight_layout()
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "world-map.png"), dpi=300)
+        else:
+            plt.show()
 
     def model_comparison(self, save_fig=True):
 
@@ -826,15 +941,12 @@ class DataAnalysis:
             transform=ax.transAxes,
         )
         text_dic = [
-            {"txt": "Thermal strain, v = 0.2m/s", "x": 9.9, "y": 50.85, "r": -46},
-            {"txt": "Thermal strain, v = 0.8m/s", "x": 13.5, "y": 50.85, "r": -47},
-            {"txt": "Thermal strain, v = 4.5m/s", "x": 19, "y": 50.85, "r": -46},
-            {"txt": "No fans, v = 4.5m/s", "x": 70, "y": 45, "r": -34},
-            {"txt": "No fans, v = 0.8m/s", "x": 80, "y": 44.5, "r": -36},
+            {"txt": "Thermal strain\nv =0.2m/s", "x": 5.5, "y": 50, "r": -46},
+            {"txt": "Thermal strain\nv=0.8m/s", "x": 13.5, "y": 52, "r": -47},
+            {"txt": "Thermal strain\nv=4.5m/s", "x": 20, "y": 52, "r": -46},
+            {"txt": "No fans, v=4.5m/s", "x": 70, "y": 45, "r": -34},
+            {"txt": "No fans, v=0.8m/s", "x": 80, "y": 44.5, "r": -36},
         ]
-
-        # create a db to hold the data
-        conn = sqlite3.connect(os.path.join(os.getcwd(), "code", "weather_ashrae.db"))
 
         # plot extreme weather events
         df_queried = pd.read_sql(
@@ -842,7 +954,7 @@ class DataAnalysis:
             '"n-year_return_period_values_of_extreme_DB_50_max" as db_max, '
             '"n-year_return_period_values_of_extreme_WB_50_max" as wb_max '
             "FROM data",
-            con=conn,
+            con=self.conn,
         )
 
         arr_rh = []
@@ -1296,12 +1408,15 @@ if __name__ == "__main__":
     #
     # # Figure 3
     self.comparison_air_speed(save_fig=True)
-    #
+
     # Figure 4 - you also need to generate fig 3
     self.summary_use_fans(save_fig=False)
     #
     # Figure 3
     # self.met_clo(save_fig=True)
+    #
+    # Figure Maps
+    # self.plot_map_world(save_fig=True)
 
     # # benefit of increasing air speed
     # benefit = self.heat_strain[0.8]["y"] - self.heat_strain[0.2]["y"]

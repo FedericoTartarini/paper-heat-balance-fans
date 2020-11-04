@@ -14,7 +14,7 @@ This reduces the rate at which sensible heat gains increase.
 The values of \ac{w} and the respective values of \ac{w-max} for two air speeds are shown in Figure~\ref{fig:comparison_models}B\@.
 It can be observed that the critical operative temperature at which \ac{w} equals \ac{w-max} is a inversely proportional to the value of \ac{rh}.
 
-\begin{figure}[b!]
+\begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_models_v2.png}
     \caption{Shows how the results obtained with the the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET} vary as a function of the \ac{t-op}.
@@ -40,7 +40,7 @@ On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as 
 \citeauthor{GaggeSET} also do not account for water losses through skin diffusion.
 % todo better describe sentence before
 
-\begin{figure}[b!]
+\begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/results_model_2.png}
     \caption{Caption}
@@ -55,7 +55,7 @@ While, when the energy stored becomes greater than 0 is the conditions which dem
 The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat strain would start to occur since the body is no longer able to dissipate all the heat gains are presented in Figure~\ref{fig:comparison_air_speed}.
 The Figure shows the results obtained with the \mycite{GaggeSET} and the \mycite{Jay2015} models.
 
-\begin{figure}[b!]
+\begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_air_speed.png}
     \caption{Compares the results between the SET model and Ollie's model.
@@ -74,7 +74,7 @@ Results for people wearing light summer clothing (walking shorts, short-sleeve s
 Results show that for \ac{v} = 0.2 m/s decreasing \ac{met} by 0.2 met is more beneficial than reducing \ac{clo} by 0.14.
 On the other hand, when \ac{v} = 0.8 m/s both aforementioned interventions lead to similar results since latent heat loss can compensate for an increase in \ac{met} as long as the value of \ac{clo} remains low.
 
-\begin{figure}[b!]
+\begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/met_clo.png}
     \caption{Each line demarcates how different combinations of personal factors (e.g., \ac{met}, \ac{clo}) and environmental factors affect the point above which the body cannot longer dissipate all the endogenous and exogenous heat gains}
@@ -83,16 +83,20 @@ On the other hand, when \ac{v} = 0.8 m/s both aforementioned interventions lead 
 
 The environmental conditions above which the use of elevated air speeds would actually be detrimental for the health of the people is shown in Figure~\ref{fig:energy_storage_delta}.
 This Figure depicts the area in which electrical fans should not be used, and shows the lines above which thermal strain is expected to occur (as previously shown in Figure~\ref{fig:comparison_air_speed}).
-The area in which electrical fans are dangerous for humans narrows as \ac{v} decreases and approaches 0.2~m/s.
-From this Figure it can also be observed that for a specific value of \ac{rh}, as the value of \ac{v} increases the critical temperature at which thermal strain would occur also increases, however, at the same time the temperature above which fans should not be used also decreases by a greater amount.
-The latter is, however, an extremely high temperature
+We also plotted the maximum extreme weather conditions recorded worldwide over the las 50 years.
+Each dot represents the most extreme dry-bulb temperature and the \ac{rh} value measured for each weather station.
+From Figure~\ref{fig:energy_storage_delta} it can be observed the area in which electrical fans are dangerous for humans narrows as \ac{v} decreases and approaches 0.2~m/s.
+In addition, for a specific value of \ac{rh}, as the value of \ac{v} increases the critical temperature at which thermal strain would occur also increases, however, at the same time the temperature above which fans should not be used also decreases by a greater amount.
+Overall the use of fans would have been beneficial in most locations worldwide during extreme heat events.
+Increasing, \ac{V} to 0.8~m/s and 4.5~m/s would have ensured that
+
 % todo compare the above with the extreme temperatures recorded in each country
 % http://ashrae-meteo.info/v2.0/
 % https://advances.sciencemag.org/content/6/19/eaaw1838
 
 % todo report estimated sweat heat lossess too, either using a table or a heatmap
 
-\begin{figure}[b!]
+\begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/use_fans.png}
     \caption{Caption}
