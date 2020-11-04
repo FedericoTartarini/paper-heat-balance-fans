@@ -33,7 +33,19 @@ class DataAnalysis:
         self.colors = ["tab:orange", "tab:blue", "tab:green", "tab:red"]
         self.colors_f3 = ["tab:gray", "tab:cyan", "tab:olive"]
 
-        self.heat_strain = {}
+        try:
+            self.heat_strain = np.load(
+                os.path.join("code", "heat_strain.npy"), allow_pickle="TRUE"
+            ).item()
+        except FileNotFoundError:
+            self.heat_strain = {}
+
+        try:
+            self.heat_strain_ollie = np.load(
+                os.path.join("code", "heat_strain_ollie.npy"), allow_pickle="TRUE"
+            ).item()
+        except FileNotFoundError:
+            self.heat_strain_ollie = {}
 
         self.conn = sqlite3.connect(
             os.path.join(os.getcwd(), "code", "weather_ashrae.db")
@@ -463,124 +475,45 @@ class DataAnalysis:
 
         fig, ax = plt.subplots(figsize=(7, 4))
 
+        heat_strain = {}
+
         for ix, v in enumerate(self.v_range):
 
-            tmp_array = []
-            rh_array = []
-
-            sensible_skin_heat_loss = []
-            sensible_skin_heat_loss_ollie = []
-            max_latent_heat_loss = []
-            max_latent_heat_loss_ollie = []
-
-            skin_wettedness = []
-            core_tmp = []
-
-            max_skin_wettedness = fan_use_set(
-                50, 50, v, 100, 1.2, 0.5, wme=0, units="SI"
-            )["skin_wetness"]
+            heat_strain[v] = {}
 
             color = self.colors_f3[ix]
 
             for rh in self.rh_range:
 
-                for ta in np.arange(28, 66, 1):
-
-                    tmp_array.append(ta)
-                    rh_array.append(rh)
+                for ta in np.arange(28, 66, 0.5):
 
                     r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
 
-                    sensible_skin_heat_loss.append(r["hl_evaporation_required"])
-                    # todo check the following assumption since it is very important
-                    max_latent_heat_loss.append(
-                        r["hl_evaporation_max"] * max_skin_wettedness
-                    )
-                    # max_latent_heat_loss.append(r["hl_evaporation_max"] * w)
+                    if r["p_wet"] >= r["w_max"]:
+                        heat_strain[v][rh] = ta
+                        break
 
-                    skin_wettedness.append(r["skin_wetness"])
-                    core_tmp.append(r["temp_core"])
-
-                    if v == 0.2:
-                        fan_on = False
-
-                        r = ollie(fan_on, ta, rh, is_elderly=False)
-
-                        sensible_skin_heat_loss_ollie.append(r["e_req_w"])
-                        max_latent_heat_loss_ollie.append(r["e_max_w"])
-
-                    elif v == 4.5:
-                        fan_on = True
-
-                        r = ollie(fan_on, ta, rh, is_elderly=False)
-
-                        sensible_skin_heat_loss_ollie.append(r["e_req_w"])
-                        max_latent_heat_loss_ollie.append(r["e_max_w"])
-
-            sensible_skin_heat_loss = [
-                x if x > 0 else 0 for x in sensible_skin_heat_loss
-            ]
-            max_latent_heat_loss = [x if x > 0 else 0 for x in max_latent_heat_loss]
-            max_latent_heat_loss_ollie = [
-                x if x > 0 else 0 for x in max_latent_heat_loss_ollie
-            ]
-            max_latent_heat_loss_ollie = [
-                x if x > 0 else 0 for x in max_latent_heat_loss_ollie
-            ]
-
-            ollie_model = [
-                x[0] - x[1]
-                for x in zip(max_latent_heat_loss_ollie, sensible_skin_heat_loss_ollie)
-            ]
-            ollie_model = [np.nan if x > 0 else 0 for x in ollie_model]
-            set_model = [
-                x[0] - x[1] for x in zip(max_latent_heat_loss, sensible_skin_heat_loss)
-            ]
-            set_model = [np.nan if x > 0 else 0 for x in set_model]
-
-            df = pd.DataFrame(data={"tmp": tmp_array, "rh": rh_array, "set": set_model})
-
-            if sensible_skin_heat_loss_ollie != []:
-                df["ollie"] = ollie_model
-                df_ollie = df.pivot("tmp", "rh", "ollie").sort_index(ascending=False)
-                y, x = [], []
-                for col in df_ollie.columns:
-                    try:
-                        y.append(df_ollie[col].dropna().index[-1])
-                        x.append(col)
-                    except:
-                        pass
-
-                # smooth line
-                f2 = np.poly1d(np.polyfit(x, y, 2))
-                xnew = np.linspace(min(x), max(x), 100)
-
+            if v in self.heat_strain_ollie.keys():
                 ax.plot(
-                    xnew,
-                    f2(xnew),
+                    self.heat_strain_ollie[v].keys(),
+                    self.heat_strain_ollie[v].values(),
                     linestyle="-.",
                     label=f"v = {v}; Jay et al. (2015)",
                     c=color,
                 )
 
-            df_set = df.pivot("tmp", "rh", "set").sort_index(ascending=False)
+            x = list(heat_strain[v].keys())
 
-            y, x = [], []
-            for col in df_set.columns:
-                try:
-                    y.append(df_set[col].dropna().index[-1])
-                    x.append(col)
-                except:
-                    pass
+            f2 = np.poly1d(np.polyfit(x, list(heat_strain[v].values()), 2))
 
-            # smooth line
-            f2 = np.poly1d(np.polyfit(x, y, 2))
+            heat_strain[v] = {}
+            x_new = np.linspace(0, 100, 100)
+            for val in x_new:
+                heat_strain[v][val] = f2(val)
 
-            xnew = np.linspace(min(x), max(x), 100)
+            ax.plot(x_new, f2(x_new), label=f"v = {v}; Gagge et al. (1986)", c=color)
 
-            self.heat_strain[v] = {"x": xnew, "y": f2(xnew)}
-
-            ax.plot(xnew, f2(xnew), label=f"v = {v}; Gagge et al. (1986)", c=color)
+        np.save(os.path.join("code", "heat_strain.npy"), heat_strain)
 
         ax.grid(c="lightgray")
 
@@ -606,23 +539,11 @@ class DataAnalysis:
         else:
             plt.show()
 
-        # f, ax = plt.subplots()
-        # levels = np.arange(36, 43, 1)
-        # x, y = np.meshgrid(self.rh_range, self.ta_range)
-        # df = pd.DataFrame({"tmp": tmp_array, "rh": rh_array, "z": core_tmp})
-        # df_w = df.pivot("tmp", "rh", "z")
-        # cf = ax.contourf(x, y, df_w.values, levels)
-        # plt.colorbar(cf)
-        # ax.set(
-        #     xlabel="Relative Humidity",
-        #     ylabel="Temperature",
-        #     title=f"core body tmp - air speed {v}",
-        # )
-        # plt.show()
-
     def met_clo(self, save_fig):
 
         fig, ax = plt.subplots(figsize=(7, 4))
+
+        heat_strain = {}
 
         combinations = [
             {"clo": 0.36, "met": 1, "ls": "dashed"},
@@ -639,75 +560,27 @@ class DataAnalysis:
 
             for ix, v in enumerate([0.2, 0.8]):
 
-                tmp_array = []
-                rh_array = []
-
-                sensible_skin_heat_loss = []
-                max_latent_heat_loss = []
-
-                skin_wettedness = []
-                core_tmp = []
-
-                max_skin_wettedness = fan_use_set(
-                    50, 50, v, 100, met, clo, wme=0, units="SI"
-                )["skin_wetness"]
+                heat_strain[v] = {}
 
                 color = self.colors_f3[ix]
 
                 for rh in self.rh_range:
 
-                    for ta in np.arange(28, 66, 1):
-
-                        tmp_array.append(ta)
-                        rh_array.append(rh)
+                    for ta in np.arange(28, 66, 0.5):
 
                         r = fan_use_set(ta, ta, v, rh, met, clo, wme=0, units="SI")
 
-                        sensible_skin_heat_loss.append(r["hl_evaporation_required"])
-                        # todo check the following assumption since it is very important
-                        max_latent_heat_loss.append(
-                            r["hl_evaporation_max"] * max_skin_wettedness
-                        )
-                        # max_latent_heat_loss.append(r["hl_evaporation_max"] * w)
+                        if r["p_wet"] >= r["w_max"]:
+                            heat_strain[v][rh] = ta
+                            break
 
-                        skin_wettedness.append(r["skin_wetness"])
-                        core_tmp.append(r["temp_core"])
+                x = list(heat_strain[v].keys())
 
-                sensible_skin_heat_loss = [
-                    x if x > 0 else 0 for x in sensible_skin_heat_loss
-                ]
-                max_latent_heat_loss = [x if x > 0 else 0 for x in max_latent_heat_loss]
-
-                set_model = [
-                    x[0] - x[1]
-                    for x in zip(max_latent_heat_loss, sensible_skin_heat_loss)
-                ]
-                set_model = [np.nan if x > 0 else 0 for x in set_model]
-
-                df = pd.DataFrame(
-                    data={"tmp": tmp_array, "rh": rh_array, "set": set_model}
-                )
-
-                df_set = df.pivot("tmp", "rh", "set").sort_index(ascending=False)
-
-                y, x = [], []
-                for col in df_set.columns:
-                    try:
-                        y.append(df_set[col].dropna().index[-1])
-                        x.append(col)
-                    except:
-                        pass
-
-                # smooth line
-                f2 = np.poly1d(np.polyfit(x, y, 2))
-
-                xnew = np.linspace(min(x), max(x), 100)
-
-                self.heat_strain[v] = {"x": xnew, "y": f2(xnew)}
+                f2 = np.poly1d(np.polyfit(x, list(heat_strain[v].values()), 2))
 
                 ax.plot(
-                    xnew,
-                    f2(xnew),
+                    x,
+                    f2(x),
                     label=f"v = {v}, clo = {clo}, met = {met}",
                     c=color,
                     linestyle=ls,
@@ -845,22 +718,24 @@ class DataAnalysis:
         for key in self.heat_strain.keys():
             if key == 0.2:
                 (ln_2,) = ax.plot(
-                    self.heat_strain[key]["x"],
-                    self.heat_strain[key]["y"],
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
                     c="k",
                     linestyle=":",
                     label="v = 0.2 m/s",
                 )
             if key == 0.8:
                 ax.plot(
-                    self.heat_strain[key]["x"],
-                    self.heat_strain[key]["y"],
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
                     c="k",
                     linestyle="-.",
                 )
             if key == 4.5:
                 ax.plot(
-                    self.heat_strain[key]["x"], self.heat_strain[key]["y"], c="k",
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
+                    c="k",
                 )
 
         # smooth line
@@ -884,9 +759,8 @@ class DataAnalysis:
         )
 
         x_new, y_min = interpolate(
-            self.heat_strain[0.8]["x"], self.heat_strain[0.8]["y"]
+            list(self.heat_strain[0.8].keys()), list(self.heat_strain[0.8].values()),
         )
-        # ax.fill_between(x_new, y_min, y_new, alpha=0, zorder=100, hatch="/")
 
         x_new, y_new = interpolate(results_v_high, tmp)
         (ln_1,) = ax.plot(x_new, y_new, c="k", label="v = 4.5 m/s")
@@ -942,8 +816,8 @@ class DataAnalysis:
         )
         text_dic = [
             {"txt": "Thermal strain\nv =0.2m/s", "x": 5.5, "y": 50, "r": -46},
-            {"txt": "Thermal strain\nv=0.8m/s", "x": 13.5, "y": 52, "r": -47},
-            {"txt": "Thermal strain\nv=4.5m/s", "x": 20, "y": 52, "r": -46},
+            {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
+            {"txt": "Thermal strain\nv=4.5m/s", "x": 17, "y": 52, "r": -46},
             {"txt": "No fans, v=4.5m/s", "x": 70, "y": 45, "r": -34},
             {"txt": "No fans, v=0.8m/s", "x": 80, "y": 44.5, "r": -36},
         ]
@@ -1400,23 +1274,23 @@ if __name__ == "__main__":
     #         fan_use_set(t, t, v, rh, 1.2, 0.5, wme=0, units="SI")["energy_balance"],
     #     )
 
-    # # Figure 1
-    # self.model_comparison(save_fig=True)
-    #
-    # # Figure 2
-    # self.figure_2(save_fig=True)
-    #
-    # # Figure 3
+    # Figure 1
+    self.model_comparison(save_fig=True)
+
+    # Figure 2
+    self.figure_2(save_fig=True)
+
+    # Figure 3
     self.comparison_air_speed(save_fig=True)
 
     # Figure 4 - you also need to generate fig 3
-    self.summary_use_fans(save_fig=False)
-    #
+    self.summary_use_fans(save_fig=True)
+
     # Figure 3
-    # self.met_clo(save_fig=True)
-    #
+    self.met_clo(save_fig=True)
+
     # Figure Maps
-    # self.plot_map_world(save_fig=True)
+    self.plot_map_world(save_fig=True)
 
     # # benefit of increasing air speed
     # benefit = self.heat_strain[0.8]["y"] - self.heat_strain[0.2]["y"]
