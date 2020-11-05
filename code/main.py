@@ -111,8 +111,8 @@ class DataAnalysis:
 
         df = pd.read_sql(
             "SELECT wmo, lat, long, place, "
-            '"n-year_return_period_values_of_extreme_DB_50_max" as db_max, '
-            '"n-year_return_period_values_of_extreme_WB_50_max" as wb_max '
+            '"n-year_return_period_values_of_extreme_DB_10_max" as db_max, '
+            '"n-year_return_period_values_of_extreme_WB_10_max" as wb_max '
             "FROM data",
             con=self.conn,
         )
@@ -132,7 +132,7 @@ class DataAnalysis:
         df = df.sort_values(["db_max"])
 
         # # print where the max dry bulb temperatures were recorded
-        # df.place.str.split(",", expand=True)[1][-10:]
+        # df[["place", "db_max"]][-10:]
         # df_ = df.sort_values(["wb_max"])
         # df_[["place", "wb_max"]][-20:]
 
@@ -489,10 +489,12 @@ class DataAnalysis:
 
                     r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
 
+                    # determine critical temperature at which heat strain would occur
                     if r["p_wet"] >= r["w_max"]:
                         heat_strain[v][rh] = ta
                         break
 
+            # plot Jay's data
             if v in self.heat_strain_ollie.keys():
                 ax.plot(
                     self.heat_strain_ollie[v].keys(),
@@ -504,14 +506,14 @@ class DataAnalysis:
 
             x = list(heat_strain[v].keys())
 
-            f2 = np.poly1d(np.polyfit(x, list(heat_strain[v].values()), 2))
+            x_new, y_new = interpolate(x, list(heat_strain[v].values()))
 
             heat_strain[v] = {}
             x_new = np.linspace(0, 100, 100)
-            for val in x_new:
-                heat_strain[v][val] = f2(val)
+            for x_val, y_val in zip(x_new, y_new):
+                heat_strain[v][x_val] = y_val
 
-            ax.plot(x_new, f2(x_new), label=f"v = {v}; Gagge et al. (1986)", c=color)
+            ax.plot(x_new, y_new, label=f"v = {v}; Gagge et al. (1986)", c=color)
 
         np.save(os.path.join("code", "heat_strain.npy"), heat_strain)
 
@@ -550,6 +552,7 @@ class DataAnalysis:
             {"clo": 0.5, "met": 1, "ls": "dotted"},
             {"clo": 0.36, "met": 1.2, "ls": "dashdot"},
             {"clo": 0.5, "met": 1.2, "ls": "solid"},
+            # {"clo": 0, "met": 0.8, "ls": (0, (3, 1, 1, 1, 1, 1))},
         ]
 
         for combination in combinations:
@@ -574,13 +577,13 @@ class DataAnalysis:
                             heat_strain[v][rh] = ta
                             break
 
-                x = list(heat_strain[v].keys())
-
-                f2 = np.poly1d(np.polyfit(x, list(heat_strain[v].values()), 2))
+                x_new, y_new = interpolate(
+                    list(heat_strain[v].keys()), list(heat_strain[v].values())
+                )
 
                 ax.plot(
-                    x,
-                    f2(x),
+                    x_new,
+                    y_new,
                     label=f"v = {v}, clo = {clo}, met = {met}",
                     c=color,
                     linestyle=ls,
@@ -721,8 +724,14 @@ class DataAnalysis:
                     list(self.heat_strain[key].keys()),
                     list(self.heat_strain[key].values()),
                     c="k",
-                    linestyle=":",
                     label="v = 0.2 m/s",
+                )
+                f_02_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
                 )
             if key == 0.8:
                 ax.plot(
@@ -731,18 +740,27 @@ class DataAnalysis:
                     c="k",
                     linestyle="-.",
                 )
+                f_08_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
+                )
             if key == 4.5:
                 ax.plot(
                     list(self.heat_strain[key].keys()),
                     list(self.heat_strain[key].values()),
                     c="k",
+                    linestyle=":",
                 )
-
-        # smooth line
-        def interpolate(x, y):
-            f2 = np.poly1d(np.polyfit(x, y, 3))
-            xnew = np.linspace(0, 100, 100)
-            return xnew, f2(xnew)
+                f_45_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
+                )
 
         x_new, y_new = interpolate(results_v_low, tmp)
 
@@ -822,29 +840,6 @@ class DataAnalysis:
             {"txt": "No fans, v=0.8m/s", "x": 80, "y": 44.5, "r": -36},
         ]
 
-        # plot extreme weather events
-        df_queried = pd.read_sql(
-            "SELECT wmo, "
-            '"n-year_return_period_values_of_extreme_DB_50_max" as db_max, '
-            '"n-year_return_period_values_of_extreme_WB_50_max" as wb_max '
-            "FROM data",
-            con=self.conn,
-        )
-
-        arr_rh = []
-        df_queried[["db_max", "wb_max"]] = df_queried[["db_max", "wb_max"]].apply(
-            pd.to_numeric, errors="coerce"
-        )
-        df_queried.dropna(inplace=True)
-        for ix, row in df_queried.iterrows():
-            arr_rh.append(
-                psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
-            )
-
-        df_queried["rh"] = [x * 100 for x in arr_rh]
-
-        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c="tab:gray")
-
         for obj in text_dic:
             ax.text(
                 obj["x"],
@@ -857,6 +852,77 @@ class DataAnalysis:
                 zorder=200,
                 # bbox=dict(boxstyle="round", ec=(0, 0, 0, 0), fc=(1, 1, 1, 0.5),),
             )
+
+        # plot extreme weather events
+        df_queried = pd.read_sql(
+            "SELECT wmo, "
+            '"n-year_return_period_values_of_extreme_DB_10_max" as db_max, '
+            '"n-year_return_period_values_of_extreme_WB_10_max" as wb_max '
+            "FROM data",
+            con=self.conn,
+        )
+
+        arr_rh = []
+        df_queried[["db_max", "wb_max"]] = df_queried[["db_max", "wb_max"]].apply(
+            pd.to_numeric, errors="coerce"
+        )
+        df_queried.dropna(inplace=True)
+        for ix, row in df_queried.iterrows():
+            arr_rh.append(
+                psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
+                * 100
+            )
+
+        # calculate number of stations where db_max exceeds critical temperature
+        f_08_no_fan = np.poly1d(np.polyfit(results_v_low, tmp, 2,))
+        f_45_no_fan = np.poly1d(np.polyfit(results_v_high, tmp, 2,))
+
+        df_queried["rh"] = arr_rh
+        df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
+        df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
+        df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
+        df_queried["t_no_fan_08"] = [f_08_no_fan(x) for x in arr_rh]
+        df_queried["t_no_fan_45"] = [f_45_no_fan(x) for x in arr_rh]
+        df_queried["exc_t_crit_02"] = 0
+        df_queried["exc_t_crit_08"] = 0
+        df_queried["exc_t_crit_45"] = 0
+        df_queried["exc_no_fan_08"] = 0
+        df_queried["exc_no_fan_45"] = 0
+        df_queried.loc[
+            df_queried["t_crit_02"] < df_queried["db_max"], "exc_t_crit_02"
+        ] = 1
+        df_queried.loc[
+            df_queried["t_crit_08"] < df_queried["db_max"], "exc_t_crit_08"
+        ] = 1
+        df_queried.loc[
+            df_queried["t_crit_45"] < df_queried["db_max"], "exc_t_crit_45"
+        ] = 1
+        df_queried.loc[
+            df_queried["t_no_fan_08"] < df_queried["db_max"], "exc_no_fan_08"
+        ] = 1
+        df_queried.loc[
+            df_queried["t_no_fan_45"] < df_queried["db_max"], "exc_no_fan_45"
+        ] = 1
+        print(
+            (
+                100
+                - df_queried[
+                    [
+                        "exc_t_crit_02",
+                        "exc_t_crit_08",
+                        "exc_t_crit_45",
+                        "exc_no_fan_08",
+                        "exc_no_fan_45",
+                    ]
+                ].sum()
+                / df_queried.shape[0]
+                * 100
+            ).round()
+        )
+
+        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c="tab:gray")
+
+        # add legend
         plt.legend(
             [ln_2, ln_0, ln_1, fb_0, fb_1, fb_2],
             [
@@ -1254,6 +1320,12 @@ def fan_use_set(
     }
 
 
+def interpolate(x, y):
+    f2 = np.poly1d(np.polyfit(x, y, 2))
+    xnew = np.linspace(0, 100, 100)
+    return xnew, f2(xnew)
+
+
 if __name__ == "__main__":
 
     plt.close("all")
@@ -1274,23 +1346,23 @@ if __name__ == "__main__":
     #         fan_use_set(t, t, v, rh, 1.2, 0.5, wme=0, units="SI")["energy_balance"],
     #     )
 
-    # Figure 1
-    self.model_comparison(save_fig=True)
-
-    # Figure 2
-    self.figure_2(save_fig=True)
-
-    # Figure 3
-    self.comparison_air_speed(save_fig=True)
-
+    # # Figure 1
+    # self.model_comparison(save_fig=True)
+    #
+    # # Figure 2
+    # self.figure_2(save_fig=True)
+    #
+    # # Figure 3
+    # self.comparison_air_speed(save_fig=True)
+    #
     # Figure 4 - you also need to generate fig 3
-    self.summary_use_fans(save_fig=True)
-
-    # Figure 3
-    self.met_clo(save_fig=True)
-
-    # Figure Maps
-    self.plot_map_world(save_fig=True)
+    self.summary_use_fans(save_fig=False)
+    #
+    # # Figure 3
+    # self.met_clo(save_fig=True)
+    #
+    # # Figure Maps
+    # self.plot_map_world(save_fig=True)
 
     # # benefit of increasing air speed
     # benefit = self.heat_strain[0.8]["y"] - self.heat_strain[0.2]["y"]

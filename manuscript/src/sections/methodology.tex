@@ -5,15 +5,15 @@
 
 % todo the set model has the issue with the fact that it iterates over that strange parameter lenght of time = 6o
 
-In this manuscript, we used the heat balance model that \mycite{GaggeSET} developed to derive the \ac{set} to determine when the use of elevated air moment (e.g.. \ac{v} $>$ 0.2 m/s) would be beneficial to cool the human body.
-% todo say something that v is the average air speed and not the speed of the air coming out from the fan
+In this manuscript, we used the heat balance model that \mycite{GaggeSET} developed to derive the \ac{set} to determine when the use of elevated air moment (e.g., \ac{v} $>$ 0.2 m/s) would be beneficial to cool the human body.
 The heat balance model allows us to estimate how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as, \ac{t-sk}, and \ac{t-cr}.
+It should be noted that \ac{v} is the average value of three air speeds measured at different heights over a period of at least three minutes.
+These heights are 0.1, 0.6 and 1.1 m for seated people and 0.1, 1.1 and 1.7 m for standing occupants~\cite{ashrae552017}.
 
 Section~\ref{subsec:energy-balance} describe the main Equations used by the model to derive the results.
 We have published the algorithm we used to calculate the results in a public repository.
 % todo add link to repository
-% todo say that Gagge's equation is written in a un-used language, hence we have converted it to Python and JavaScript
 Moreover, we added it to the pythermalcomfort Python package~\cite{Tartarini2020a} and the CBE thermal comfort tool~\cite{Tartarini2020}.
 The former can be used by Python users to calculate the results presented in this manuscript.
 The latter is a web-based tool that can be used to generate interactive figures which show the environmental conditions under which the use of elevated air speeds is beneficial.
@@ -109,9 +109,9 @@ The heat balance model was used to estimate the sensible and latent heat loss an
 We calculated the results for \ac{t-op} ranging from 28 and 55~$^{\circ}$C at 0.5~$^{\circ}$C intervals, \ac{rh} ranging from 0 to 100~\% at 5~\% intervals and for the discrete values of \ac{v} = 0.2, 0.8 and 4.5~m/s.
 In this paper we will be referring to `still air' condition when air velocities are below \ac{v}~=~0.2 m/s.
 This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017} and allowed us to compare our results with~\mycite{Jay2015}.
-We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5 clo, and \ac{met}~=~1.0 met, unless otherwise stated.
-It could be argued that \ac{clo} of people during heatwaves may be even lower than 0.36 clo (i.e., walking shorts, short-sleeve shirt and sandals), however, we wanted to consider a conservative scenario.
-Results for different combinations of environmental and personal conditions can be generated using our online tool.
+We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5 clo, and \ac{met}~=~1.0 met, unless otherwise specified.
+It could be argued that some people during heatwaves may be wearing less clothes than what we assumed, hence, a value of \ac{clo} equal to 0.36 clo (i.e., walking shorts, short-sleeve shirt and sandals) would be more appropriate, however, we wanted to report more conservative results.
+Moreover, results for different combinations of environmental and personal conditions can be generated using our online tool.
 We reported heat loss per unit of surface area (i.e., \ac{e-sk}).
 To obtain the absolute value of heat loss or gain the results can be multiplied by \ac{body-a}.
 Thermal stress was assumed to occur when \ac{w} (which only depends on the value of \ac{v}) reaches its maximum value \ac{w-max}.
@@ -119,20 +119,23 @@ We assumed that the use of electrical fans is detrimental when the value of \ac{
 
 \subsection{Weather data}\label{subsec:weather-data}
 
-The results obtained with the proposed heat balance model were compared with the climatic data provided in the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
-We used the ASHRAE climatic design database to extract information regarding the maximum extreme dry-bulb and wet-bulb temperatures recorded across more than 5000 stations worldwide over the last 50 years.
-For more information about the ASHRAE climate database please refer to Chapter 14 of the 2017 ASHRAE Handbook--Fundamentals.
-Maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}, in which we present data from all the stations with values higher than 20 $^\circ$C\@.
+The results obtained with the proposed heat balance model were compared with climatic data provided in the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
+We assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
+Conditions indoors may, however, be slightly less severe than outdoors since the thermal mass would dump and shift peaks in outdoor temperature.
+On the other hand, if the house is not shaded \ac{t-r} may rise significantly and worsen conditions indoors.
+We used the ASHRAE climatic design dataset to extract information regarding the maximum extreme dry-bulb and wet-bulb temperatures recorded across more than 5000 stations worldwide with a 10 year return period.
+For more information about the ASHRAE climate design dataset please refer to Chapter 14 of the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
+Location of the stations and their respective maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}
+We did not show data from stations with a maximum temperature lower than 20~$^\circ$C\@.
 
 \begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/world-map.png}
-    \caption{Shows the location of each weather station that was included in the analysis and the maximum extreme dry-bulb temperature that was recorded in that location over the last 50 years.}
+    \caption{Shows the location of each weather station that was included in the analysis and the maximum extreme dry-bulb temperature with a 10 year return period.}
     \label{fig:world-map}
 \end{figure}
 
-The five highest dry-bulb air temperatures were recorded in Morocco, USA, Iran, Algeria and Saudi Arabia, while the five highest wet-bulb air temperatures were all recorded in Australia.
-Figure~\ref{fig:world-map} also shows that few data was available for the Sub-Saharan Africa where approximately 40\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
+Figure~\ref{fig:world-map} also shows that few data was available for the Sub-Saharan Africa where approximately 40~\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
 
 \subsection{Elderly}
 

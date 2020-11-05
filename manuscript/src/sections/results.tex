@@ -35,10 +35,9 @@ The reduction in \ac{e-max} estimated by our model is lower than the one estimat
 
 The value of \ac{m-sweat} is shown in Figure~\ref{fig:comparison_models}D\@.
 The difference between the results obtained with the two heat balance models can be attributed to the fact that \citeauthor{Jay2015} calculate the value of \ac{m-sweat} as a function of the required latent energy that the body should in theory dissipate to achieve thermal neutrality.
-Hence it comprises both the regulatory sweating and the water losses through skin diffusion.
-On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as a function of regulatory signals and they assume that \ac{m-sweat} cannot exceed 500~mL/h.
+Hence it comprises both regulatory sweating and water loss through skin diffusion.
+On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as a function of regulatory signals and they assume that \ac{m-sweat} cannot exceed 500~mL/h, and it does not accounts for water loss through skin diffusion.
 \citeauthor{GaggeSET} also do not account for water losses through skin diffusion.
-% todo better describe sentence before
 
 \begin{figure}[thb!]
     \centering
@@ -50,7 +49,7 @@ On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as 
 The estimated values of excess heat stored in the human body, \ac{t-sk}, and \ac{t-cr} are shown in Figure~\ref{fig:results_model_2}A, ~\ref{fig:results_model_2}C, and ~\ref{fig:results_model_2}D, respectively.
 As soon as the body cannot longer dissipate exogenous and endogenous heat gains, the excess heat gets stored in the human body and both \ac{t-sk} and \ac{t-cr} rise.
 The \ac{t-op} at which \ac{t-cr} with elevated air speed exceeds the value of \ac{t-cr} for the `still air' condition is when the use of air movement becomes detrimental.
-While, when the energy stored becomes greater than 0 is the conditions which demarcates when heat strain would start to occur.
+While, when the energy stored becomes greater than zero is the conditions which demarcates when heat strain would start to occur.
 
 The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat strain would start to occur since the body is no longer able to dissipate all the heat gains are presented in Figure~\ref{fig:comparison_air_speed}.
 The Figure shows the results obtained with the \mycite{GaggeSET} and the \mycite{Jay2015} models.
@@ -83,15 +82,14 @@ On the other hand, when \ac{v} = 0.8 m/s both aforementioned interventions lead 
 
 The environmental conditions above which the use of elevated air speeds would actually be detrimental for the health of the people is shown in Figure~\ref{fig:energy_storage_delta}.
 This Figure depicts the area in which electrical fans should not be used, and shows the lines above which thermal strain is expected to occur (as previously shown in Figure~\ref{fig:comparison_air_speed}).
-We also plotted the maximum extreme weather conditions recorded worldwide over the las 50 years.
+We also plotted the maximum extreme weather conditions recorded worldwide over the las 10 years.
 Each dot represents the most extreme dry-bulb temperature and the \ac{rh} value measured for each weather station.
 From Figure~\ref{fig:energy_storage_delta} it can be observed the area in which electrical fans are dangerous for humans narrows as \ac{v} decreases and approaches 0.2~m/s.
 In addition, for a specific value of \ac{rh}, as the value of \ac{v} increases the critical temperature at which thermal strain would occur also increases, however, at the same time the temperature above which fans should not be used also decreases by a greater amount.
-Overall the use of fans would have been beneficial in most locations worldwide during extreme heat events.
-Increasing, \ac{V} to 0.8~m/s and 4.5~m/s would have ensured that
+Based on the climate data obtained from the 2017 ASHRAE Handbook--Fundamentals we estimated that in approximately 70~\% of the locations thermal strain should not occur even without air movement, however, this number increases to 86~\% and 93~\% when \ac{v} is increased to 0.8~m/s and 4.5~m/s, respectively.
+The use of fans would still be beneficial in the great majority of the locations worldwide.
+With the exception of only two locations where the use of \ac{v} higher than 0.8~m/s would be detrimental for the human body.
 
-% todo compare the above with the extreme temperatures recorded in each country
-% http://ashrae-meteo.info/v2.0/
 % https://advances.sciencemag.org/content/6/19/eaaw1838
 
 % todo report estimated sweat heat lossess too, either using a table or a heatmap
@@ -99,7 +97,11 @@ Increasing, \ac{V} to 0.8~m/s and 4.5~m/s would have ensured that
 \begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/use_fans.png}
-    \caption{Caption}
+    \caption{The green area shows the environmental conditions in which the use of fans is beneficial since they provide additional cooling to the human body.
+    In the hatched area, while the use of fans it is still beneficial, people are most likely to suffer from heat stress.
+    Finally the red area demarcates the region in which electrical fans should not be used.
+    The dots show the maximum extreme climate conditions recorded over the last 10 years in more than 5000 locations worldwide.
+     These results were calculated assuming \ac{t-r} = \ac{t-db}, \ac{clo} = 0.5~clo, \ac{met} = 1.0~met.}
     \label{fig:energy_storage_delta}
 %    todo replace this figure with the core body delta
 \end{figure}
