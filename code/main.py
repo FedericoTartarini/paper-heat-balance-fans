@@ -15,6 +15,7 @@ from scipy import optimize
 from pprint import pprint
 import sqlite3
 import psychrolib
+from scipy.ndimage.filters import gaussian_filter1d
 
 psychrolib.SetUnitSystem(psychrolib.SI)
 
@@ -257,13 +258,18 @@ class DataAnalysis:
                     self.ta_range, skin_wettedness, color=color, label=label
                 )
 
-                ax_1[1][1].plot(self.ta_range, sweat_rate, color=color, label=label)
+                ax_1[1][1].plot(
+                    self.ta_range,
+                    gaussian_filter1d(sweat_rate, sigma=2),
+                    color=color,
+                    label=label,
+                )
                 ax_1[1][1].plot(
                     self.ta_range, sweat_rate_ollie, color=color, linestyle="-.",
                 )
                 ax_1[1][0].plot(
                     self.ta_range,
-                    max_latent_heat_loss,
+                    gaussian_filter1d(max_latent_heat_loss, sigma=2),
                     color=color,
                     label=label + " Gagge et al. (1986)",
                 )
@@ -375,18 +381,10 @@ class DataAnalysis:
 
             for rh in [30, 60]:
 
-                max_skin_wettedness = fan_use_set(
-                    50, 50, v, 100, 1.2, 0.5, wme=0, units="SI"
-                )["skin_wetness"]
-
                 energy_balance = []
-                dry_heat_loss_ollie = []
                 sensible_skin_heat_loss = []
-                sensible_skin_heat_loss_ollie = []
                 tmp_core = []
-                sweat_rate_ollie = []
                 temp_skin = []
-                max_latent_heat_loss_ollie = []
                 skin_wettedness = []
 
                 color = self.colors[index_color]
@@ -404,14 +402,30 @@ class DataAnalysis:
 
                 label = f"v = {v}m/s; RH = {rh}%"
 
-                ax_1[0][0].plot(self.ta_range, energy_balance, color=color, label=label)
+                ax_1[0][0].plot(
+                    self.ta_range,
+                    gaussian_filter1d(energy_balance, sigma=2),
+                    color=color,
+                    label=label,
+                )
                 ax_1[0][1].plot(
-                    self.ta_range, sensible_skin_heat_loss, color=color, label=label
+                    self.ta_range,
+                    gaussian_filter1d(sensible_skin_heat_loss, sigma=2),
+                    color=color,
+                    label=label,
                 )
 
-                ax_1[1][1].plot(self.ta_range, tmp_core, color=color, label=label)
+                ax_1[1][1].plot(
+                    self.ta_range,
+                    gaussian_filter1d(tmp_core, sigma=2),
+                    color=color,
+                    label=label,
+                )
                 ax_1[1][0].plot(
-                    self.ta_range, temp_skin, color=color, label=label,
+                    self.ta_range,
+                    gaussian_filter1d(temp_skin, sigma=3),
+                    color=color,
+                    label=label,
                 )
 
                 legend_labels.append(label)
@@ -483,14 +497,15 @@ class DataAnalysis:
 
             color = self.colors_f3[ix]
 
-            for rh in self.rh_range:
+            for rh in np.arange(0, 105, 1):
 
-                for ta in np.arange(28, 66, 0.5):
+                for ta in np.arange(28, 66, 0.25):
 
                     r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
 
                     # determine critical temperature at which heat strain would occur
-                    if r["p_wet"] >= r["w_max"]:
+                    # if r["p_wet"] >= r["w_max"]:
+                    if r["exceeded"]:
                         heat_strain[v][rh] = ta
                         break
 
@@ -506,14 +521,15 @@ class DataAnalysis:
 
             x = list(heat_strain[v].keys())
 
-            x_new, y_new = interpolate(x, list(heat_strain[v].values()))
+            y_smoothed = gaussian_filter1d(list(heat_strain[v].values()), sigma=3)
 
             heat_strain[v] = {}
-            x_new = np.linspace(0, 100, 100)
-            for x_val, y_val in zip(x_new, y_new):
+            for x_val, y_val in zip(x, y_smoothed):
                 heat_strain[v][x_val] = y_val
 
-            ax.plot(x_new, y_new, label=f"v = {v}; Gagge et al. (1986)", c=color)
+            ax.plot(
+                x, y_smoothed, label=f"v = {v}; Gagge et al. (1986)", c=color,
+            )
 
         np.save(os.path.join("code", "heat_strain.npy"), heat_strain)
 
@@ -573,17 +589,17 @@ class DataAnalysis:
 
                         r = fan_use_set(ta, ta, v, rh, met, clo, wme=0, units="SI")
 
-                        if r["p_wet"] >= r["w_max"]:
+                        if r["exceeded"]:
                             heat_strain[v][rh] = ta
                             break
 
-                x_new, y_new = interpolate(
-                    list(heat_strain[v].keys()), list(heat_strain[v].values())
-                )
+                x = list(heat_strain[v].keys())
+
+                y_smoothed = gaussian_filter1d(list(heat_strain[v].values()), sigma=3)
 
                 ax.plot(
-                    x_new,
-                    y_new,
+                    x,
+                    y_smoothed,
                     label=f"v = {v}, clo = {clo}, met = {met}",
                     c=color,
                     linestyle=ls,
@@ -776,19 +792,18 @@ class DataAnalysis:
             label="No fan - v = 4.5 m/s",
         )
 
-        x_new, y_min = interpolate(
-            list(self.heat_strain[0.8].keys()), list(self.heat_strain[0.8].values()),
-        )
+        df = pd.DataFrame(self.heat_strain)
+        df_fan_above = df[df[4.5] >= df[0.8]]
+        df_fan_below = df[df[4.5] <= df[0.8] + 0.073]
 
-        x_new, y_new = interpolate(results_v_high, tmp)
+        x_new, y_new = interpolate(
+            results_v_high, tmp, x_new=list(df_fan_above.index.values)
+        )
         (ln_1,) = ax.plot(x_new, y_new, c="k", label="v = 4.5 m/s")
 
-        # x_new, y_min = interpolate(
-        #     self.heat_strain[4.5]["x"], self.heat_strain[4.5]["y"]
-        # )
         ax.fill_between(
             x_new,
-            y_min,
+            df_fan_above[4.5].values,
             y_new,
             facecolor="none",
             zorder=100,
@@ -804,8 +819,28 @@ class DataAnalysis:
             alpha=0.2,
             label="No fan - v = 4.5 m/s",
         )
+
+        # green part on the right
         fb_2 = ax.fill_between(x_new, 0, y_new, color="tab:green", alpha=0.2)
-        ax.fill_between([0, min(x_new)], 0, 60, color="tab:green", alpha=0.2)
+
+        # green part below evaporative cooling
+        ax.fill_between(
+            df_fan_below.index,
+            0,
+            df_fan_below[4.5].values,
+            color="tab:green",
+            alpha=0.2,
+        )
+
+        # blue part below evaporative cooling
+        ax.fill_between(
+            df_fan_below.index,
+            df_fan_below[4.5].values,
+            100,
+            color="tab:blue",
+            alpha=0.2,
+        )
+
         ax.set(
             ylim=(29, 55),
             xlim=(0, 100),
@@ -832,10 +867,19 @@ class DataAnalysis:
             ha="center",
             transform=ax.transAxes,
         )
+        ax.text(
+            9.5,
+            53.5,
+            "Evaporative\ncooling",
+            size=12,
+            zorder=200,
+            ha="center",
+            va="center",
+        )
         text_dic = [
-            {"txt": "Thermal strain\nv =0.2m/s", "x": 5.5, "y": 50, "r": -46},
-            {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
-            {"txt": "Thermal strain\nv=4.5m/s", "x": 17, "y": 52, "r": -46},
+            {"txt": "Thermal strain\nv =0.2m/s", "x": 11, "y": 46.5, "r": -48},
+            # {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
+            {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
             {"txt": "No fans, v=4.5m/s", "x": 70, "y": 45, "r": -34},
             {"txt": "No fans, v=0.8m/s", "x": 80, "y": 44.5, "r": -36},
         ]
@@ -1113,6 +1157,11 @@ def fan_use_set(
 
     vapor_pressure = rh * p_sat_torr(tdb) / 100
 
+    # check if reached maximum values
+    exc_blood_flow = False
+    exc_rgsw = False
+    exc_pwet = False
+
     # Initial variables as defined in the ASHRAE 55-2017
     air_velocity = max(v, 0.1)
     k_clo = 0.25
@@ -1222,11 +1271,13 @@ def fan_use_set(
         )
         if skin_blood_flow > 90.0:
             skin_blood_flow = 90.0
+            exc_blood_flow = True
         if skin_blood_flow < 0.5:
             skin_blood_flow = 0.5
         REGSW = c_sw * WARMB * math.exp(warms / 10.7)
         if REGSW > 500.0:
             REGSW = 500.0
+            exc_rgsw = True
         e_rsw = 0.68 * REGSW  # heat lost by vaporization sweat
         r_ea = 1.0 / (lr * f_a_cl * h_cc)  # evaporative resistance air layer
         r_ecl = r_clo / (lr * i_cl)
@@ -1242,6 +1293,7 @@ def fan_use_set(
             p_rsw = w_crit / 0.94
             e_rsw = p_rsw * e_max
             e_diff = 0.06 * (1.0 - p_rsw) * e_max
+            exc_pwet = True
         if e_max < 0:
             e_diff = 0
             e_rsw = 0
@@ -1305,25 +1357,31 @@ def fan_use_set(
         "hl_dry": dry,
         # "temp_skin": temp_skin,
         # "t_clothing": t_cl,
-        # "sweating rate": REGSW,
         # "heat lost by vaporization sweat": e_rsw,
         "temp_core": temp_core,
         "temp_skin": temp_skin,
+        "exceeded": any([exc_blood_flow, exc_pwet, exc_rgsw]),
+        "skin_blood_flow": skin_blood_flow,
+        "t_body": t_body,
+        "warms": warms,
+        "skin_blood_flow": skin_blood_flow,
         "sweating_required": REGSW,
-        # "hl_sweating_ratio": p_rsw,
+        "e_diff": e_diff,
         "skin_wetness": p_wet,
         "energy_storage_core": s_core,
         "energy_balance": m - hsk - q_res,
         "w_max": w_crit,
         "e_rsw": e_rsw,
         "p_wet": p_wet,
+        "q_res": q_res,
     }
 
 
-def interpolate(x, y):
+def interpolate(x, y, x_new=False, order=2):
     f2 = np.poly1d(np.polyfit(x, y, 2))
-    xnew = np.linspace(0, 100, 100)
-    return xnew, f2(xnew)
+    if not x_new:
+        x_new = np.linspace(0, 100, 100)
+    return x_new, f2(x_new)
 
 
 if __name__ == "__main__":
@@ -1356,10 +1414,10 @@ if __name__ == "__main__":
     # self.comparison_air_speed(save_fig=True)
     #
     # Figure 4 - you also need to generate fig 3
-    self.summary_use_fans(save_fig=False)
+    # self.summary_use_fans(save_fig=True)
     #
     # # Figure 3
-    # self.met_clo(save_fig=True)
+    self.met_clo(save_fig=True)
     #
     # # Figure Maps
     # self.plot_map_world(save_fig=True)
@@ -1372,26 +1430,44 @@ if __name__ == "__main__":
     # self.plot_other_variables(
     #     variable="energy_balance", levels_cbar=np.arange(0, 200, 10)
     # )
-    # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, .5))
+    # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, 0.5))
 
-    # calculations for the introduction section
-    e_dry = np.round(
-        psychrolib.GetMoistAirEnthalpy(
-            47, psychrolib.GetHumRatioFromRelHum(47, 0.15, 101325)
-        )
-        / 1000
-    )
+    # # # calculations for the introduction section
+    # e_dry = np.round(
+    #     psychrolib.GetMoistAirEnthalpy(
+    #         47, psychrolib.GetHumRatioFromRelHum(47, 0.15, 101325)
+    #     )
+    #     / 1000
+    # )
+    #
+    # e_humid = np.round(
+    #     psychrolib.GetMoistAirEnthalpy(
+    #         40, psychrolib.GetHumRatioFromRelHum(40, 0.5, 101325)
+    #     )
+    #     / 1000
+    # )
+    #
+    # np.round(
+    #     psychrolib.GetRelHumFromHumRatio(
+    #         40, psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(73007, 40), 101325
+    #     )
+    #     * 100
+    # )
 
-    e_humid = np.round(
-        psychrolib.GetMoistAirEnthalpy(
-            40, psychrolib.GetHumRatioFromRelHum(40, 0.5, 101325)
-        )
-        / 1000
-    )
-
-    np.round(
-        psychrolib.GetRelHumFromHumRatio(
-            40, psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(73007, 40), 101325
-        )
-        * 100
-    )
+    # plt.close("all")
+    # plt.plot()
+    # rh_arr = [10]
+    # t_arr = range(30, 55)
+    # for ix, v in enumerate([0.2, 0.8, 4.5]):
+    #     linSt = ["-", ":", "-."]
+    #     for r in rh_arr:
+    #         results = []
+    #         for t in t_arr:
+    #             results.append(
+    #                 fan_use_set(t, t, v=v, rh=r, met=1.2, clo=0.5, wme=0, units="SI")[
+    #                     "skin_blood_flow"
+    #                 ]
+    #             )
+    #         plt.plot(t_arr, results, label=f"{r}, {v}", linestyle=linSt[ix])
+    # plt.legend()
+    # plt.show()
