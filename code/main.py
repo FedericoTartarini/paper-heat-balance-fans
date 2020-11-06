@@ -1373,3 +1373,25 @@ if __name__ == "__main__":
     #     variable="energy_balance", levels_cbar=np.arange(0, 200, 10)
     # )
     # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, .5))
+
+    # calculations for the introduction section
+    e_dry = np.round(
+        psychrolib.GetMoistAirEnthalpy(
+            47, psychrolib.GetHumRatioFromRelHum(47, 0.15, 101325)
+        )
+        / 1000
+    )
+
+    e_humid = np.round(
+        psychrolib.GetMoistAirEnthalpy(
+            40, psychrolib.GetHumRatioFromRelHum(40, 0.5, 101325)
+        )
+        / 1000
+    )
+
+    np.round(
+        psychrolib.GetRelHumFromHumRatio(
+            40, psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(73007, 40), 101325
+        )
+        * 100
+    )
