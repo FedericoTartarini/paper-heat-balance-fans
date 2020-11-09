@@ -7,38 +7,36 @@
 The sensible heat losses from the skin to the environment are proportional to the difference between the \ac{t-sk} and \ac{t-op}, as shown in Equation~\ref{eq:c-r}.
 Consequently, for values of \ac{t-op} higher than \ac{t-sk} the body start gaining sensible heat from its environment and the term \ac{c-r} becomes negative.
 Figure~\ref{fig:comparison_models}A shows how the sensible heat losses estimated with the \mycite{GaggeSET} and the \mycite{Jay2015} models vary as a function of \ac{t-op}, \ac{rh}, and \ac{v}.
-The former model iteratively determines \ac{t-sk}, while the latter assumes it to be constant and equal to 35~$^{\circ}$C.
-This explains the difference in \ac{c-r} determined by the two models.
-An increase in \ac{t-sk} also elevates the vapor pressure gradient between the skin and the surrounding environment~\cite{VanSomeren2011}.
-For \ac{t-op} higher than those at which \ac{w-max} occurs (Figure~\ref{fig:comparison_models}B), our model estimates that heat energy gets stored in the body and consequently \ac{t-sk} increases, as shown in Figure~\ref{fig:results_model_2}C\@.
+The former model iteratively determines \ac{t-sk}, while the latter assumes it to be constant and equal to 35~$^{\circ}$C\@.
+For \ac{t-op} higher than those at which \ac{w-max} occurs (Figure~\ref{fig:comparison_models}B), the former model estimates that heat energy gets stored in the body and consequently \ac{t-sk} increases, as shown in Figure~\ref{fig:results_model_2}C\@.
 This reduces the rate at which sensible heat gains increase.
+
 The values of \ac{w} and the respective values of \ac{w-max} for two air speeds are shown in Figure~\ref{fig:comparison_models}B\@.
 It can be observed that the critical operative temperature at which \ac{w} equals \ac{w-max} is a inversely proportional to the value of \ac{rh}.
 
 \begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_models_v2.png}
-    \caption{Shows how the results obtained with the the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET} vary as a function of the \ac{t-op}.
-    Each Figure shows the results obtained using a combination of two values of \ac{rh} and \ac{v}.
-    Figure A - sensible heat losses from the skin vary.
+    \caption{Results obtained with the the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET}.
+    Each Figure shows how each parameter varies as a function of \ac{t-op} for a combination of two values of \ac{rh} and \ac{v}.
+    Figure A - sensible heat losses from the skin.
     Figure B - skin wettendess.
     Figure C - Maximum latent heat loss estimated using \ac{w} = \ac{w-max}.
     Figure D - Sweat rate.}
     \label{fig:comparison_models}
 \end{figure}
 
-The negative effect that an increase in \ac{v} has on the sensible heat gains is, however, compensated by a greater increase in the \acf{e-sk} that the body can dissipate towards the surrounding environment.
+The negative effect that an increase in \ac{v} has on the sensible heat gains is compensated by a greater increase in the \acf{e-sk} that the body can dissipate towards the surrounding environment.
 For example, when \ac{t-op}~=~45~$^{\circ}$C and \ac{rh}~=~30~\%, an increase in \ac{v} from 0.2 to 4.5~m/s increases the sensible heat gains (\acs{c-r}) by 29 W/m\textsuperscript{2} while increasing \ac{e-sk} by 45~W/m\textsuperscript{2}, hence, increasing \ac{v} has a net positive effect.
 Figure~\ref{fig:comparison_models}C shows the values of \ac{e-max} estimated by replacing \ac{w} in Equation~\ref{eq:latent-skin} with \ac{w-max}.
 The value of \ac{e-max} decreases as the \ac{t-op} increases since \ac{p-a} grows more rapidly than \ac{p-sk}.
 For a set combination of \ac{v} and \ac{t-op} the value of \ac{e-max} decreases as the value of \ac{rh} increases since humid air has a higher \ac{p-a} than dry air.
-The reduction in \ac{e-max} estimated by our model is lower than the one estimated by \mycite{Jay2015} since we do not assume \ac{t-sk} to be constant.
+The reduction in \ac{e-max} estimated by our model is lower than the one estimated by \mycite{Jay2015} since an increase in \ac{t-sk} elevates the vapor pressure gradient between the skin and the surrounding environment~\cite{VanSomeren2011}.
 
 The value of \ac{m-sweat} is shown in Figure~\ref{fig:comparison_models}D\@.
 The difference between the results obtained with the two heat balance models can be attributed to the fact that \citeauthor{Jay2015} calculate the value of \ac{m-sweat} as a function of the required latent energy that the body should in theory dissipate to achieve thermal neutrality.
-Hence it comprises both regulatory sweating and water loss through skin diffusion.
-On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as a function of regulatory signals and they assume that \ac{m-sweat} cannot exceed 500~mL/h, and it does not accounts for water loss through skin diffusion.
-\citeauthor{GaggeSET} also do not account for water losses through skin diffusion.
+On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as a function of regulatory signals and they assume that \ac{m-sweat} cannot exceed 500~mL/h.
+% todo check this since it does not convince me
 
 \begin{figure}[thb!]
     \centering
@@ -48,22 +46,29 @@ On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as 
 \end{figure}
 
 The estimated values of excess heat stored in the human body, \ac{t-sk}, and \ac{t-cr} are shown in Figure~\ref{fig:results_model_2}A, ~\ref{fig:results_model_2}C, and ~\ref{fig:results_model_2}D, respectively.
-As soon as the body cannot longer dissipate exogenous and endogenous heat gains, the excess heat gets stored in the human body and both \ac{t-sk} and \ac{t-cr} rise.
-The \ac{t-op} at which \ac{t-cr} with elevated air speed exceeds the value of \ac{t-cr} for the `still air' condition is when the use of air movement becomes detrimental.
-While, when the energy stored becomes greater than zero is the conditions which demarcates when heat strain would start to occur.
+When the body cannot longer dissipate exogenous and endogenous heat gains, the excess heat gets stored in the human body and both \ac{t-sk} and \ac{t-cr} rise.
 
-The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat strain would start to occur since the body is no longer able to dissipate all the heat gains are presented in Figure~\ref{fig:comparison_air_speed}.
-The Figure shows the results obtained with the \mycite{GaggeSET} and the \mycite{Jay2015} models.
+The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat strain would start to occur is presented in Figure~\ref{fig:comparison_air_speed}.
+The Figure shows the results obtained with both the \mycite{GaggeSET} and the \mycite{Jay2015} models.
+In addition, we are presenting the results obtained by \mycite{Morris2019}.
+In particular, from the latter study we are presenting both the conditions in which fans (\ac{v}~=~2.0~m/s) were found to be beneficial and not, using a green and red dot, respectively.
+The black dashed lines are isoenthalpic lines.
+From Figure~\ref{fig:comparison_air_speed} it can be observed that if electric fans are used in hot and dry conditions heat strain would occur at relative low enthalpy values.
+This can be explained by the fact that the value of skin blood flow increases proportionally to the value of \ac{v}, hence, it reaches its maximum value for lower values of \ac{t-db} as \ac{v} increases.
+Our model, slightly underestimates this effect since based on our results fans (\ac{v}~=~4/5~m/s) should in `theory' not be used for \ac{rh} lower than 10~\% and \ac{t-db} higher than 49~$^{\circ}$C\@, which is where the gray solid line intercepts the yellow line.
+It should, however, be noted that, as previously mentioned in the Introduction Section, the hot and dry condition has a lower enthalpy than the hot and humid one, hence, evaporative cooling technologies can be used to reduce \ac{t-db} and simultaneously increase \ac{rh} to ensure the indoor conditions would not cause heat strain.
+The simplest solution of achieving this is to place wet towels near the electric fan.
 
 \begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_air_speed.png}
-    \caption{Compares the results between the SET model and Ollie's model.
-    Each line demarcates point above which the body cannot longer dissipate all the endogenous and exogenous heat gains, hence the extra energy gets stored in the body and it causes the \acf{t-cr} to increase.}
+    \caption{Compares the results between the \mycite{GaggeSET} and the \mycite{Jay2015} models.
+    The solid and dash dotted lines demarcate the point above which heat stress is expected to occur.
+    The dashed lines are isoenthalpic lines, which show the enthalpy of the two conditions studied by \mycite{Morris2019}}
     \label{fig:comparison_air_speed}
 \end{figure}
 
-It should be noted that the limit presented in Figure~\ref{fig:comparison_air_speed} is not the limit above which an increase in \ac{v} is no longer beneficial.
+The limits presented in Figure~\ref{fig:comparison_air_speed} are not the limits above which an increase in \ac{v} is no longer beneficial.
 Each line demarcates the region in which thermal stress is estimated to occur and not all individuals would be able to compensate for endogenous and exogenous heat gains.
 For a specific value of \ac{v}, the maximum \ac{t-op} at which cardiovascular strain is estimated to occur decreases as the value of \ac{rh} increases.
 In addition, it can be observed that for a specific value of \ac{rh}, as the value of \ac{v} increases the overall increase in the maximum critical temperature rapidly decreases.
@@ -89,7 +94,7 @@ From Figure~\ref{fig:energy_storage_delta} it can be observed the area in which 
 In addition, for a specific value of \ac{rh}, as the value of \ac{v} increases the critical temperature at which thermal strain would occur also increases, however, at the same time the temperature above which fans should not be used also decreases by a greater amount.
 Based on the climate data obtained from the 2017 ASHRAE Handbook--Fundamentals we estimated that in approximately 67~\% of the locations thermal strain should not occur even without air movement, however, this number increases to 87~\% and 92~\% when \ac{v} is increased to 0.8~m/s and 4.5~m/s, respectively.
 The use of fans would still be beneficial in the great majority of the locations worldwide.
-With the exception of only two locations where the use of \ac{v} higher than 0.8~m/s would be detrimental for the human body.
+With the exception of 23 locations where the use of \ac{v} higher than 0.8~m/s would be detrimental for the human body, and 7 locations where no air elevated air movement should be used.
 
 % https://advances.sciencemag.org/content/6/19/eaaw1838
 
