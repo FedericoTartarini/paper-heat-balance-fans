@@ -22,7 +22,7 @@ The latter is a web-based tool that can be used to generate interactive figures 
 
 The human body exchanges both sensible and latent heat with its surrounding environment.
 Sensible heat is transferred via conduction, convection and radiation (\acs{c-r} + \acs{c-res}).
-While latent heat losses occur from evaporation of sweat  (\acs{e-rsw}), moisture diffused through the skin  (\acs{e-dif}), and respiration (\acs{e-res})
+While latent heat loss occurs from the evaporation of sweat (\acs{e-rsw}), moisture diffused through the skin  (\acs{e-dif}), and respiration (\acs{e-res})
 The energy balance in the human body is described by:
 
 \begin{equation}
@@ -30,7 +30,7 @@ The energy balance in the human body is described by:
 \end{equation}
 
 This equation assumes that the body comprises two main thermal compartments: the skin and the core.
-If the exogenous and endogenous heat gains cannot be compensated by the heat losses, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
+If the exogenous and endogenous heat gains cannot be compensated by heat loss, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental, and personal factors.
 The former are \ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}.
@@ -51,7 +51,7 @@ Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of th
 
 \subsubsection{Sensible Heat Loss from Skin, (\acs{c-r})}
 
-Sensible heat losses from the human body mainly occur from convection and radiation from the skin to the environment.
+Sensible heat loss from the human body mainly occur from convection and radiation from the skin to the environment.
 The total amount of \ac{c-r} can be described as a function of the \ac{t-sk}, \ac{t-op}, \ac{r-cl}, \ac{f-cl}, and \ac{h}.
 The equation can be expressed as:
 
@@ -112,15 +112,15 @@ This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae5
 We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5 clo, and \ac{met}~=~1.0 met, unless otherwise specified.
 It could be argued that some people during heatwaves may be wearing less clothes than that, hence, a value of \ac{clo} equal to 0.36 clo (i.e., walking shorts, short-sleeve shirt and sandals) would be more appropriate, however, we wanted to use a more conservative value.
 Moreover, results for different combinations of environmental and personal conditions can be generated using our online tool.
-We reported heat loss per unit of surface area (i.e., \ac{e-sk}).
-To obtain the absolute value of heat loss or gain the results can be multiplied by \ac{body-a}.
+We reported heat losses per unit of surface area (i.e., \ac{e-sk}).
 Thermal stress was assumed to occur when either of the following parameters reached its maximum value \ac{w}, skin blood flow or \ac{m-sweat}.
 We assumed that the use of electrical fans is detrimental when the value of \ac{t-cr} calculated for values of \ac{v} higher than 0.2~m/s exceeds the value determined for the `still air' condition.
 
 \subsection{Weather data}\label{subsec:weather-data}
 
-The results obtained with the proposed heat balance model were compared with climatic data provided in the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
-We used the ASHRAE climatic design dataset to extract information regarding the maximum extreme dry-bulb and wet-bulb temperatures recorded across more than 5000 stations worldwide with a 10 year return period.
+The results obtained with the proposed heat balance model were compared with climatic data provided in the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017} and the records from the Emergency Events Database (EM-DAT) which contains a list of the deadliest heatwaves recorded from 1936 to the present date~\cite{EMDATThe70:online}.
+
+From the ASHRAE climatic design dataset we extracted information regarding the maximum extreme dry-bulb and wet-bulb temperatures recorded across more than 5000 stations worldwide with a 10 year return period.
 For more information about the ASHRAE climate design dataset please refer to Chapter 14 of the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
 Location of the stations and their respective maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}
 We did not show data from stations with a maximum temperature lower than 20~$^\circ$C\@ since we are only interested in assessing the benefit of using fans during hot days.
@@ -140,6 +140,9 @@ However, we assumed this to be the most extreme heat event that could occur in e
 In addition, we assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
 Conditions indoors may, however, be slightly less severe than outdoors since the thermal mass of the building would dump and shift peaks in outdoor temperature.
 On the other hand, if the house is not well shaded \ac{t-r} may rise significantly and worsen conditions indoors.
+
+The EM-DAT contains detailed information on when the heatwave occurred, the location, the number of deaths, and the maximum temperature recorded.
+However, it does not contain information about the \ac{rh} which is essential in determining whether the use of electrical fans would have been beneficial or not.
 
 \subsection{Elderly}
 
