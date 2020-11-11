@@ -489,6 +489,41 @@ class DataAnalysis:
 
         fig, ax = plt.subplots(figsize=(7, 4))
 
+        # plot enthalpy line
+        reference_enthalpies = [100805.98, 73007.24]
+        for enthalpy in reference_enthalpies:
+            rh_const_enthalpy = []
+            for tmp in self.ta_range:
+                hr = psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(enthalpy, tmp)
+                rh_const_enthalpy.append(
+                    psychrolib.GetRelHumFromHumRatio(tmp, hr, 101325) * 100
+                )
+
+            ax.plot(
+                rh_const_enthalpy,
+                self.ta_range,
+                c="k",
+                linestyle=":",
+                label="v = 2.0m/s; Morris et al. (2019)",
+            )
+
+        ax.scatter(
+            15,
+            47,
+            c="tab:red",
+            label="fan (2.0m/s) not beneficial; Morris et al. (2019)",
+        )
+        ax.text(
+            27.1, 50, "H = 101 kJ/kg", ha="center", va="center", size=8, rotation=-46
+        )
+
+        ax.scatter(
+            50, 40, c="tab:green", label="fan (2.0m/s) beneficial; Morris et al. (2019)"
+        )
+        ax.text(
+            60, 31.35, "H = 73 kJ/kg", ha="center", va="center", size=8, rotation=-24
+        )
+
         heat_strain = {}
 
         for ix, v in enumerate(self.v_range):
@@ -528,7 +563,7 @@ class DataAnalysis:
                 heat_strain[v][x_val] = y_val
 
             ax.plot(
-                x, y_smoothed, label=f"v = {v}; Gagge et al. (1986)", c=color,
+                x, y_smoothed, label=f"v = {v}m/s; Gagge et al. (1986)", c=color,
             )
 
         np.save(os.path.join("code", "heat_strain.npy"), heat_strain)
@@ -583,9 +618,9 @@ class DataAnalysis:
 
                 color = self.colors_f3[ix]
 
-                for rh in self.rh_range:
+                for rh in np.arange(0, 105, 1):
 
-                    for ta in np.arange(28, 66, 0.5):
+                    for ta in np.arange(28, 66, 0.25):
 
                         r = fan_use_set(ta, ta, v, rh, met, clo, wme=0, units="SI")
 
@@ -700,36 +735,31 @@ class DataAnalysis:
         plt.show()
 
     def summary_use_fans(self, save_fig):
-        results_v_high = []
-        results_v_low = []
+        rh_arr = np.arange(34, 110, 2)
+        tmp_low = []
+        tmp_high = []
 
-        tmp = np.arange(38.85, 55, 1)
-
-        for t in tmp:
+        for rh in rh_arr:
 
             def function(x):
                 return (
-                    fan_use_set(t, t, 4.5, 100 - x, 1.2, 0.5, wme=0, units="SI")[
-                        "temp_core"
-                    ]
-                    - fan_use_set(t, t, 0.2, 100, 1.2, 0.5, wme=0, units="SI")[
+                    fan_use_set(x, x, v, rh, 1.2, 0.5, wme=0, units="SI")["temp_core"]
+                    - fan_use_set(x, x, 0.2, rh, 1.2, 0.5, wme=0, units="SI")[
                         "temp_core"
                     ]
                 )
 
-            results_v_high.append(100 - optimize.brentq(function, 0.0, 60))
+            v = 4.5
+            try:
+                tmp_high.append(optimize.brentq(function, 30, 130))
+            except ValueError:
+                tmp_high.append(np.nan)
 
-            def function_v_low(x):
-                return (
-                    fan_use_set(t, t, 0.8, 100 - x, 1.2, 0.5, wme=0, units="SI")[
-                        "energy_balance"
-                    ]
-                    - fan_use_set(t, t, 0.2, 100, 1.2, 0.5, wme=0, units="SI")[
-                        "energy_balance"
-                    ]
-                )
-
-            results_v_low.append(100 - optimize.brentq(function_v_low, 0.0, 60))
+            v = 0.8
+            try:
+                tmp_low.append(optimize.brentq(function, 30, 130))
+            except ValueError:
+                tmp_low.append(np.nan)
 
         fig, ax = plt.subplots()
 
@@ -778,7 +808,7 @@ class DataAnalysis:
                     )
                 )
 
-        x_new, y_new = interpolate(results_v_low, tmp)
+        x_new, y_new = interpolate(rh_arr, tmp_low)
 
         (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="v = 0.8 m/s")
 
@@ -797,7 +827,7 @@ class DataAnalysis:
         df_fan_below = df[df[4.5] <= df[0.8] + 0.073]
 
         x_new, y_new = interpolate(
-            results_v_high, tmp, x_new=list(df_fan_above.index.values)
+            rh_arr, tmp_high, x_new=list(df_fan_above.index.values)
         )
         (ln_1,) = ax.plot(x_new, y_new, c="k", label="v = 4.5 m/s")
 
@@ -858,15 +888,15 @@ class DataAnalysis:
             ha="center",
             transform=ax.transAxes,
         )
-        ax.text(
-            0.33,
-            0.8,
-            "Move to a\ncooler place\nif possible",
-            size=12,
-            zorder=200,
-            ha="center",
-            transform=ax.transAxes,
-        )
+        # ax.text(
+        #     0.33,
+        #     0.8,
+        #     "Move to a\ncooler place\nif possible",
+        #     size=12,
+        #     zorder=200,
+        #     ha="center",
+        #     transform=ax.transAxes,
+        # )
         ax.text(
             9.5,
             53.5,
@@ -880,8 +910,8 @@ class DataAnalysis:
             {"txt": "Thermal strain\nv =0.2m/s", "x": 11, "y": 46.5, "r": -48},
             # {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
             {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
-            {"txt": "No fans, v=4.5m/s", "x": 70, "y": 45, "r": -34},
-            {"txt": "No fans, v=0.8m/s", "x": 80, "y": 44.5, "r": -36},
+            {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
+            {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
         ]
 
         for obj in text_dic:
@@ -918,8 +948,8 @@ class DataAnalysis:
             )
 
         # calculate number of stations where db_max exceeds critical temperature
-        f_08_no_fan = np.poly1d(np.polyfit(results_v_low, tmp, 2,))
-        f_45_no_fan = np.poly1d(np.polyfit(results_v_high, tmp, 2,))
+        f_08_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_low, 2,))
+        f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
 
         df_queried["rh"] = arr_rh
         df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
@@ -962,6 +992,17 @@ class DataAnalysis:
                 / df_queried.shape[0]
                 * 100
             ).round()
+        )
+        print(
+            df_queried[
+                [
+                    "exc_t_crit_02",
+                    "exc_t_crit_08",
+                    "exc_t_crit_45",
+                    "exc_no_fan_08",
+                    "exc_no_fan_45",
+                ]
+            ].sum()
         )
 
         ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c="tab:gray")
@@ -1384,9 +1425,34 @@ def interpolate(x, y, x_new=False, order=2):
     return x_new, f2(x_new)
 
 
+def analyse_em_data():
+
+    df = pd.read_csv(
+        os.path.join(os.getcwd(), "code", "emdat.csv"), header=6, encoding="ISO-8859-1"
+    )
+    df = df[df["Disaster Subtype"] == "Heat wave"]
+    df = df.dropna(subset=["Dis Mag Value"])
+
+    # number of entries
+    print("number of entries with max tmp value = ", df.shape[0])
+
+    print("total deaths = ", df["Total Deaths"].sum())
+
+    for t in [40, 45]:
+        print(
+            "deaths t lower than ",
+            t,
+            " equal to ",
+            df.loc[df["Dis Mag Value"] < t, "Total Deaths"].sum(),
+        )
+
+
 if __name__ == "__main__":
 
     plt.close("all")
+
+    analyse_em_data()
+
     #
     self = DataAnalysis()
 
@@ -1414,16 +1480,19 @@ if __name__ == "__main__":
     # self.comparison_air_speed(save_fig=True)
     #
     # Figure 4 - you also need to generate fig 3
-    # self.summary_use_fans(save_fig=True)
+    # self.summary_use_fans(save_fig=False)
     #
     # # Figure 3
-    self.met_clo(save_fig=True)
+    # self.met_clo(save_fig=True)
     #
     # # Figure Maps
     # self.plot_map_world(save_fig=True)
 
     # # benefit of increasing air speed
-    # benefit = self.heat_strain[0.8]["y"] - self.heat_strain[0.2]["y"]
+    # benefit = [
+    #     x[0] - x[1]
+    #     for x in zip(self.heat_strain[0.8].values(), self.heat_strain[0.2].values())
+    # ]
     # pd.DataFrame({"benefit": benefit}).describe().round(1)
 
     # # Figure 4
@@ -1456,18 +1525,30 @@ if __name__ == "__main__":
 
     # plt.close("all")
     # plt.plot()
-    # rh_arr = [10]
+    # rh_arr = range(0, 120, 20)
     # t_arr = range(30, 55)
-    # for ix, v in enumerate([0.2, 0.8, 4.5]):
+    # for ix, v in enumerate([0.2, 4.5]):
     #     linSt = ["-", ":", "-."]
     #     for r in rh_arr:
     #         results = []
     #         for t in t_arr:
     #             results.append(
     #                 fan_use_set(t, t, v=v, rh=r, met=1.2, clo=0.5, wme=0, units="SI")[
-    #                     "skin_blood_flow"
+    #                     # "p_wet"
+    #                     # "skin_blood_flow"
+    #                     # "sweating_required"
+    #                     "temp_core"
     #                 ]
     #             )
     #         plt.plot(t_arr, results, label=f"{r}, {v}", linestyle=linSt[ix])
     # plt.legend()
     # plt.show()
+
+    # t, rh = 45, 70
+    # e = np.round(
+    #     psychrolib.GetMoistAirEnthalpy(
+    #         t, psychrolib.GetHumRatioFromRelHum(t, rh/100, 101325)
+    #     )
+    #     / 1000
+    # )
+    # print(e)
