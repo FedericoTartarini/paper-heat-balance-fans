@@ -1079,7 +1079,6 @@ def ollie(is_fan_on, ta, rh, is_elderly):
 
         r_e_cl_mean = 0.0237
 
-    bsa = 1.8
     t_r = ta
     t_o = ta
     p_a = p_sat(ta) / 1000 * rh / 100
@@ -1111,6 +1110,7 @@ def ollie(is_fan_on, ta, rh, is_elderly):
 
     s_req = (e_req / s_w_eff * 3600) / s_w_lat
 
+    # bsa = 1.8
     # e_req_w = e_req * bsa
     # e_max_w = e_max * bsa
     # c_r_w = c_r * bsa
@@ -1228,9 +1228,7 @@ def fan_use_set(
     length_time_simulation = 60  # length time simulation
     r_clo = 0.155 * clo  # thermal resistance of clothing, °C M^2 /W
 
-    f_a_cl = (
-        1.0 + 0.15 * clo
-    )  # increase in body surface area due to clothing todo the eq 49 fundamentals is 1 + 0.3 icl
+    f_a_cl = 1.0 + 0.15 * clo  # increase in body surface area due to clothing
     lr = 2.2 / pressure_in_atmospheres  # Lewis ratio
     rm = met * met_factor  # metabolic rate
     m = met * met_factor
@@ -1405,7 +1403,6 @@ def fan_use_set(
         "skin_blood_flow": skin_blood_flow,
         "t_body": t_body,
         "warms": warms,
-        "skin_blood_flow": skin_blood_flow,
         "sweating_required": REGSW,
         "e_diff": e_diff,
         "skin_wetness": p_wet,
