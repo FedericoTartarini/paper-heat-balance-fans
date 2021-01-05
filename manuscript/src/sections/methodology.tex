@@ -31,6 +31,8 @@ The energy balance in the human body is described by:
 
 This equation assumes that the body comprises two main thermal compartments: the skin and the core.
 If the exogenous and endogenous heat gains cannot be compensated by heat loss, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
+One of the main differences between our proposed model and the one used by \mycite{Jay2015} is that their model does not accounts for heat stored in the core or the skin compartment.
+Consequently, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental, and personal factors.
 The former are \ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}.
@@ -47,7 +49,8 @@ Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of th
     A_{body} = 0.202 m^{0.425} l^{0.725}\label{eq:dubois}
 \end{equation}
 
-% look at this source
+In thermal comfort research this value is generally assumed to be constant and equal to 1.8 m$^{2}$.
+\mycite{Jay2015} also consider this value to be constant, however, it should be noted that this in an approximation.
 
 \subsubsection{Sensible Heat Loss from Skin, (\acs{c-r})}
 
@@ -75,7 +78,7 @@ Where \ac{t-op} varies as a function of \ac{h-c}, \ac{h-r}, \ac{t-r} and \ac{t-d
     t_{o}=\frac{h_{r} \bar{t}_{r}+h_{c} t_{db}}{h_{r}+h_{c}}\label{eq:t-op}
 \end{equation}
 
-The \ac{t-sk} is calculated iteratively by the heat balance model since it varies as a function of the heat loss from the human body towards its environment and the heat transferred from the core to the skin node.
+In our model, the values of \ac{t-sk} is calculated iteratively since it varies as a function of the heat loss from the human body towards its environment and the heat transferred from the core to the skin node.
 \Ac{t-cl} can be calculated as a function of the \ac{t-op}, \ac{t-sk}, \ac{r-cl} and the resistance of the air layer.
 
 \subsubsection{Latent Heat Loss from Skin, (\acs{e-sk})}
@@ -93,6 +96,9 @@ Skin wettedness varies as a function of the activity of the sweat glands and the
 While, theoretically \ac{w} can range from 0 to 1, in practice, \ac{w} is strongly correlated with thermal stress and warm discomfort, consequently there is a \ac{w-max} for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
 
 We estimated the \ac{w-max} value and the \ac{m-sweat} using the \mycite{GaggeSET} model.
+On the other hand, \mycite{Jay2015} adjusted the value of \ac{w-max} based on fan use and age.
+For young adults, they assumed \ac{w-max} to be equal to 0.65 for the `fan on' condition and 0.85 for the `fan off' condition.
+These values are higher than those estimated by the \mycite{GaggeSET} model which are presented in Figure~\ref{fig:comparison_models}.
 
 \subsubsection{Respiratory Losses, (\acs{q-res})}
 The human body exchanges both sensible and latent heat with its environment.
