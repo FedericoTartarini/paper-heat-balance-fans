@@ -485,9 +485,74 @@ class DataAnalysis:
         else:
             plt.show()
 
+    def comparison_ravanelli(self, save_fig=True):
+
+        f, ax = plt.subplots(figsize=(4, 3), sharex="all")
+
+        ravanelli = [
+            [20.834201219379903, -0.0007788904784615802],
+            [24.0124948469266, 0.0017048164043869107],
+            [27.826447199982645, 0.020332618025750815],
+            [31.17424982099851, -0.00947186456843152],
+            [34.64918418711624, 0.010397790494356629],
+            [37.615591572826496, -0.00947186456843152],
+            [40.75150795200591, 0.00046296296296266526],
+            [43.84504708281804, 0.04020227308853874],
+            [47.10809520709932, 0.04020227308853874],
+            [49.862616350973134, 0.10850421236687313],
+            [52.786646488316094, 0.2115780480050864],
+            [55.795431122393644, 0.3307959783818152],
+            [58.88897025320578, 0.48230209823557446],
+            [61.728245893814154, 0.6499523128278492],
+            [64.69465327952443, 0.8225699411858209],
+            [67.23728818156178, 1.0411361468764904],
+        ]
+
+        df_ravanelli = pd.DataFrame(ravanelli)
+
+        v = 4.0
+        ta = 42
+        tmp_core = []
+        rh_range = range(20, 70)
+
+        for rh in rh_range:
+
+            r = fan_use_set(ta, ta, v, rh, 1, 0.35, wme=0, units="SI")
+
+            tmp_core.append(r["temp_core"] - 37.215)
+
+        ax.plot(
+            rh_range, gaussian_filter1d(tmp_core, sigma=2), label="Gagge et al.(1986)",
+        )
+
+        ax.scatter(
+            df_ravanelli[0], df_ravanelli[1], label="Ravanelli et al. (2015)",
+        )
+
+        ax.grid(c="lightgray")
+
+        ax.set(
+            ylabel=r"Change in core temperature, $t_{cr}$ [°C]",
+            xlabel="Relative Humidity, RH [%]",
+        )
+
+        plt.legend(frameon=False,)
+
+        sns.despine(left=True, bottom=True, right=True)
+        f.tight_layout()
+        plt.subplots_adjust(top=0.92)
+        if save_fig:
+            plt.savefig(
+                os.path.join(self.dir_figures, "comparison_ravanelli.png"), dpi=300
+            )
+        else:
+            plt.show()
+
     def comparison_air_speed(self, save_fig):
 
         fig, ax = plt.subplots(figsize=(7, 4))
+
+        ax.grid(c="lightgray")
 
         # plot enthalpy line
         reference_enthalpies = [100805.98, 73007.24]
@@ -508,20 +573,32 @@ class DataAnalysis:
             )
 
         ax.scatter(
-            15,
-            47,
-            c="tab:red",
-            label="fan (2.0m/s) not beneficial; Morris et al. (2019)",
+            15, 47, c="tab:red", label="fan not beneficial; Morris et al. (2019)",
         )
         ax.text(
             27.1, 50, "H = 101 kJ/kg", ha="center", va="center", size=8, rotation=-46
         )
 
-        ax.scatter(
-            50, 40, c="tab:green", label="fan (2.0m/s) beneficial; Morris et al. (2019)"
-        )
+        ax.scatter(50, 40, c="tab:green", label="fan beneficial; Morris et al. (2019)")
         ax.text(
             60, 31.35, "H = 73 kJ/kg", ha="center", va="center", size=8, rotation=-24
+        )
+
+        # ravanelli's results
+        ax.scatter(
+            80,
+            36,
+            c="tab:green",
+            marker="+",
+            label="fan beneficial; Ravanelli et al. (2015)",
+        )
+
+        ax.scatter(
+            50,
+            42,
+            c="tab:green",
+            marker="+",
+            label="fan beneficial; Ravanelli et al. (2015)",
         )
 
         heat_strain = {}
@@ -567,8 +644,6 @@ class DataAnalysis:
             )
 
         np.save(os.path.join("code", "heat_strain.npy"), heat_strain)
-
-        ax.grid(c="lightgray")
 
         ax.xaxis.set_ticks_position("none")
         ax.yaxis.set_ticks_position("none")
@@ -1007,6 +1082,9 @@ class DataAnalysis:
 
         ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c="tab:gray")
 
+        # horizontal line showing limit imposed by most of the standards
+        ax.plot([0, 100], [35, 35], c="tab:red")
+
         # add legend
         plt.legend(
             [ln_2, ln_0, ln_1, fb_0, fb_1, fb_2],
@@ -1235,10 +1313,10 @@ def fan_use_set(
 
     if clo <= 0:
         w_crit = 0.38 * pow(air_velocity, -0.29)  # evaporative efficiency
-        i_cl = 1.0  # thermal resistance of clothing, clo
+        i_cl = 1.0  # permeation efficiency of water vapour through the clothing layer
     else:
         w_crit = 0.59 * pow(air_velocity, -0.08)
-        i_cl = 0.45
+        i_cl = 0.45  # permeation efficiency of water vapour through the clothing layer
 
     # h_cc corrected convective heat transfer coefficient
     h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
@@ -1453,6 +1531,8 @@ if __name__ == "__main__":
     #
     self = DataAnalysis()
 
+    self.comparison_ravanelli(save_fig=True)
+
     # ta = 45
     # rh = 30
     # v = 4.5
@@ -1476,8 +1556,8 @@ if __name__ == "__main__":
     # # Figure 3
     # self.comparison_air_speed(save_fig=True)
     #
-    # Figure 4 - you also need to generate fig 3
-    # self.summary_use_fans(save_fig=False)
+    # # Figure 4 - you also need to generate fig 3
+    # self.summary_use_fans(save_fig=True)
     #
     # # Figure 3
     # self.met_clo(save_fig=True)
