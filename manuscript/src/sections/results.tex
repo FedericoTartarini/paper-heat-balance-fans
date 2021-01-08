@@ -141,9 +141,39 @@ With the exception of 23 locations where the use of \ac{v} higher than 0.8~m/s w
     In the hatched area, while the use of fans it is still beneficial, people are most likely to suffer from heat stress.
     Finally the red area demarcates the region in which electrical fans should not be used.
     The dots show the maximum extreme climate conditions recorded over the last 10 years in more than 5000 locations worldwide.
-     These results were calculated assuming \ac{t-r} = \ac{t-db}, \ac{clo} = 0.5~clo, \ac{met} = 1.0~met.}
-    The red line depicts the current upper temperature limit above which many standards discourage people from using electrical fans.
+     These results were calculated assuming \ac{t-r} = \ac{t-db}, \ac{clo} = 0.5~clo, \ac{met} = 1.0~met.
+    The red line depicts the current upper temperature limit above which many standards discourage people from using electrical fans.}
     \label{fig:energy_storage_delta}
 \end{figure}
 
+To better quantify how many people would benefit from the use of electrical fans we combined the city population with the weather data.
+The former contained data from the 115 most populous cities worldwide.
+We then plotted the data in Figure~\ref{fig:map-population-temperature}.
+Each marker shows where the city is location, its size is proportional to the number of people living in that urban area, while the color shows the extreme \ac{t-db} recorded in that city.
+In 2020, a total of approximately 650 million people lived in the urban agglomerate of the 115 largest cities.
+In 95 of them, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and these cities had a total population of approximately 550 million people.
 
+% todo make sure the area of the marker is proportial to the population and not its radius
+\begin{figure}[thb!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/map-population-temperature}
+    \caption{Most populous 115 cities worldwide}
+    \label{fig:map-population-temperature}
+\end{figure}
+
+In all the other 113 most populous cities the use of electrical fans would be beneficial.
+The \mycite{GaggeSET} model predicted that healthy adults living in 41 cities (approximately 230 million inhabitants) should not experience heat strain even without increasing air movement.
+However, they should still be encouraged in using electrical fans to improve thermal comfort conditions.
+Approximately 226 million people would possibly avoid heat strain by simpling elevating air speed up to 4.5~m/s.
+Finally, electrical fans with air speed up to 0.8~m/s can still be used and would provide a benefit, albeit marginal, for all the healthy adults living in the 115 major cities worldwide.
+On the other hand, air speeds higher than 0.8~m/s should not be used in Jeddah, a Saudi Arabian city.
+While electrical fans should be used in combination with evaporative cooling in Baghdad, the capital of Iran.
+
+\begin{figure}[thb!]
+    \centering
+    \includegraphics[width=\textwidth]{figures/use_fans_and_population}
+    \caption{Environmental conditions under which the use of the electrical fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:energy_storage_delta}.
+    Each dot shows the maximum extreme climate conditions recorded over the last 10 years in each of the 115 most populous cities worldwide.
+     These results were calculated assuming \ac{t-r} = \ac{t-db}, \ac{clo} = 0.5~clo, \ac{met} = 1.0~met.}
+    \label{fig:use_fans_and_population}
+\end{figure}

@@ -16,6 +16,7 @@ from pprint import pprint
 import sqlite3
 import psychrolib
 from scipy.ndimage.filters import gaussian_filter1d
+import matplotlib.colors as colors
 
 psychrolib.SetUnitSystem(psychrolib.SI)
 
@@ -54,7 +55,7 @@ class DataAnalysis:
 
         # define map extent
         self.lllon = -180
-        self.lllat = -60
+        self.lllat = -50
         self.urlon = 180
         self.urlat = 60
 
@@ -151,7 +152,7 @@ class DataAnalysis:
             fraction=0.1,
             pad=0.1,
             aspect=40,
-            label="Extreme dry-bulb air temperature 50 years ($t_{db}$) [°C]",
+            label="Extreme dry-bulb air temperature 10 years ($t_{db}$) [°C]",
             ticks=bounds,
             orientation="horizontal",
         )
@@ -1113,6 +1114,326 @@ class DataAnalysis:
         else:
             plt.show()
 
+    def summary_use_fans_and_population(self, save_fig):
+        rh_arr = np.arange(34, 110, 2)
+        tmp_low = []
+        tmp_high = []
+
+        for rh in rh_arr:
+
+            def function(x):
+                return (
+                    fan_use_set(x, x, v, rh, 1.2, 0.5, wme=0, units="SI")["temp_core"]
+                    - fan_use_set(x, x, 0.2, rh, 1.2, 0.5, wme=0, units="SI")[
+                        "temp_core"
+                    ]
+                )
+
+            v = 4.5
+            try:
+                tmp_high.append(optimize.brentq(function, 30, 130))
+            except ValueError:
+                tmp_high.append(np.nan)
+
+            v = 0.8
+            try:
+                tmp_low.append(optimize.brentq(function, 30, 130))
+            except ValueError:
+                tmp_low.append(np.nan)
+
+        fig, ax = plt.subplots()
+
+        # plot heat strain lines
+        for key in self.heat_strain.keys():
+            if key == 0.2:
+                (ln_2,) = ax.plot(
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
+                    c="k",
+                    label="v = 0.2 m/s",
+                )
+                f_02_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
+                )
+            if key == 0.8:
+                ax.plot(
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
+                    c="k",
+                    linestyle="-.",
+                )
+                f_08_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
+                )
+            if key == 4.5:
+                ax.plot(
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
+                    c="k",
+                    linestyle=":",
+                )
+                f_45_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
+                )
+
+        x_new, y_new = interpolate(rh_arr, tmp_low)
+
+        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="v = 0.8 m/s")
+
+        fb_0 = ax.fill_between(
+            x_new,
+            y_new,
+            100,
+            color="tab:red",
+            alpha=0.2,
+            zorder=100,
+            label="No fan - v = 4.5 m/s",
+        )
+
+        df = pd.DataFrame(self.heat_strain)
+        df_fan_above = df[df[4.5] >= df[0.8]]
+        df_fan_below = df[df[4.5] <= df[0.8] + 0.073]
+
+        x_new, y_new = interpolate(
+            rh_arr, tmp_high, x_new=list(df_fan_above.index.values)
+        )
+        (ln_1,) = ax.plot(x_new, y_new, c="k", label="v = 4.5 m/s")
+
+        ax.fill_between(
+            x_new,
+            df_fan_above[4.5].values,
+            y_new,
+            facecolor="none",
+            zorder=100,
+            hatch="/",
+            edgecolor="silver",
+        )
+
+        fb_1 = ax.fill_between(
+            x_new,
+            y_new,
+            100,
+            color="tab:orange",
+            alpha=0.2,
+            label="No fan - v = 4.5 m/s",
+        )
+
+        # green part on the right
+        fb_2 = ax.fill_between(x_new, 0, y_new, color="tab:green", alpha=0.2)
+
+        # green part below evaporative cooling
+        ax.fill_between(
+            df_fan_below.index,
+            0,
+            df_fan_below[4.5].values,
+            color="tab:green",
+            alpha=0.2,
+        )
+
+        # blue part below evaporative cooling
+        ax.fill_between(
+            df_fan_below.index,
+            df_fan_below[4.5].values,
+            100,
+            color="tab:blue",
+            alpha=0.2,
+        )
+
+        ax.set(
+            ylim=(29, 55),
+            xlim=(0, 100),
+            xlabel=r"Relative Humidity ($RH$) [%]",
+            ylabel=r"Operative temperature ($t_{o}$) [°C]",
+        )
+        ax.text(
+            10, 37.5, "Use fans", size=12, ha="center", va="center",
+        )
+        ax.text(
+            0.85,
+            0.75,
+            "Do not\nuse fans",
+            size=12,
+            ha="center",
+            transform=ax.transAxes,
+        )
+        # ax.text(
+        #     0.33,
+        #     0.8,
+        #     "Move to a\ncooler place\nif possible",
+        #     size=12,
+        #     zorder=200,
+        #     ha="center",
+        #     transform=ax.transAxes,
+        # )
+        ax.text(
+            9.5,
+            53.5,
+            "Evaporative\ncooling",
+            size=12,
+            zorder=200,
+            ha="center",
+            va="center",
+        )
+        text_dic = [
+            {"txt": "Thermal strain\nv =0.2m/s", "x": 11, "y": 46.5, "r": -48},
+            # {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
+            {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
+            {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
+            {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
+        ]
+
+        for obj in text_dic:
+            ax.text(
+                obj["x"],
+                obj["y"],
+                obj["txt"],
+                size=8,
+                ha="center",
+                va="center",
+                rotation=obj["r"],
+                zorder=200,
+                # bbox=dict(boxstyle="round", ec=(0, 0, 0, 0), fc=(1, 1, 1, 0.5),),
+            )
+
+        # plot population
+        df_queried = pd.read_csv(
+            os.path.join(os.getcwd(), "code", "population_weather.csv"),
+            encoding="ISO-8859-1",
+        )
+
+        df_queried = df_queried.dropna().reset_index()
+
+        # selecting only the most 115 populous cities
+        df_queried = df_queried[df_queried.index < 115]
+
+        arr_rh = []
+        df_queried.dropna(inplace=True)
+        for ix, row in df_queried.iterrows():
+            arr_rh.append(
+                psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
+                * 100
+            )
+
+        # calculate number of stations where db_max exceeds critical temperature
+        f_08_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_low, 2,))
+        f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
+
+        df_queried["rh"] = arr_rh
+        df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
+        df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
+        df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
+        df_queried["t_no_fan_08"] = [f_08_no_fan(x) for x in arr_rh]
+        df_queried["t_no_fan_45"] = [f_45_no_fan(x) for x in arr_rh]
+        df_queried["exc_t_crit_02"] = 0
+        df_queried["exc_t_crit_08"] = 0
+        df_queried["exc_t_crit_45"] = 0
+        df_queried["exc_no_fan_08"] = 0
+        df_queried["exc_no_fan_45"] = 0
+        df_queried.loc[
+            df_queried["t_crit_02"] < df_queried["db_max"], "exc_t_crit_02"
+        ] = 1
+        df_queried.loc[
+            df_queried["t_crit_08"] < df_queried["db_max"], "exc_t_crit_08"
+        ] = 1
+        df_queried.loc[
+            df_queried["t_crit_45"] < df_queried["db_max"], "exc_t_crit_45"
+        ] = 1
+        df_queried.loc[
+            df_queried["t_no_fan_08"] < df_queried["db_max"], "exc_no_fan_08"
+        ] = 1
+        df_queried.loc[
+            df_queried["t_no_fan_45"] < df_queried["db_max"], "exc_no_fan_45"
+        ] = 1
+        print(
+            (
+                df_queried.shape[0]
+                - df_queried[
+                    [
+                        "exc_t_crit_02",
+                        "exc_t_crit_08",
+                        "exc_t_crit_45",
+                        "exc_no_fan_08",
+                        "exc_no_fan_45",
+                    ]
+                ].sum()
+            ).round()
+        )
+        # population that will be fine
+        print("no strain without fans")
+        print(df_queried[df_queried["exc_t_crit_02"] == 0]["Value"].sum() / 10 ** 6)
+        print("no strain with fans 0.8")
+        print(df_queried[df_queried["exc_t_crit_08"] == 0]["Value"].sum() / 10 ** 6)
+        print("no strain with fans 4.5")
+        print(df_queried[df_queried["exc_t_crit_45"] == 0]["Value"].sum() / 10 ** 6)
+        print("marginal benefit with fans 0.8")
+        print(df_queried[df_queried["exc_no_fan_08"] == 0]["Value"].sum() / 10 ** 6)
+        print("marginal benefit with fans 4.5")
+        print(df_queried[df_queried["exc_no_fan_45"] == 0]["Value"].sum() / 10 ** 6)
+
+        ax.scatter(
+            df_queried["rh"],
+            df_queried["db_max"],
+            s=df_queried["Value"] / 10 ** 5,
+            c="tab:gray",
+        )
+
+        ax.annotate(
+            "Jeddah, Saudi Arabia, pop. 3.8 million",
+            xy=(39, 48.5),
+            xytext=(49, 53.3),
+            size=10,
+            arrowprops=dict(
+                relpos=(0, 0),
+                arrowstyle="->",
+                connectionstyle="angle,angleA=-90,angleB=10,rad=5",
+            ),
+        )
+
+        # horizontal line showing limit imposed by most of the standards
+        ax.plot([0, 100], [35, 35], c="tab:red")
+
+        # add legend
+        plt.legend(
+            [ln_2, ln_0, ln_1, fb_0, fb_1, fb_2],
+            [
+                "v = 0.2 m/s",
+                "v = 0.8 m/s",
+                "v = 4.5 m/s",
+                "No fans - v = 0.8 m/s",
+                "No fans - v = 4.5 m/s",
+                "Use fans",
+            ],
+            loc="lower left",
+            ncol=2,
+            # frameon=False,  # Position of legend
+            facecolor="w",
+        )
+        fig.tight_layout()
+        ax.grid(c="lightgray")
+        ax.xaxis.set_ticks_position("none")
+        ax.yaxis.set_ticks_position("none")
+        sns.despine(left=True, bottom=True, right=True)
+        fig.tight_layout()
+
+        if save_fig:
+            plt.savefig(
+                os.path.join(self.dir_figures, "use_fans_and_population.png"), dpi=300
+            )
+        else:
+            plt.show()
+
 
 def ollie(is_fan_on, ta, rh, is_elderly):
 
@@ -1522,6 +1843,112 @@ def analyse_em_data():
         )
 
 
+def analyse_population_data(save_fig=False):
+
+    df = pd.read_csv(
+        os.path.join(os.getcwd(), "code", "population_weather.csv"),
+        encoding="ISO-8859-1",
+    )
+
+    df = df.dropna().reset_index()
+
+    # selecting only the most 115 populous cities
+    df = df[df.index < 115]
+
+    # print number of people living most pop cities
+    print(df.Value.sum() / 10 ** 6)
+
+    # cities with max temperature higher than 35°C
+    df[df.db_max > 35]["city"].count()
+    df[df.db_max > 35]["Value"].sum() / 10 ** 6
+
+    # draw map contours
+    plt.figure(figsize=(7, 3.78))
+    [ax, m] = self.draw_map_contours(draw_par_mer="Yes")
+
+    # df[["lat", "long", "db_max", "wb_max"]] = df[
+    #     ["lat", "long", "db_max", "wb_max"]
+    # ].apply(pd.to_numeric, errors="coerce")
+    # df.dropna(inplace=True)
+
+    df = df[
+        (df["lat"] > self.lllat)
+        & (df["lat"] < self.urlat)
+        & (df["long"] > self.lllon)
+        & (df["lat"] < self.urlon)
+        & (df["db_max"] > 19.9)
+    ]
+
+    df = df.sort_values(["db_max"])
+
+    # # print where the max dry bulb temperatures were recorded
+    # df[["place", "db_max"]][-10:]
+    # df_ = df.sort_values(["wb_max"])
+    # df_[["place", "wb_max"]][-20:]
+
+    # transform lon / lat coordinates to map projection
+    proj_lon, proj_lat = m(df.long.values, df.lat.values)
+
+    cmap = plt.get_cmap("plasma")
+    new_cmap = truncate_colormap(cmap, 0.5, 1)
+
+    sc = plt.scatter(
+        proj_lon,
+        proj_lat,
+        df["Value"] / 10 ** 5,
+        marker="o",
+        c=df["db_max"],
+        cmap=new_cmap,
+    )
+
+    # produce a legend with a cross section of sizes from the scatter
+    handles, labels = sc.legend_elements(prop="sizes", alpha=0.6)
+    labels = [
+        int(x.replace("$\\mathdefault{", "").replace("}$", "")) / 10 for x in labels
+    ]
+    ax.legend(
+        handles,
+        labels,
+        bbox_to_anchor=(0, 1.02, 1, 0.2),
+        loc="lower left",
+        mode="expand",
+        borderaxespad=0,
+        ncol=9,
+        title="Population in millions",
+        frameon=False,
+    )
+
+    bounds = np.arange(math.floor(df["db_max"].min()), math.ceil(df["db_max"].max()), 4)
+    sc.cmap.set_under("dimgray")
+    sc.set_clim(35, df.db_max.max())
+    plt.colorbar(
+        sc,
+        fraction=0.1,
+        pad=0.1,
+        aspect=40,
+        label="Extreme dry-bulb air temperature 10 years ($t_{db}$) [°C]",
+        ticks=bounds,
+        orientation="horizontal",
+        extend="min",
+    )
+    sns.despine(left=True, bottom=True, right=True, top=True)
+    plt.tight_layout()
+    if save_fig:
+        plt.savefig(
+            os.path.join(self.dir_figures, "map-population-temperature.png"), dpi=300
+        )
+    else:
+        plt.show()
+
+
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = colors.LinearSegmentedColormap.from_list(
+        "trunc({n},{a:.2f},{b:.2f})".format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)),
+    )
+    return new_cmap
+
+
 if __name__ == "__main__":
 
     plt.close("all")
@@ -1531,7 +1958,11 @@ if __name__ == "__main__":
     #
     self = DataAnalysis()
 
-    self.comparison_ravanelli(save_fig=True)
+    # self.comparison_ravanelli(save_fig=True)
+    #
+    analyse_population_data(save_fig=True)
+
+    # self.summary_use_fans_and_population(save_fig=True)
 
     # ta = 45
     # rh = 30
