@@ -31,7 +31,7 @@ class DataAnalysis:
         self.dir_figures = os.path.join(os.getcwd(), "manuscript", "src", "figures")
         self.dir_tables = os.path.join(os.getcwd(), "manuscript", "src", "tables")
 
-        self.ta_range = np.arange(28, 55, 0.5)
+        self.ta_range = np.arange(28, 50, 0.5)
         self.v_range = [0.2, 0.8, 4.5]
         self.rh_range = np.arange(0, 105, 5)
 
@@ -466,12 +466,12 @@ class DataAnalysis:
             ylim=(-1, 160), ylabel="Evaporative heat loss skin ($E_{sk}$) [W/m$^2$]"
         )
         ax_1[1][1].set(
-            ylim=(31.9, 42),
+            ylim=(34.9, 40),
             xlabel=self.label_t_op,
             ylabel=r"Core mean temperature ($t_{cr}$) [°C]",
         )
         ax_1[1][0].set(
-            ylim=(31.9, 42),
+            ylim=(34.9, 40),
             xlabel=self.label_t_op,
             ylabel="Skin mean temperature ($t_{sk}$) [°C]",
         )
@@ -592,53 +592,6 @@ class DataAnalysis:
 
         ax.grid(c="lightgray")
 
-        # plot enthalpy line
-        reference_enthalpies = [100805.98, 73007.24]
-        for enthalpy in reference_enthalpies:
-            rh_const_enthalpy = []
-            for tmp in self.ta_range:
-                hr = psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(enthalpy, tmp)
-                rh_const_enthalpy.append(
-                    psychrolib.GetRelHumFromHumRatio(tmp, hr, 101325) * 100
-                )
-
-            ax.plot(
-                rh_const_enthalpy,
-                self.ta_range,
-                c="k",
-                linestyle=":",
-                label="V = 2.0m/s; Morris et al. (2019)",
-            )
-
-        ax.scatter(
-            15, 47, c="tab:red", label="fan not beneficial; Morris et al. (2019)",
-        )
-        ax.text(
-            27.1, 50, "H = 101 kJ/kg", ha="center", va="center", size=8, rotation=-60
-        )
-
-        ax.scatter(50, 40, c="tab:green", label="fan beneficial; Morris et al. (2019)")
-        ax.text(
-            60, 31.35, "H = 73 kJ/kg", ha="center", va="center", size=8, rotation=-36
-        )
-
-        # ravanelli's results
-        ax.scatter(
-            80,
-            36,
-            c="tab:green",
-            marker="+",
-            label="fan beneficial; Ravanelli et al. (2015)",
-        )
-
-        ax.scatter(
-            50,
-            42,
-            c="tab:green",
-            marker="+",
-            label="fan beneficial; Ravanelli et al. (2015)",
-        )
-
         heat_strain = {}
 
         for ix, v in enumerate(self.v_range):
@@ -654,7 +607,6 @@ class DataAnalysis:
                     r = use_fans_heatwaves(ta, ta, v, rh, 1.1, 0.5, wme=0)
 
                     # determine critical temperature at which heat strain would occur
-                    # if r["skin_wettedness"] >= r["w_max"]:
                     if r["heat_strain"]:
                         heat_strain[v][rh] = ta
                         break
@@ -689,7 +641,7 @@ class DataAnalysis:
         ax.set(
             xlabel="Relative humidity ($RH$) [%]",
             ylabel="Operative temperature ($t_{o}$) [°C]",
-            ylim=(28, 55),
+            ylim=(29, 50),
             xlim=(-1, 100),
         )
 
@@ -761,7 +713,7 @@ class DataAnalysis:
         ax.set(
             xlabel="Relative humidity ($RH$) [%]",
             ylabel="Operative temperature ($t_{o}$) [°C]",
-            ylim=(28, 55),
+            ylim=(29, 50),
             xlim=(-1, 100),
         )
 
@@ -882,7 +834,7 @@ class DataAnalysis:
                     list(self.heat_strain[key].values()),
                     c="k",
                     label="V = 0.2 m/s",
- V              )
+                )
                 f_02_critical = np.poly1d(
                     np.polyfit(
                         list(self.heat_strain[key].keys()),
@@ -891,7 +843,7 @@ class DataAnalysis:
                     )
                 )
             if key == 0.8:
-                ax.plot(
+                (ln_0,) = ax.plot(
                     list(self.heat_strain[key].keys()),
                     list(self.heat_strain[key].values()),
                     c="k",
@@ -905,7 +857,7 @@ class DataAnalysis:
                     )
                 )
             if key == 4.5:
-                ax.plot(
+                (ln_1,) = ax.plot(
                     list(self.heat_strain[key].keys()),
                     list(self.heat_strain[key].values()),
                     c="k",
@@ -921,7 +873,7 @@ class DataAnalysis:
 
         x_new, y_new = interpolate(rh_arr, tmp_low)
 
-        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
+        # (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
 
         fb_0 = ax.fill_between(
             x_new,
@@ -930,7 +882,7 @@ class DataAnalysis:
             color="tab:red",
             alpha=0.2,
             zorder=100,
-            label="No fan - v = 4.5 m/s",
+            label="No fan - V = 4.5 m/s",
         )
 
         df = pd.DataFrame(self.heat_strain)
@@ -940,7 +892,7 @@ class DataAnalysis:
         x_new, y_new = interpolate(
             rh_arr, tmp_high, x_new=list(df_fan_above.index.values)
         )
-        (ln_1,) = ax.plot(x_new, y_new, c="k", label="V = 4.5 m/s")
+        # (ln_1,) = ax.plot(x_new, y_new, c="k", label="V = 4.5 m/s", linestyle=":")
 
         ax.fill_between(
             x_new,
@@ -958,47 +910,49 @@ class DataAnalysis:
             100,
             color="tab:orange",
             alpha=0.2,
-            label="No fan - v = 4.5 m/s",
+            label="No fan - V = 4.5 m/s",
         )
 
         # green part on the right
-        fb_2 = ax.fill_between(x_new, 0, y_new, color="tab:green", alpha=0.2)
-
-        # green part below evaporative cooling
-        ax.fill_between(
-            df_fan_below.index,
-            0,
-            df_fan_below[4.5].values,
-            color="tab:green",
-            alpha=0.2,
+        fb_2 = ax.fill_between(
+            [0, *x_new], 0, [60, *y_new], color="tab:green", alpha=0.2
         )
 
-        # blue part below evaporative cooling
-        ax.fill_between(
-            df_fan_below.index,
-            df_fan_below[4.5].values,
-            100,
-            color="tab:blue",
-            alpha=0.2,
-        )
+        # # green part below evaporative cooling
+        # ax.fill_between(
+        #     df_fan_below.index,
+        #     0,
+        #     df_fan_below[4.5].values,
+        #     color="tab:green",
+        #     alpha=0.2,
+        # )
+        #
+        # # blue part below evaporative cooling
+        # ax.fill_between(
+        #     df_fan_below.index,
+        #     df_fan_below[4.5].values,
+        #     100,
+        #     color="tab:blue",
+        #     alpha=0.2,
+        # )
 
         ax.set(
-            ylim=(29, 55),
+            ylim=(29, 50),
             xlim=(0, 100),
             xlabel=r"Relative humidity ($RH$) [%]",
             ylabel=self.label_t_op,
         )
-        ax.text(
-            10, 37.5, "Use fans", size=12, ha="center", va="center",
-        )
-        ax.text(
-            0.85,
-            0.75,
-            "Do not\nuse fans",
-            size=12,
-            ha="center",
-            transform=ax.transAxes,
-        )
+        # ax.text(
+        #     10, 37.5, "Use fans", size=12, ha="center", va="center",
+        # )
+        # ax.text(
+        #     0.85,
+        #     0.75,
+        #     "Do not\nuse fans",
+        #     size=12,
+        #     ha="center",
+        #     transform=ax.transAxes,
+        # )
         # ax.text(
         #     0.33,
         #     0.8,
@@ -1008,34 +962,34 @@ class DataAnalysis:
         #     ha="center",
         #     transform=ax.transAxes,
         # )
-        ax.text(
-            9.5,
-            53.5,
-            "Evaporative\ncooling",
-            size=12,
-            zorder=200,
-            ha="center",
-            va="center",
-        )
-        text_dic = [
-            {"txt": "Thermal strain\nv =0.2m/s", "x": 11, "y": 46.5, "r": -48},
-            # {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
-            {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
-            {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
-            {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
-        ]
-
-        for obj in text_dic:
-            ax.text(
-                obj["x"],
-                obj["y"],
-                obj["txt"],
-                size=8,
-                ha="center",
-                va="center",
-                rotation=obj["r"],
-                zorder=200,
-            )
+        # ax.text(
+        #     9.5,
+        #     53.5,
+        #     "Evaporative\ncooling",
+        #     size=12,
+        #     zorder=200,
+        #     ha="center",
+        #     va="center",
+        # )
+        # text_dic = [
+        #     {"txt": "Thermal strain\nv =0.2m/s", "x": 11, "y": 46.5, "r": -48},
+        #     # {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
+        #     {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
+        #     # {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
+        #     # {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
+        # ]
+        #
+        # for obj in text_dic:
+        #     ax.text(
+        #         obj["x"],
+        #         obj["y"],
+        #         obj["txt"],
+        #         size=8,
+        #         ha="center",
+        #         va="center",
+        #         rotation=obj["r"],
+        #         zorder=200,
+        #     )
 
         # plot extreme weather events
         df_queried = pd.read_sql(
@@ -1125,10 +1079,10 @@ class DataAnalysis:
             [ln_2, ln_0, ln_1, fb_0, fb_1, fb_2],
             [
                 "V = 0.2 m/s",
- V              "V = 0.8 m/s",
+                "V = 0.8 m/s",
                 "V = 4.5 m/s",
-                "No fans - v = 0.8 m/s",
-                "No fans - v = 4.5 m/s",
+                "No fans - V = 0.8 m/s",
+                "No fans - V = 4.5 m/s",
                 "Use fans",
             ],
             loc="lower left",
@@ -1174,54 +1128,58 @@ class DataAnalysis:
 
         fig, ax = plt.subplots()
 
-        # plot heat strain lines
-        for key in self.heat_strain.keys():
-            if key == 0.2:
-                (ln_2,) = ax.plot(
-                    list(self.heat_strain[key].keys()),
-                    list(self.heat_strain[key].values()),
-                    c="k",
-                    label="V = 0.2 m/s",
- V              )
+        # # plot heat strain lines
+        heat_strain = {}
+
+        for ix, v in enumerate([0.2, 0.8]):
+
+            heat_strain[v] = {}
+
+            for rh in np.arange(0, 105, 1):
+
+                for ta in np.arange(28, 66, 0.25):
+
+                    r = use_fans_heatwaves(ta, ta, v, rh, 1.0, 0.35, wme=0)
+
+                    # determine critical temperature at which heat strain would occur
+                    if r["heat_strain"]:
+                        heat_strain[v][rh] = ta
+                        break
+
+            x = list(heat_strain[v].keys())
+
+            y_smoothed = gaussian_filter1d(list(heat_strain[v].values()), sigma=3)
+
+            heat_strain[v] = {}
+            for x_val, y_val in zip(x, y_smoothed):
+                heat_strain[v][x_val] = y_val
+
+            if v == 0.2:
                 f_02_critical = np.poly1d(
                     np.polyfit(
-                        list(self.heat_strain[key].keys()),
-                        list(self.heat_strain[key].values()),
-                        2,
+                        list(heat_strain[v].keys()), list(heat_strain[v].values()), 2,
                     )
                 )
-            if key == 0.8:
-                ax.plot(
-                    list(self.heat_strain[key].keys()),
-                    list(self.heat_strain[key].values()),
-                    c="k",
-                    linestyle="-.",
+
+                (ln_2,) = ax.plot(
+                    x, y_smoothed, label=f"V = {v}m/s", c="k", linestyle="-"
                 )
+            if v == 0.8:
                 f_08_critical = np.poly1d(
                     np.polyfit(
-                        list(self.heat_strain[key].keys()),
-                        list(self.heat_strain[key].values()),
+                        list(self.heat_strain[v].keys()),
+                        list(self.heat_strain[v].values()),
                         2,
                     )
                 )
-            # if key == 4.5:
-            #     ax.plot(
-            #         list(self.heat_strain[key].keys()),
-            #         list(self.heat_strain[key].values()),
-            #         c="k",
-            #         linestyle=":",
-            #     )
-            #     f_45_critical = np.poly1d(
-            #         np.polyfit(
-            #             list(self.heat_strain[key].keys()),
-            #             list(self.heat_strain[key].values()),
-            #             2,
-            #         )
-            #     )
+
+                (ln_0,) = ax.plot(
+                    x, y_smoothed, label=f"V = {v}m/s", c="k", linestyle="-."
+                )
 
         x_new, y_new = interpolate(rh_arr, tmp_low)
 
-        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
+        # (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
 
         fb_0 = ax.fill_between(
             x_new,
@@ -1242,7 +1200,7 @@ class DataAnalysis:
             label="No fan - V = 4.5 m/s",
         )
 
-        df = pd.DataFrame(self.heat_strain)
+        df = pd.DataFrame(heat_strain)
         df_fan_above = df[df[0.8] >= df[0.2] - 0.2]
         df_fan_below = df[df[0.8] <= df[0.2]]
 
@@ -1271,16 +1229,18 @@ class DataAnalysis:
         # )
 
         # green part on the right
-        fb_2 = ax.fill_between(x_new, 0, y_new, color="tab:green", alpha=0.2)
-
-        # green part below evaporative cooling
-        ax.fill_between(
-            df_fan_below.index,
-            0,
-            df_fan_below[0.8].values,
-            color="tab:green",
-            alpha=0.2,
+        fb_2 = ax.fill_between(
+            [0, *x_new], 0, [60, *y_new], color="tab:green", alpha=0.2
         )
+
+        # # green part below evaporative cooling
+        # ax.fill_between(
+        #     df_fan_below.index,
+        #     0,
+        #     df_fan_below[0.8].values,
+        #     color="tab:green",
+        #     alpha=0.2,
+        # )
 
         # blue part below evaporative cooling
         ax.fill_between(
@@ -1299,22 +1259,22 @@ class DataAnalysis:
         )
 
         ax.set(
-            ylim=(29, 55),
+            ylim=(29, 50),
             xlim=(0, 100),
             xlabel=r"Relative humidity ($RH$) [%]",
             ylabel=r"Operative temperature ($t_{o}$) [°C]",
         )
-        ax.text(
-            10, 37.5, "Use fans", size=12, ha="center", va="center",
-        )
-        ax.text(
-            0.85,
-            0.75,
-            "Do not\nuse fans",
-            size=12,
-            ha="center",
-            transform=ax.transAxes,
-        )
+        # ax.text(
+        #     10, 37.5, "Use fans", size=12, ha="center", va="center",
+        # )
+        # ax.text(
+        #     0.85,
+        #     0.75,
+        #     "Do not\nuse fans",
+        #     size=12,
+        #     ha="center",
+        #     transform=ax.transAxes,
+        # )
         # ax.text(
         #     0.33,
         #     0.8,
@@ -1334,11 +1294,11 @@ class DataAnalysis:
         #     va="center",
         # )
         text_dic = [
-            {"txt": "Thermal strain\nv =0.2m/s", "x": 11, "y": 46.5, "r": -48},
-            {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 32.75, "r": -20},
+            {"txt": "Thermal strain\nv =0.2m/s", "x": 80, "y": 31.5, "r": -21},
+            {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 33, "r": -22},
             # {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
             # {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
-            {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
+            # {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
         ]
 
         for obj in text_dic:
@@ -1438,13 +1398,9 @@ class DataAnalysis:
         ax.annotate(
             "Jeddah, Saudi Arabia, pop. 3.8 million",
             xy=(39, 48.5),
-            xytext=(49, 53.3),
+            xytext=(49, 48.75),
             size=10,
-            arrowprops=dict(
-                relpos=(0, 0),
-                arrowstyle="->",
-                connectionstyle="angle,angleA=-90,angleB=10,rad=5",
-            ),
+            arrowprops=dict(relpos=(0, 0), arrowstyle="->", connectionstyle="angle",),
         )
 
         # horizontal line showing limit imposed by most of the standards
@@ -1468,6 +1424,215 @@ class DataAnalysis:
         if save_fig:
             plt.savefig(
                 os.path.join(self.dir_figures, "use_fans_and_population.png"), dpi=300
+            )
+        else:
+            plt.show()
+
+    def summary_use_fans_comparison_experimental(self, save_fig):
+        rh_arr = np.arange(34, 110, 2)
+        tmp_low = []
+
+        for rh in rh_arr:
+
+            def function(x):
+                return (
+                    use_fans_heatwaves(x, x, v, rh, 1.1, 0.5, wme=0)["temp_core"]
+                    - use_fans_heatwaves(x, x, 0.2, rh, 1.1, 0.5, wme=0)["temp_core"]
+                )
+
+            v = 0.8
+            try:
+                tmp_low.append(optimize.brentq(function, 30, 130))
+            except ValueError:
+                tmp_low.append(np.nan)
+
+        fig, ax = plt.subplots()
+
+        # plot heat strain lines
+        for key in self.heat_strain.keys():
+            if key == 0.2:
+                (ln_2,) = ax.plot(
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
+                    c="k",
+                    label="V = 0.2 m/s",
+                )
+                f_02_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
+                )
+            if key == 0.8:
+                ax.plot(
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
+                    c="k",
+                    linestyle="-.",
+                )
+                f_08_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
+                )
+
+        x_new, y_new = interpolate(rh_arr, tmp_low)
+
+        # (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
+
+        ax.fill_between(
+            x_new, y_new, 100, color="tab:red", alpha=0.2, zorder=100,
+        )
+        fb_0 = ax.fill_between(
+            x_new, y_new, 100, color="tab:orange", alpha=0.2, zorder=100,
+        )
+
+        df = pd.DataFrame(self.heat_strain)
+        df_fan_above = df[df[0.8] >= df[0.2] - 0.2]
+        df_fan_below = df[df[0.8] <= df[0.2]]
+
+        x_new, y_new = interpolate(
+            rh_arr, tmp_low, x_new=list(df_fan_above.index.values)
+        )
+
+        ax.fill_between(
+            x_new,
+            df_fan_above[0.8].values,
+            y_new,
+            facecolor="none",
+            zorder=100,
+            hatch="/",
+            edgecolor="silver",
+        )
+
+        # green part on the right
+        fb_2 = ax.fill_between(
+            [0, *x_new], 0, [60, *y_new], color="tab:green", alpha=0.2
+        )
+
+        # # green part below evaporative cooling
+        # ax.fill_between(
+        #     df_fan_below.index,
+        #     0,
+        #     df_fan_below[0.8].values,
+        #     color="tab:green",
+        #     alpha=0.2,
+        # )
+
+        # blue part below evaporative cooling
+        ax.fill_between(
+            df_fan_below.index,
+            df_fan_below[0.8].values,
+            100,
+            color="tab:red",
+            alpha=0.2,
+        )
+        ax.fill_between(
+            df_fan_below.index,
+            df_fan_below[0.8].values,
+            100,
+            color="tab:orange",
+            alpha=0.2,
+        )
+
+        ax.set(
+            ylim=(29, 50),
+            xlim=(0, 100),
+            xlabel=r"Relative humidity ($RH$) [%]",
+            ylabel=r"Operative temperature ($t_{o}$) [°C]",
+        )
+        ax.text(
+            10, 38.75, "Use fans", size=12, ha="center", va="center",
+        )
+        ax.text(
+            0.85,
+            0.75,
+            "Do not\nuse fans",
+            size=12,
+            ha="center",
+            transform=ax.transAxes,
+        )
+        text_dic = [
+            {"txt": "Thermal strain\nv =0.2m/s", "x": 80, "y": 31.5, "r": -21},
+            {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 33, "r": -22},
+        ]
+
+        for obj in text_dic:
+            ax.text(
+                obj["x"],
+                obj["y"],
+                obj["txt"],
+                size=8,
+                ha="center",
+                va="center",
+                rotation=obj["r"],
+                zorder=200,
+            )
+
+        plt.scatter(
+            15, 47, c="tab:red", label="fan not beneficial; Morris et al. (2019)",
+        )
+        # ax.text(
+        #     27.1, 50, "H = 101 kJ/kg", ha="center", va="center", size=8, rotation=-60
+        # )
+
+        plt.scatter(50, 40, c="tab:green", label="fan beneficial; Morris et al. (2019)")
+        # ax.text(
+        #     60, 31.35, "H = 73 kJ/kg", ha="center", va="center", size=8, rotation=-36
+        # )
+
+        # ravanelli's results
+        plt.scatter(
+            80,
+            36,
+            c="tab:green",
+            marker="+",
+            label="fan beneficial; Ravanelli et al. (2015)",
+        )
+
+        plt.scatter(
+            50,
+            42,
+            c="tab:green",
+            marker="+",
+            label="fan beneficial; Ravanelli et al. (2015)",
+        )
+
+        # # add legend
+        plt.legend(
+            facecolor="w", loc="lower left",
+        )
+
+        # plot enthalpy line
+        reference_enthalpies = [100805.98, 73007.24]
+        for enthalpy in reference_enthalpies:
+            rh_const_enthalpy = []
+            for tmp in self.ta_range:
+                hr = psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(enthalpy, tmp)
+                rh_const_enthalpy.append(
+                    psychrolib.GetRelHumFromHumRatio(tmp, hr, 101325) * 100
+                )
+
+            ax.plot(
+                rh_const_enthalpy, self.ta_range, c="k", linestyle=":",
+            )
+
+        fig.tight_layout()
+        ax.grid(c="lightgray")
+        ax.xaxis.set_ticks_position("none")
+        ax.yaxis.set_ticks_position("none")
+        sns.despine(left=True, bottom=True, right=True)
+        fig.tight_layout()
+
+        if save_fig:
+            plt.savefig(
+                os.path.join(
+                    self.dir_figures, "summary_use_fans_comparison_experimental.png"
+                ),
+                dpi=300,
             )
         else:
             plt.show()
@@ -1719,7 +1884,7 @@ if __name__ == "__main__":
 
     plt.close("all")
 
-    analyse_em_data()
+    # analyse_em_data()
 
     self = DataAnalysis()
 
@@ -1731,9 +1896,10 @@ if __name__ == "__main__":
         # "ravanelli_comp",
         # "personal_factors",
         # "fan_usage_region_weather",
+        "summary_use_fans_comparison_experimental",
         # "fan_usage_region_cities",
         # "world_map_population_weather",
-        "table_list_cities"
+        # "table_list_cities"
     ]
 
     save_figure = True
@@ -1751,6 +1917,8 @@ if __name__ == "__main__":
             self.comparison_ravanelli(save_fig=save_figure)
         if figure_to_plot == "personal_factors":
             self.met_clo(save_fig=save_figure)
+        if figure_to_plot == "summary_use_fans_comparison_experimental":
+            self.summary_use_fans_comparison_experimental(save_fig=save_figure)
         if figure_to_plot == "fan_usage_region_weather":
             self.summary_use_fans(save_fig=save_figure)
         if figure_to_plot == "fan_usage_region_cities":
