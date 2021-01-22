@@ -17,6 +17,9 @@ import sqlite3
 import psychrolib
 from scipy.ndimage.filters import gaussian_filter1d
 import matplotlib.colors as colors
+from sklearn.metrics import mean_absolute_error
+
+from heat_balance_model import use_fans_heatwaves
 
 psychrolib.SetUnitSystem(psychrolib.SI)
 
@@ -32,8 +35,8 @@ class DataAnalysis:
         self.v_range = [0.2, 0.8, 4.5]
         self.rh_range = np.arange(0, 105, 5)
 
-        self.colors = ["tab:orange", "tab:blue", "tab:green", "tab:red"]
-        self.colors_f3 = ["tab:gray", "tab:cyan", "tab:olive"]
+        self.colors = ["#3B7EA1", "#C4820E", "#003262", "#FDB515"]
+        self.colors_f3 = ["tab:gray", "#3B7EA1", "#C4820E"]
 
         try:
             self.heat_strain = np.load(
@@ -52,6 +55,9 @@ class DataAnalysis:
         self.conn = sqlite3.connect(
             os.path.join(os.getcwd(), "code", "weather_ashrae.db")
         )
+
+        # labels chart
+        self.label_t_op = r"Operative temperature ($t_{o}$) [°C]"
 
         # define map extent
         self.lllon = -180
@@ -128,7 +134,7 @@ class DataAnalysis:
             & (df["lat"] < self.urlat)
             & (df["long"] > self.lllon)
             & (df["lat"] < self.urlon)
-            & (df["db_max"] > 19.9)
+            & (df["db_max"] > 26)
         ]
 
         df = df.sort_values(["db_max"])
@@ -152,7 +158,7 @@ class DataAnalysis:
             fraction=0.1,
             pad=0.1,
             aspect=40,
-            label="Extreme dry-bulb air temperature 10 years ($t_{db}$) [°C]",
+            label="Extreme dry-bulb air temperature ($t_{db}$) 10 years [°C]",
             ticks=bounds,
             orientation="horizontal",
         )
@@ -176,9 +182,9 @@ class DataAnalysis:
 
             for rh in [30, 60]:
 
-                max_skin_wettedness = fan_use_set(
-                    50, 50, v, 100, 1.2, 0.5, wme=0, units="SI"
-                )["skin_wetness"]
+                max_skin_wettedness = use_fans_heatwaves(
+                    50, 50, v, 100, 1.1, 0.5, wme=0
+                )["skin_wettedness"]
 
                 dry_heat_loss = []
                 dry_heat_loss_ollie = []
@@ -195,7 +201,7 @@ class DataAnalysis:
 
                 for ta in self.ta_range:
 
-                    r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
+                    r = use_fans_heatwaves(ta, ta, v, rh, 1.1, 0.5, wme=0)
 
                     dry_heat_loss.append(r["hl_dry"])
                     sensible_skin_heat_loss.append(r["hl_evaporation_required"])
@@ -203,12 +209,19 @@ class DataAnalysis:
                     max_latent_heat_loss.append(
                         r["hl_evaporation_max"] * max_skin_wettedness
                     )
-                    skin_wettedness.append(r["p_wet"])
+                    skin_wettedness.append(r["skin_wettedness"])
 
                     if v > 1:
                         fan_on = True
                     else:
                         fan_on = False
+
+                    if rh > 50:
+                        lw = 1
+                        alpha = 1
+                    else:
+                        lw = 3
+                        alpha = 0.75
 
                     r = ollie(fan_on, ta, rh, is_elderly=False)
 
@@ -224,7 +237,7 @@ class DataAnalysis:
                     x if x > 0 else np.nan for x in sensible_skin_heat_loss_ollie
                 ]
 
-                label = f"v = {v}m/s; RH = {rh}%;"
+                label = f"V = {v}m/s; RH = {rh}%;"
 
                 ax_0[0][0].plot(self.ta_range, dry_heat_loss, color=color, label=label)
                 ax_0[0][1].plot(
@@ -253,11 +266,25 @@ class DataAnalysis:
 
                 ax_1[0][0].plot(self.ta_range, dry_heat_loss, color=color, label=label)
                 ax_1[0][0].plot(
-                    self.ta_range, dry_heat_loss_ollie, color=color, linestyle="-.",
+                    self.ta_range,
+                    dry_heat_loss_ollie,
+                    color=color,
+                    linestyle="--",
+                    linewidth=lw,
+                    alpha=alpha,
                 )
                 ax_1[0][1].plot(
                     self.ta_range, skin_wettedness, color=color, label=label
                 )
+                # ax_1[0][1].plot(
+                #     [28, 55],
+                #     w_crit_ollie,
+                #     color=color,
+                #     label=label,
+                #     linestyle="--",
+                #     linewidth=lw,
+                #     alpha=alpha,
+                # )
 
                 ax_1[1][1].plot(
                     self.ta_range,
@@ -266,7 +293,7 @@ class DataAnalysis:
                     label=label,
                 )
                 ax_1[1][1].plot(
-                    self.ta_range, sweat_rate_ollie, color=color, linestyle="-.",
+                    self.ta_range, sweat_rate_ollie, color=color, linestyle="--",
                 )
                 ax_1[1][0].plot(
                     self.ta_range,
@@ -279,7 +306,7 @@ class DataAnalysis:
                     max_latent_heat_loss_ollie,
                     color=color,
                     label=label + " Jay et al. (2015)",
-                    linestyle="-.",
+                    linestyle="--",
                 )
 
                 legend_labels.append(label)
@@ -319,15 +346,15 @@ class DataAnalysis:
         ax_1[0][0].set(
             ylim=(-201, 100), ylabel="Sensible heat loss skin (C + R) [W/m$^2$]"
         )
-        ax_1[0][1].set(ylim=(-0.01, 0.7), ylabel="Skin wettendess (w)")
+        ax_1[0][1].set(ylim=(-0.01, 0.9), ylabel="Skin wettendess (w)")
         ax_1[1][1].set(
             ylim=(-1, 600),
-            xlabel=r"Operative temperature ($t_{o}$) [°C]",
+            xlabel=self.label_t_op,
             ylabel=r"Sweat rate ($m_{rsw}$) [mL/(hm$^2$)]",
         )
         ax_1[1][0].set(
             ylim=(-1, 200),
-            xlabel=r"Operative temperature ($t_{o}$) [°C]",
+            xlabel=self.label_t_op,
             ylabel="Max latent heat loss ($E_{max,w_{max}}$) [W/m$^{2}$]",
         )
 
@@ -393,15 +420,15 @@ class DataAnalysis:
 
                 for ta in self.ta_range:
 
-                    r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
+                    r = use_fans_heatwaves(ta, ta, v, rh, 1.1, 0.5, wme=0)
 
                     energy_balance.append(r["energy_balance"])
                     sensible_skin_heat_loss.append(r["hl_evaporation_required"])
                     tmp_core.append(r["temp_core"])
                     temp_skin.append(r["temp_skin"])
-                    skin_wettedness.append(r["p_wet"])
+                    skin_wettedness.append(r["skin_wettedness"])
 
-                label = f"v = {v}m/s; RH = {rh}%"
+                label = f"V = {v}m/s; RH = {rh}%"
 
                 ax_1[0][0].plot(
                     self.ta_range,
@@ -440,12 +467,12 @@ class DataAnalysis:
         )
         ax_1[1][1].set(
             ylim=(31.9, 42),
-            xlabel=r"Operative temperature ($t_{o}$) [°C]",
+            xlabel=self.label_t_op,
             ylabel=r"Core mean temperature ($t_{cr}$) [°C]",
         )
         ax_1[1][0].set(
             ylim=(31.9, 42),
-            xlabel=r"Operative temperature ($t_{o}$) [°C]",
+            xlabel=self.label_t_op,
             ylabel="Skin mean temperature ($t_{sk}$) [°C]",
         )
 
@@ -514,27 +541,37 @@ class DataAnalysis:
         v = 4.0
         ta = 42
         tmp_core = []
-        rh_range = range(20, 70)
 
-        for rh in rh_range:
+        for rh in df_ravanelli[0]:
 
-            r = fan_use_set(ta, ta, v, rh, 1, 0.35, wme=0, units="SI")
+            r = use_fans_heatwaves(ta, ta, v, rh, 1, 0.35, wme=0)
 
-            tmp_core.append(r["temp_core"] - 37.215)
+            tmp_core.append(r["temp_core"] - 37.204)
 
-        ax.plot(
-            rh_range, gaussian_filter1d(tmp_core, sigma=2), label="Gagge et al.(1986)",
-        )
+        # # the above temperature which I am subtracting was calculated using the below eq
+        # np.mean([x for x in tmp_core if x < 37.24])
+
+        ax.plot(df_ravanelli[0], tmp_core, label="Gagge et al.(1986)", c="#3B7EA1")
 
         ax.scatter(
-            df_ravanelli[0], df_ravanelli[1], label="Ravanelli et al. (2015)",
+            df_ravanelli[0],
+            df_ravanelli[1],
+            label="Ravanelli et al. (2015)",
+            c="#3B7EA1",
+        )
+
+        print(
+            f"diffrerences models: "
+            f"{pd.Series(tmp_core - df_ravanelli[1].values).describe().round(2)}"
+            f"\n mean absolute error: "
+            f"{round(mean_absolute_error(tmp_core, df_ravanelli[1].values), 2)}"
         )
 
         ax.grid(c="lightgray")
 
         ax.set(
-            ylabel=r"Change in core temperature, $t_{cr}$ [°C]",
-            xlabel="Relative Humidity, RH [%]",
+            ylabel=r"Change in core temperature ($t_{cr}$) [°C]",
+            xlabel="Relative humidity (RH) [%]",
         )
 
         plt.legend(frameon=False,)
@@ -551,7 +588,7 @@ class DataAnalysis:
 
     def comparison_air_speed(self, save_fig):
 
-        fig, ax = plt.subplots(figsize=(7, 4))
+        fig, ax = plt.subplots(figsize=(7, 6))
 
         ax.grid(c="lightgray")
 
@@ -570,19 +607,19 @@ class DataAnalysis:
                 self.ta_range,
                 c="k",
                 linestyle=":",
-                label="v = 2.0m/s; Morris et al. (2019)",
+                label="V = 2.0m/s; Morris et al. (2019)",
             )
 
         ax.scatter(
             15, 47, c="tab:red", label="fan not beneficial; Morris et al. (2019)",
         )
         ax.text(
-            27.1, 50, "H = 101 kJ/kg", ha="center", va="center", size=8, rotation=-46
+            27.1, 50, "H = 101 kJ/kg", ha="center", va="center", size=8, rotation=-60
         )
 
         ax.scatter(50, 40, c="tab:green", label="fan beneficial; Morris et al. (2019)")
         ax.text(
-            60, 31.35, "H = 73 kJ/kg", ha="center", va="center", size=8, rotation=-24
+            60, 31.35, "H = 73 kJ/kg", ha="center", va="center", size=8, rotation=-36
         )
 
         # ravanelli's results
@@ -614,11 +651,11 @@ class DataAnalysis:
 
                 for ta in np.arange(28, 66, 0.25):
 
-                    r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
+                    r = use_fans_heatwaves(ta, ta, v, rh, 1.1, 0.5, wme=0)
 
                     # determine critical temperature at which heat strain would occur
-                    # if r["p_wet"] >= r["w_max"]:
-                    if r["exceeded"]:
+                    # if r["skin_wettedness"] >= r["w_max"]:
+                    if r["heat_strain"]:
                         heat_strain[v][rh] = ta
                         break
 
@@ -628,7 +665,7 @@ class DataAnalysis:
                     self.heat_strain_ollie[v].keys(),
                     self.heat_strain_ollie[v].values(),
                     linestyle="-.",
-                    label=f"v = {v}; Jay et al. (2015)",
+                    label=f"V = {v}; Jay et al. (2015)",
                     c=color,
                 )
 
@@ -641,7 +678,7 @@ class DataAnalysis:
                 heat_strain[v][x_val] = y_val
 
             ax.plot(
-                x, y_smoothed, label=f"v = {v}m/s; Gagge et al. (1986)", c=color,
+                x, y_smoothed, label=f"V = {v}m/s; Gagge et al. (1986)", c=color,
             )
 
         np.save(os.path.join("code", "heat_strain.npy"), heat_strain)
@@ -650,7 +687,7 @@ class DataAnalysis:
         ax.yaxis.set_ticks_position("none")
 
         ax.set(
-            xlabel="Relative Humidity ($RH$) [%]",
+            xlabel="Relative humidity ($RH$) [%]",
             ylabel="Operative temperature ($t_{o}$) [°C]",
             ylim=(28, 55),
             xlim=(-1, 100),
@@ -670,7 +707,7 @@ class DataAnalysis:
 
     def met_clo(self, save_fig):
 
-        fig, ax = plt.subplots(figsize=(7, 4))
+        fig, ax = plt.subplots(figsize=(7, 6))
 
         heat_strain = {}
 
@@ -698,9 +735,9 @@ class DataAnalysis:
 
                     for ta in np.arange(28, 66, 0.25):
 
-                        r = fan_use_set(ta, ta, v, rh, met, clo, wme=0, units="SI")
+                        r = use_fans_heatwaves(ta, ta, v, rh, met, clo, wme=0)
 
-                        if r["exceeded"]:
+                        if r["heat_strain"]:
                             heat_strain[v][rh] = ta
                             break
 
@@ -711,7 +748,7 @@ class DataAnalysis:
                 ax.plot(
                     x,
                     y_smoothed,
-                    label=f"v = {v}, clo = {clo}, met = {met}",
+                    label=f"V = {v}, clo = {clo}, met = {met}",
                     c=color,
                     linestyle=ls,
                 )
@@ -722,7 +759,7 @@ class DataAnalysis:
         ax.yaxis.set_ticks_position("none")
 
         ax.set(
-            xlabel="Relative Humidity ($RH$) [%]",
+            xlabel="Relative humidity ($RH$) [%]",
             ylabel="Operative temperature ($t_{o}$) [°C]",
             ylim=(28, 55),
             xlim=(-1, 100),
@@ -759,7 +796,7 @@ class DataAnalysis:
                     tmp_array.append(ta)
                     rh_array.append(rh)
 
-                    r = fan_use_set(ta, ta, v, rh, 1.2, 0.5, wme=0, units="SI")
+                    r = use_fans_heatwaves(ta, ta, v, rh, 1.1, 0.5, wme=0)
 
                     variable_arr.append(r[variable])
 
@@ -773,7 +810,7 @@ class DataAnalysis:
             cf = ax[ix].contourf(x, y, df_w.values, levels_cbar)
 
             ax[ix].set(
-                xlabel="Relative Humidity",
+                xlabel="Relative humidity",
                 ylabel="Air Temperature",
                 title=f"{variable} - air speed {v}",
             )
@@ -802,8 +839,8 @@ class DataAnalysis:
         ax.contour(x, y, df_w.values, [-0.5, 0, 0.5], colors=("k",), origin=origin)
 
         ax.set(
-            xlabel="Relative Humidity",
-            ylabel="Air Temperature",
+            xlabel="Relative humidity",
+            ylabel="Air temperature",
             title=f"{variable} difference at v {v_range[1]} - {v_range[0]} [m/s]",
         )
 
@@ -819,10 +856,8 @@ class DataAnalysis:
 
             def function(x):
                 return (
-                    fan_use_set(x, x, v, rh, 1.2, 0.5, wme=0, units="SI")["temp_core"]
-                    - fan_use_set(x, x, 0.2, rh, 1.2, 0.5, wme=0, units="SI")[
-                        "temp_core"
-                    ]
+                    use_fans_heatwaves(x, x, v, rh, 1.1, 0.5, wme=0)["temp_core"]
+                    - use_fans_heatwaves(x, x, 0.2, rh, 1.1, 0.5, wme=0)["temp_core"]
                 )
 
             v = 4.5
@@ -846,8 +881,8 @@ class DataAnalysis:
                     list(self.heat_strain[key].keys()),
                     list(self.heat_strain[key].values()),
                     c="k",
-                    label="v = 0.2 m/s",
-                )
+                    label="V = 0.2 m/s",
+ V              )
                 f_02_critical = np.poly1d(
                     np.polyfit(
                         list(self.heat_strain[key].keys()),
@@ -886,7 +921,7 @@ class DataAnalysis:
 
         x_new, y_new = interpolate(rh_arr, tmp_low)
 
-        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="v = 0.8 m/s")
+        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
 
         fb_0 = ax.fill_between(
             x_new,
@@ -905,7 +940,7 @@ class DataAnalysis:
         x_new, y_new = interpolate(
             rh_arr, tmp_high, x_new=list(df_fan_above.index.values)
         )
-        (ln_1,) = ax.plot(x_new, y_new, c="k", label="v = 4.5 m/s")
+        (ln_1,) = ax.plot(x_new, y_new, c="k", label="V = 4.5 m/s")
 
         ax.fill_between(
             x_new,
@@ -950,8 +985,8 @@ class DataAnalysis:
         ax.set(
             ylim=(29, 55),
             xlim=(0, 100),
-            xlabel=r"Relative Humidity ($RH$) [%]",
-            ylabel=r"Operative temperature ($t_{o}$) [°C]",
+            xlabel=r"Relative humidity ($RH$) [%]",
+            ylabel=self.label_t_op,
         )
         ax.text(
             10, 37.5, "Use fans", size=12, ha="center", va="center",
@@ -1000,7 +1035,6 @@ class DataAnalysis:
                 va="center",
                 rotation=obj["r"],
                 zorder=200,
-                # bbox=dict(boxstyle="round", ec=(0, 0, 0, 0), fc=(1, 1, 1, 0.5),),
             )
 
         # plot extreme weather events
@@ -1081,7 +1115,7 @@ class DataAnalysis:
             ].sum()
         )
 
-        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c="tab:gray")
+        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c=self.colors_f3[0])
 
         # horizontal line showing limit imposed by most of the standards
         ax.plot([0, 100], [35, 35], c="tab:red")
@@ -1090,16 +1124,15 @@ class DataAnalysis:
         plt.legend(
             [ln_2, ln_0, ln_1, fb_0, fb_1, fb_2],
             [
-                "v = 0.2 m/s",
-                "v = 0.8 m/s",
-                "v = 4.5 m/s",
+                "V = 0.2 m/s",
+ V              "V = 0.8 m/s",
+                "V = 4.5 m/s",
                 "No fans - v = 0.8 m/s",
                 "No fans - v = 4.5 m/s",
                 "Use fans",
             ],
             loc="lower left",
             ncol=2,
-            # frameon=False,  # Position of legend
             facecolor="w",
         )
         fig.tight_layout()
@@ -1117,23 +1150,21 @@ class DataAnalysis:
     def summary_use_fans_and_population(self, save_fig):
         rh_arr = np.arange(34, 110, 2)
         tmp_low = []
-        tmp_high = []
+        # tmp_high = []
 
         for rh in rh_arr:
 
             def function(x):
                 return (
-                    fan_use_set(x, x, v, rh, 1.2, 0.5, wme=0, units="SI")["temp_core"]
-                    - fan_use_set(x, x, 0.2, rh, 1.2, 0.5, wme=0, units="SI")[
-                        "temp_core"
-                    ]
+                    use_fans_heatwaves(x, x, v, rh, 1, 0.35, wme=0)["temp_core"]
+                    - use_fans_heatwaves(x, x, 0.2, rh, 1, 0.35, wme=0)["temp_core"]
                 )
 
-            v = 4.5
-            try:
-                tmp_high.append(optimize.brentq(function, 30, 130))
-            except ValueError:
-                tmp_high.append(np.nan)
+            # v = 4.5
+            # try:
+            #     tmp_high.append(optimize.brentq(function, 30, 130))
+            # except ValueError:
+            #     tmp_high.append(np.nan)
 
             v = 0.8
             try:
@@ -1150,8 +1181,8 @@ class DataAnalysis:
                     list(self.heat_strain[key].keys()),
                     list(self.heat_strain[key].values()),
                     c="k",
-                    label="v = 0.2 m/s",
-                )
+                    label="V = 0.2 m/s",
+ V              )
                 f_02_critical = np.poly1d(
                     np.polyfit(
                         list(self.heat_strain[key].keys()),
@@ -1173,24 +1204,24 @@ class DataAnalysis:
                         2,
                     )
                 )
-            if key == 4.5:
-                ax.plot(
-                    list(self.heat_strain[key].keys()),
-                    list(self.heat_strain[key].values()),
-                    c="k",
-                    linestyle=":",
-                )
-                f_45_critical = np.poly1d(
-                    np.polyfit(
-                        list(self.heat_strain[key].keys()),
-                        list(self.heat_strain[key].values()),
-                        2,
-                    )
-                )
+            # if key == 4.5:
+            #     ax.plot(
+            #         list(self.heat_strain[key].keys()),
+            #         list(self.heat_strain[key].values()),
+            #         c="k",
+            #         linestyle=":",
+            #     )
+            #     f_45_critical = np.poly1d(
+            #         np.polyfit(
+            #             list(self.heat_strain[key].keys()),
+            #             list(self.heat_strain[key].values()),
+            #             2,
+            #         )
+            #     )
 
         x_new, y_new = interpolate(rh_arr, tmp_low)
 
-        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="v = 0.8 m/s")
+        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
 
         fb_0 = ax.fill_between(
             x_new,
@@ -1199,21 +1230,30 @@ class DataAnalysis:
             color="tab:red",
             alpha=0.2,
             zorder=100,
-            label="No fan - v = 4.5 m/s",
+            label="No fan - V = 4.5 m/s",
+        )
+        fb_0 = ax.fill_between(
+            x_new,
+            y_new,
+            100,
+            color="tab:orange",
+            alpha=0.2,
+            zorder=100,
+            label="No fan - V = 4.5 m/s",
         )
 
         df = pd.DataFrame(self.heat_strain)
-        df_fan_above = df[df[4.5] >= df[0.8]]
-        df_fan_below = df[df[4.5] <= df[0.8] + 0.073]
+        df_fan_above = df[df[0.8] >= df[0.2] - 0.2]
+        df_fan_below = df[df[0.8] <= df[0.2]]
 
         x_new, y_new = interpolate(
-            rh_arr, tmp_high, x_new=list(df_fan_above.index.values)
+            rh_arr, tmp_low, x_new=list(df_fan_above.index.values)
         )
-        (ln_1,) = ax.plot(x_new, y_new, c="k", label="v = 4.5 m/s")
+        # (ln_1,) = ax.plot(x_new, y_new, c="k", label="V = 4.5 m/s")
 
         ax.fill_between(
             x_new,
-            df_fan_above[4.5].values,
+            df_fan_above[0.8].values,
             y_new,
             facecolor="none",
             zorder=100,
@@ -1221,14 +1261,14 @@ class DataAnalysis:
             edgecolor="silver",
         )
 
-        fb_1 = ax.fill_between(
-            x_new,
-            y_new,
-            100,
-            color="tab:orange",
-            alpha=0.2,
-            label="No fan - v = 4.5 m/s",
-        )
+        # fb_1 = ax.fill_between(
+        #     x_new,
+        #     y_new,
+        #     100,
+        #     color="tab:orange",
+        #     alpha=0.2,
+        #     label="No fan - v = 4.5 m/s",
+        # )
 
         # green part on the right
         fb_2 = ax.fill_between(x_new, 0, y_new, color="tab:green", alpha=0.2)
@@ -1237,7 +1277,7 @@ class DataAnalysis:
         ax.fill_between(
             df_fan_below.index,
             0,
-            df_fan_below[4.5].values,
+            df_fan_below[0.8].values,
             color="tab:green",
             alpha=0.2,
         )
@@ -1245,16 +1285,23 @@ class DataAnalysis:
         # blue part below evaporative cooling
         ax.fill_between(
             df_fan_below.index,
-            df_fan_below[4.5].values,
+            df_fan_below[0.8].values,
             100,
-            color="tab:blue",
+            color="tab:red",
+            alpha=0.2,
+        )
+        ax.fill_between(
+            df_fan_below.index,
+            df_fan_below[0.8].values,
+            100,
+            color="tab:orange",
             alpha=0.2,
         )
 
         ax.set(
             ylim=(29, 55),
             xlim=(0, 100),
-            xlabel=r"Relative Humidity ($RH$) [%]",
+            xlabel=r"Relative humidity ($RH$) [%]",
             ylabel=r"Operative temperature ($t_{o}$) [°C]",
         )
         ax.text(
@@ -1277,20 +1324,20 @@ class DataAnalysis:
         #     ha="center",
         #     transform=ax.transAxes,
         # )
-        ax.text(
-            9.5,
-            53.5,
-            "Evaporative\ncooling",
-            size=12,
-            zorder=200,
-            ha="center",
-            va="center",
-        )
+        # ax.text(
+        #     9.5,
+        #     53.5,
+        #     "Evaporative\ncooling",
+        #     size=12,
+        #     zorder=200,
+        #     ha="center",
+        #     va="center",
+        # )
         text_dic = [
             {"txt": "Thermal strain\nv =0.2m/s", "x": 11, "y": 46.5, "r": -48},
-            # {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
-            {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
-            {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
+            {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 32.75, "r": -20},
+            # {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
+            # {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
             {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
         ]
 
@@ -1304,7 +1351,6 @@ class DataAnalysis:
                 va="center",
                 rotation=obj["r"],
                 zorder=200,
-                # bbox=dict(boxstyle="round", ec=(0, 0, 0, 0), fc=(1, 1, 1, 0.5),),
             )
 
         # plot population
@@ -1328,14 +1374,14 @@ class DataAnalysis:
 
         # calculate number of stations where db_max exceeds critical temperature
         f_08_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_low, 2,))
-        f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
+        # f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
 
         df_queried["rh"] = arr_rh
         df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
         df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
-        df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
+        # df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
         df_queried["t_no_fan_08"] = [f_08_no_fan(x) for x in arr_rh]
-        df_queried["t_no_fan_45"] = [f_45_no_fan(x) for x in arr_rh]
+        # df_queried["t_no_fan_45"] = [f_45_no_fan(x) for x in arr_rh]
         df_queried["exc_t_crit_02"] = 0
         df_queried["exc_t_crit_08"] = 0
         df_queried["exc_t_crit_45"] = 0
@@ -1347,15 +1393,15 @@ class DataAnalysis:
         df_queried.loc[
             df_queried["t_crit_08"] < df_queried["db_max"], "exc_t_crit_08"
         ] = 1
-        df_queried.loc[
-            df_queried["t_crit_45"] < df_queried["db_max"], "exc_t_crit_45"
-        ] = 1
+        # df_queried.loc[
+        #     df_queried["t_crit_45"] < df_queried["db_max"], "exc_t_crit_45"
+        # ] = 1
         df_queried.loc[
             df_queried["t_no_fan_08"] < df_queried["db_max"], "exc_no_fan_08"
         ] = 1
-        df_queried.loc[
-            df_queried["t_no_fan_45"] < df_queried["db_max"], "exc_no_fan_45"
-        ] = 1
+        # df_queried.loc[
+        #     df_queried["t_no_fan_45"] < df_queried["db_max"], "exc_no_fan_45"
+        # ] = 1
         print(
             (
                 df_queried.shape[0]
@@ -1363,9 +1409,9 @@ class DataAnalysis:
                     [
                         "exc_t_crit_02",
                         "exc_t_crit_08",
-                        "exc_t_crit_45",
+                        # "exc_t_crit_45",
                         "exc_no_fan_08",
-                        "exc_no_fan_45",
+                        # "exc_no_fan_45",
                     ]
                 ].sum()
             ).round()
@@ -1375,18 +1421,18 @@ class DataAnalysis:
         print(df_queried[df_queried["exc_t_crit_02"] == 0]["Value"].sum() / 10 ** 6)
         print("no strain with fans 0.8")
         print(df_queried[df_queried["exc_t_crit_08"] == 0]["Value"].sum() / 10 ** 6)
-        print("no strain with fans 4.5")
-        print(df_queried[df_queried["exc_t_crit_45"] == 0]["Value"].sum() / 10 ** 6)
+        # print("no strain with fans 4.5")
+        # print(df_queried[df_queried["exc_t_crit_45"] == 0]["Value"].sum() / 10 ** 6)
         print("marginal benefit with fans 0.8")
         print(df_queried[df_queried["exc_no_fan_08"] == 0]["Value"].sum() / 10 ** 6)
-        print("marginal benefit with fans 4.5")
-        print(df_queried[df_queried["exc_no_fan_45"] == 0]["Value"].sum() / 10 ** 6)
+        # print("marginal benefit with fans 4.5")
+        # print(df_queried[df_queried["exc_no_fan_45"] == 0]["Value"].sum() / 10 ** 6)
 
         ax.scatter(
             df_queried["rh"],
             df_queried["db_max"],
             s=df_queried["Value"] / 10 ** 5,
-            c="tab:gray",
+            c=self.colors_f3[0],
         )
 
         ax.annotate(
@@ -1406,18 +1452,10 @@ class DataAnalysis:
 
         # add legend
         plt.legend(
-            [ln_2, ln_0, ln_1, fb_0, fb_1, fb_2],
-            [
-                "v = 0.2 m/s",
-                "v = 0.8 m/s",
-                "v = 4.5 m/s",
-                "No fans - v = 0.8 m/s",
-                "No fans - v = 4.5 m/s",
-                "Use fans",
-            ],
+            [ln_2, ln_0, fb_0, fb_2],
+            ["V = 0.2 m/s", "V = 0.8 m/s", "No fans - V = 0.8 m/s", "Use fans",],
             loc="lower left",
             ncol=2,
-            # frameon=False,  # Position of legend
             facecolor="w",
         )
         fig.tight_layout()
@@ -1509,308 +1547,12 @@ def ollie(is_fan_on, ta, rh, is_elderly):
 
     s_req = (e_req / s_w_eff * 3600) / s_w_lat
 
-    # bsa = 1.8
-    # e_req_w = e_req * bsa
-    # e_max_w = e_max * bsa
-    # c_r_w = c_r * bsa
-
     return {
         "e_req_w": e_req,
         "e_max_w": e_max,
         "hl_dry": c_r,
         "s_req": s_req,
         "w_req": w_req,
-    }
-
-
-def fan_use_set(
-    tdb, tr, v, rh, met, clo, wme=0, body_surface_area=1.8258, patm=101325, units="SI",
-):
-    """
-    Calculates the Standard Effective Temperature (SET). The SET is the temperature of
-    an imaginary environment at 50% (rh), <0.1 m/s (20 fpm) average air speed (v),
-    and tr = tdb ,
-    in which the total heat loss from the skin of an imaginary occupant with an
-    activity level of 1.0 met and a clothing level of 0.6 clo is the same as that
-    from a person in the actual environment with actual clothing and activity level.
-
-    Parameters
-    ----------
-    tdb : float
-        dry bulb air temperature, default in [°C] in [°F] if `units` = 'IP'
-    tr : float
-        mean radiant temperature, default in [°C] in [°F] if `units` = 'IP'
-    v : float
-        air velocity, default in [m/s] in [fps] if `units` = 'IP'
-    rh : float
-        relative humidity, [%]
-    met : float
-        metabolic rate, [met]
-    clo : float
-        clothing insulation, [clo]
-    wme : float
-        external work, [met] default 0
-    body_surface_area : float
-        body surface area, default value 1.8258 [m2] in [ft2] if `units` = 'IP'
-    patm : float
-        atmospheric pressure, default value 101325 [Pa] in [atm] if `units` = 'IP'
-    units: str default="SI"
-        select the SI (International System of Units) or the IP (Imperial Units) system.
-
-    Returns
-    -------
-    SET : float
-        Standard effective temperature, [°C]
-
-    Notes
-    -----
-    You can use this function to calculate the `SET`_ temperature in accordance with
-    the ASHRAE 55 2017 Standard [1]_.
-
-    .. _SET: https://en.wikipedia.org/wiki/Thermal_comfort#Standard_effective_temperature
-
-    Examples
-    --------
-    .. code-block:: python
-
-        >>> from pythermalcomfort.models import set_tmp
-        >>> set_tmp(tdb=25, tr=25, v=0.1, rh=50, met=1.2, clo=.5)
-        25.3
-
-        >>> # for users who wants to use the IP system
-        >>> set_tmp(tdb=77, tr=77, v=0.328, rh=50, met=1.2, clo=.5, units='IP')
-        77.6
-
-    """
-    if units.lower() == "ip":
-        if body_surface_area == 1.8258:
-            body_surface_area = 19.65
-        if patm == 101325:
-            patm = 1
-        tdb, tr, v, body_surface_area, patm = units_converter(
-            tdb=tdb, tr=tr, v=v, area=body_surface_area, pressure=patm
-        )
-
-    # check_standard_compliance(
-    #     standard="ashrae", tdb=tdb, tr=tr, v=v, rh=rh, met=met, clo=clo
-    # )
-
-    vapor_pressure = rh * p_sat_torr(tdb) / 100
-
-    # check if reached maximum values
-    exc_blood_flow = False
-    exc_rgsw = False
-    exc_pwet = False
-
-    # Initial variables as defined in the ASHRAE 55-2017
-    air_velocity = max(v, 0.1)
-    k_clo = 0.25
-    body_weight = 69.9
-    met_factor = 58.2
-    sbc = 0.000000056697  # Stefan-Boltzmann constant (W/m2K4)
-    c_sw = 170  # driving coefficient for regulatory sweating
-    c_dil = 120  # driving coefficient for vasodilation
-    c_str = 0.5  # driving coefficient for vasoconstriction
-
-    temp_skin_neutral = 33.7
-    temp_core_neutral = 36.8
-    temp_body_neutral = 36.49
-    skin_blood_flow_neutral = 6.3
-
-    temp_skin = temp_skin_neutral
-    temp_core = temp_core_neutral
-    skin_blood_flow = skin_blood_flow_neutral
-    alfa = 0.1  # fractional skin mass
-    e_sk = 0.1 * met  # total evaporative heat loss, W
-
-    pressure_in_atmospheres = patm / 101325
-    length_time_simulation = 60  # length time simulation
-    r_clo = 0.155 * clo  # thermal resistance of clothing, °C M^2 /W
-
-    f_a_cl = 1.0 + 0.15 * clo  # increase in body surface area due to clothing
-    lr = 2.2 / pressure_in_atmospheres  # Lewis ratio
-    rm = met * met_factor  # metabolic rate
-    m = met * met_factor
-
-    if clo <= 0:
-        w_crit = 0.38 * pow(air_velocity, -0.29)  # evaporative efficiency
-        i_cl = 1.0  # permeation efficiency of water vapour through the clothing layer
-    else:
-        w_crit = 0.59 * pow(air_velocity, -0.08)
-        i_cl = 0.45  # permeation efficiency of water vapour through the clothing layer
-
-    # h_cc corrected convective heat transfer coefficient
-    h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
-    # h_fc forced convective heat transfer coefficient, W/(m2 °C)
-    h_fc = 8.600001 * pow((air_velocity * pressure_in_atmospheres), 0.53)
-    h_cc = max(h_cc, h_fc)
-
-    c_hr = 4.7  # linearized radiative heat transfer coefficient
-    CTC = c_hr + h_cc
-    r_a = 1.0 / (f_a_cl * CTC)  # resistance of air layer to dry heat
-    t_op = (c_hr * tr + h_cc * tdb) / CTC  # operative temperature
-
-    # initialize some variables
-    dry = 0
-    p_wet = 0
-    _set = 0
-
-    for i in range(length_time_simulation):
-
-        iteration_limit = 150
-        # t_cl temperature of the outer surface of clothing
-        t_cl = (r_a * temp_skin + r_clo * t_op) / (r_a + r_clo)  # initial guess
-        n_iterations = 0
-        tc_converged = False
-
-        while not tc_converged:
-
-            c_hr = 4.0 * sbc * ((t_cl + tr) / 2.0 + 273.15) ** 3.0 * 0.72
-            CTC = c_hr + h_cc
-            r_a = 1.0 / (f_a_cl * CTC)
-            t_op = (c_hr * tr + h_cc * tdb) / CTC
-            t_cl_new = (r_a * temp_skin + r_clo * t_op) / (r_a + r_clo)
-            if abs(t_cl_new - t_cl) <= 0.01:
-                tc_converged = True
-            t_cl = t_cl_new
-            n_iterations += 1
-
-            if n_iterations > iteration_limit:
-                raise StopIteration("Max iterations exceeded")
-
-        dry = (temp_skin - t_op) / (r_a + r_clo)  # total sensible heat loss, W
-        # h_fcs rate of energy transport between core and skin, W
-        h_fcs = (temp_core - temp_skin) * (5.28 + 1.163 * skin_blood_flow)
-        q_res = 0.0023 * m * (44.0 - vapor_pressure)  # heat loss due to respiration
-        CRES = 0.0014 * m * (34.0 - tdb)
-        s_core = m - h_fcs - q_res - CRES - wme  # rate of energy storage in the core
-        s_skin = h_fcs - dry - e_sk  # rate of energy storage in the skin
-        TCSK = 0.97 * alfa * body_weight
-        TCCR = 0.97 * (1 - alfa) * body_weight
-        DTSK = (s_skin * body_surface_area) / (TCSK * 60.0)  # °C per minute
-        DTCR = s_core * body_surface_area / (TCCR * 60.0)
-        temp_skin = temp_skin + DTSK
-        temp_core = temp_core + DTCR
-        t_body = alfa * temp_skin + (1 - alfa) * temp_core  # mean body temperature, °C
-        # sk_sig thermoregulatory control signal from the skin
-        sk_sig = temp_skin - temp_skin_neutral
-        warms = (sk_sig > 0) * sk_sig  # vasodialtion signal
-        colds = ((-1.0 * sk_sig) > 0) * (-1.0 * sk_sig)  # vasoconstriction signal
-        # c_reg_sig thermoregulatory control signal from the skin, °C
-        c_reg_sig = temp_core - temp_core_neutral
-        # c_warm vasodilation signal
-        c_warm = (c_reg_sig > 0) * c_reg_sig
-        # c_cold vasoconstriction signal
-        c_cold = ((-1.0 * c_reg_sig) > 0) * (-1.0 * c_reg_sig)
-        BDSIG = t_body - temp_body_neutral
-        WARMB = (BDSIG > 0) * BDSIG
-        skin_blood_flow = (skin_blood_flow_neutral + c_dil * c_warm) / (
-            1 + c_str * colds
-        )
-        if skin_blood_flow > 90.0:
-            skin_blood_flow = 90.0
-            exc_blood_flow = True
-        if skin_blood_flow < 0.5:
-            skin_blood_flow = 0.5
-        REGSW = c_sw * WARMB * math.exp(warms / 10.7)
-        if REGSW > 500.0:
-            REGSW = 500.0
-            exc_rgsw = True
-        e_rsw = 0.68 * REGSW  # heat lost by vaporization sweat
-        r_ea = 1.0 / (lr * f_a_cl * h_cc)  # evaporative resistance air layer
-        r_ecl = r_clo / (lr * i_cl)
-        # e_max = maximum evaporative capacity
-        e_max = (
-            math.exp(18.6686 - 4030.183 / (temp_skin + 235.0)) - vapor_pressure
-        ) / (r_ea + r_ecl)
-        p_rsw = e_rsw / e_max  # ratio heat loss sweating to max heat loss sweating
-        p_wet = 0.06 + 0.94 * p_rsw  # skin wetness
-        e_diff = p_wet * e_max - e_rsw  # vapor diffusion through skin
-        if p_wet > w_crit:
-            p_wet = w_crit
-            p_rsw = w_crit / 0.94
-            e_rsw = p_rsw * e_max
-            e_diff = 0.06 * (1.0 - p_rsw) * e_max
-            exc_pwet = True
-        if e_max < 0:
-            e_diff = 0
-            e_rsw = 0
-            p_wet = w_crit
-        e_sk = (
-            e_rsw + e_diff
-        )  # total evaporative heat loss sweating and vapor diffusion
-        MSHIV = 19.4 * colds * c_cold
-        m = rm + MSHIV
-        alfa = 0.0417737 + 0.7451833 / (skin_blood_flow + 0.585417)
-
-    hsk = dry + e_sk  # total heat loss from skin, W
-    W = p_wet
-    PSSK = math.exp(18.6686 - 4030.183 / (temp_skin + 235.0))
-    CHRS = c_hr
-    if met < 0.85:
-        CHCS = 3.0
-    else:
-        CHCS = 5.66 * (met - 0.85) ** 0.39
-    if CHCS < 3.0:
-        CHCS = 3.0
-    CTCS = CHCS + CHRS
-    RCLOS = 1.52 / ((met - wme / met_factor) + 0.6944) - 0.1835
-    RCLS = 0.155 * RCLOS
-    FACLS = 1.0 + k_clo * RCLOS
-    FCLS = 1.0 / (1.0 + 0.155 * FACLS * CTCS * RCLOS)
-    IMS = 0.45
-    ICLS = IMS * CHCS / CTCS * (1 - FCLS) / (CHCS / CTCS - FCLS * IMS)
-    RAS = 1.0 / (FACLS * CTCS)
-    REAS = 1.0 / (lr * FACLS * CHCS)
-    RECLS = RCLS / (lr * ICLS)
-    HD_S = 1.0 / (RAS + RCLS)
-    HE_S = 1.0 / (REAS + RECLS)
-
-    delta = 0.0001
-    dx = 100.0
-    set_old = round(temp_skin - hsk / HD_S, 2)
-    while abs(dx) > 0.01:
-        err_1 = (
-            hsk
-            - HD_S * (temp_skin - set_old)
-            - W
-            * HE_S
-            * (PSSK - 0.5 * (math.exp(18.6686 - 4030.183 / (set_old + 235.0))))
-        )
-        err_2 = (
-            hsk
-            - HD_S * (temp_skin - (set_old + delta))
-            - W
-            * HE_S
-            * (PSSK - 0.5 * (math.exp(18.6686 - 4030.183 / (set_old + delta + 235.0))))
-        )
-        _set = set_old - delta * err_1 / (err_2 - err_1)
-        dx = _set - set_old
-        set_old = _set
-
-    return {
-        # "set": _set,
-        "hl_evaporation_required": e_sk,
-        "hl_evaporation_max": e_max,
-        "hl_dry": dry,
-        # "temp_skin": temp_skin,
-        # "t_clothing": t_cl,
-        # "heat lost by vaporization sweat": e_rsw,
-        "temp_core": temp_core,
-        "temp_skin": temp_skin,
-        "exceeded": any([exc_blood_flow, exc_pwet, exc_rgsw]),
-        "skin_blood_flow": skin_blood_flow,
-        "t_body": t_body,
-        "warms": warms,
-        "sweating_required": REGSW,
-        "e_diff": e_diff,
-        "skin_wetness": p_wet,
-        "energy_storage_core": s_core,
-        "energy_balance": m - hsk - q_res,
-        "w_max": w_crit,
-        "e_rsw": e_rsw,
-        "p_wet": p_wet,
-        "q_res": q_res,
     }
 
 
@@ -1859,17 +1601,12 @@ def analyse_population_data(save_fig=False):
     print(df.Value.sum() / 10 ** 6)
 
     # cities with max temperature higher than 35°C
-    df[df.db_max > 35]["city"].count()
-    df[df.db_max > 35]["Value"].sum() / 10 ** 6
+    print(df[df.db_max > 35]["city"].count())
+    print(df[df.db_max > 35]["Value"].sum() / 10 ** 6)
 
     # draw map contours
     plt.figure(figsize=(7, 3.78))
     [ax, m] = self.draw_map_contours(draw_par_mer="Yes")
-
-    # df[["lat", "long", "db_max", "wb_max"]] = df[
-    #     ["lat", "long", "db_max", "wb_max"]
-    # ].apply(pd.to_numeric, errors="coerce")
-    # df.dropna(inplace=True)
 
     df = df[
         (df["lat"] > self.lllat)
@@ -1880,11 +1617,6 @@ def analyse_population_data(save_fig=False):
     ]
 
     df = df.sort_values(["db_max"])
-
-    # # print where the max dry bulb temperatures were recorded
-    # df[["place", "db_max"]][-10:]
-    # df_ = df.sort_values(["wb_max"])
-    # df_[["place", "wb_max"]][-20:]
 
     # transform lon / lat coordinates to map projection
     proj_lon, proj_lat = m(df.long.values, df.lat.values)
@@ -1926,7 +1658,7 @@ def analyse_population_data(save_fig=False):
         fraction=0.1,
         pad=0.1,
         aspect=40,
-        label="Extreme dry-bulb air temperature 10 years ($t_{db}$) [°C]",
+        label="Extreme dry-bulb air temperature ($t_{db}$) 10 years [°C]",
         ticks=bounds,
         orientation="horizontal",
         extend="min",
@@ -1949,25 +1681,89 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
     return new_cmap
 
 
+def table_list_cities():
+    df = pd.read_csv(
+        os.path.join(os.getcwd(), "code", "population_weather.csv"),
+        encoding="ISO-8859-1",
+    )
+
+    df = df.dropna().reset_index()
+
+    # selecting only the most 115 populous cities
+    df = df[df.index < 115]
+
+    df["city"] = df.city.str.capitalize()
+    df["country"] = df.country.str.capitalize()
+    df["db_max"] = df.db_max.round(1)
+    df["wb_max"] = df.wb_max.round(1)
+
+    df = df[["country", "city", "Value", "db_max", "wb_max"]].reset_index(drop=False)
+
+    df["index"] += 1
+    df = df.astype({"Value": "int32"})
+
+    df.columns = [["Rank", "Country", "City", "Population", r"$t_{db}$", r"$t_{wb}$"]]
+
+    df.to_latex(
+        os.path.join(os.getcwd(), "manuscript", "src", "tables", "pop_weather.tex"),
+        caption="Population data and weather data for the 115 most populous cities",
+        label="tab:pop_weather",
+        escape=False,
+        column_format="ccccccccc",
+        multicolumn_format="c",
+        index=False,
+    )
+
+
 if __name__ == "__main__":
 
     plt.close("all")
 
     analyse_em_data()
 
-    #
     self = DataAnalysis()
 
-    # self.comparison_ravanelli(save_fig=True)
-    #
-    analyse_population_data(save_fig=True)
+    figures_to_plot = [
+        # "heat_loss",
+        # "physio_variables",
+        # "weather_data",
+        # "heat_strain_limits",
+        # "ravanelli_comp",
+        # "personal_factors",
+        # "fan_usage_region_weather",
+        # "fan_usage_region_cities",
+        # "world_map_population_weather",
+        "table_list_cities"
+    ]
 
-    # self.summary_use_fans_and_population(save_fig=True)
+    save_figure = True
+
+    for figure_to_plot in figures_to_plot:
+        if figure_to_plot == "heat_loss":
+            self.model_comparison(save_fig=save_figure)
+        if figure_to_plot == "physio_variables":
+            self.figure_2(save_fig=save_figure)
+        if figure_to_plot == "heat_strain_limits":
+            self.comparison_air_speed(save_fig=save_figure)
+        if figure_to_plot == "weather_data":
+            self.plot_map_world(save_fig=save_figure)
+        if figure_to_plot == "ravanelli_comp":
+            self.comparison_ravanelli(save_fig=save_figure)
+        if figure_to_plot == "personal_factors":
+            self.met_clo(save_fig=save_figure)
+        if figure_to_plot == "fan_usage_region_weather":
+            self.summary_use_fans(save_fig=save_figure)
+        if figure_to_plot == "fan_usage_region_cities":
+            self.summary_use_fans_and_population(save_fig=save_figure)
+        if figure_to_plot == "world_map_population_weather":
+            analyse_population_data(save_fig=save_figure)
+        if figure_to_plot == "table_list_cities":
+            table_list_cities()
 
     # ta = 45
     # rh = 30
     # v = 4.5
-    # pprint(fan_use_set(tdb=ta, tr=ta, v=v, rh=rh, met=1.2, clo=0.5, wme=0, units="SI"))
+    # pprint(fan_use_set(tdb=ta, tr=ta, v=v, rh=rh, met=1.1, clo=0.5, wme=0))
     #
     # for t in np.arange(33, 39, 0.1):
     #     rh = 60
@@ -1975,26 +1771,8 @@ if __name__ == "__main__":
     #     print(
     #         t,
     #         " ",
-    #         fan_use_set(t, t, v, rh, 1.2, 0.5, wme=0, units="SI")["energy_balance"],
+    #         fan_use_set(t, t, v, rh, 1.1, 0.5, wme=0)["energy_balance"],
     #     )
-
-    # # Figure 1
-    # self.model_comparison(save_fig=True)
-    #
-    # # Figure 2
-    # self.figure_2(save_fig=True)
-    #
-    # # Figure 3
-    # self.comparison_air_speed(save_fig=True)
-    #
-    # # Figure 4 - you also need to generate fig 3
-    # self.summary_use_fans(save_fig=True)
-    #
-    # # Figure 3
-    # self.met_clo(save_fig=True)
-    #
-    # # Figure Maps
-    # self.plot_map_world(save_fig=True)
 
     # # benefit of increasing air speed
     # benefit = [
@@ -2041,8 +1819,8 @@ if __name__ == "__main__":
     #         results = []
     #         for t in t_arr:
     #             results.append(
-    #                 fan_use_set(t, t, v=v, rh=r, met=1.2, clo=0.5, wme=0, units="SI")[
-    #                     # "p_wet"
+    #                 fan_use_set(t, t, v=v, rh=r, met=1.1, clo=0.5, wme=0)[
+    #                     # "skin_wettedness"
     #                     # "skin_blood_flow"
     #                     # "sweating_required"
     #                     "temp_core"
