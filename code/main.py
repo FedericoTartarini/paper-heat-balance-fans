@@ -513,6 +513,53 @@ class DataAnalysis:
         else:
             plt.show()
 
+    def sweat_rate_production(self, save_fig=True):
+
+        air_speeds = [0.2, 0.8]
+
+        results = []
+        for v in air_speeds:
+            for ta in np.arange(30, 50, 2):
+                for rh in np.arange(10, 100, 10):
+                    r = use_fans_heatwaves(ta, ta, v, rh, 1.1, 0.5, wme=0)
+                    r["ta"] = ta
+                    r["rh"] = rh
+                    r["v"] = v
+                    results.append(r)
+
+        df_sweat = pd.DataFrame(results)
+
+        fig, axn = plt.subplots(1, 2, sharey=True)
+        cbar_ax = fig.add_axes([0.88, 0.15, 0.03, 0.75])
+
+        for i, ax in enumerate(axn.flat):
+            v = air_speeds[i]
+            df = df_sweat[df_sweat["v"] == v]
+            sns.heatmap(
+                df.pivot("ta", "rh", "sweating_required").astype("int"),
+                annot=True,
+                cbar=i == 0,
+                ax=ax,
+                fmt="d",
+                cbar_ax=None if i else cbar_ax,
+                cbar_kws={"label": r"Sweat rate ($m_{rsw}$) [mL/(hm$^2$)]",},
+                annot_kws={"size": 8},
+            )
+            ax.set(
+                xlabel="Relative humidity ($RH$) [%]",
+                ylabel="Operative temperature ($t_{o}$) [°C]" if i == 0 else None,
+                title=r"$V$" + f" = {v} m/s",
+            )
+
+        # cbar_ax.collections[0].colorbar.set_label("Hello")
+
+        fig.tight_layout(rect=[0, 0, 0.88, 1])
+
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "sweat_rate.png"), dpi=300)
+        else:
+            plt.show()
+
     def comparison_ravanelli(self, save_fig=True):
 
         f, ax = plt.subplots(figsize=(4, 3), sharex="all")
@@ -1896,10 +1943,11 @@ if __name__ == "__main__":
         # "ravanelli_comp",
         # "personal_factors",
         # "fan_usage_region_weather",
-        "summary_use_fans_comparison_experimental",
+        # "summary_use_fans_comparison_experimental",
         # "fan_usage_region_cities",
         # "world_map_population_weather",
         # "table_list_cities"
+        "sweat_rate"
     ]
 
     save_figure = True
@@ -1927,6 +1975,8 @@ if __name__ == "__main__":
             analyse_population_data(save_fig=save_figure)
         if figure_to_plot == "table_list_cities":
             table_list_cities()
+        if figure_to_plot == "sweat_rate":
+            self.sweat_rate_production(save_fig=save_figure)
 
     # ta = 45
     # rh = 30
