@@ -5,12 +5,7 @@
 
 The heat balance model allows to estimate how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
-It should be noted that \ac{t-db} and \ac{v} are the average values measured at different heights over a period of at least three minutes.
-These heights are 0.1, 0.6 and 1.1~m for seated people and 0.1, 1.1 and 1.7~m for standing occupants~\cite{ashrae552017}.
-
-% todo EA This is only true for how Std 55 applies the model. Gagge did not use those definitions, and it's overly restrictive to put them into this text.    I would delete this; just say for the model to work, the air flow needs to affect a significant part of the body.  The best paper that looked into local airflow and the derivation of the SET model is in red:
-
-% todo cite this paper: https://www.sciencedirect.com/science/article/pii/S0360132314000298
+Where \ac{v} is the average air speed of the flow that is used to cool the human body~\cite{Huang2014}.
 
 Section~\ref{subsec:energy-balance} describe the main Equations used by the model to derive the results.
 
@@ -87,15 +82,14 @@ The \acf{e-sk} comprises two terms the \ac{e-rsw} and the \ac{e-dif}.
     E_{s k}=E_{rsw}+E_{dif}=\frac{w\left(p_{s k, s}-p_{a}\right)}{R_{e, c l}+1 /\left(f_{c l} h_{e}\right)}\label{eq:latent-skin}
 \end{equation}
 
-Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}, the human body does not regulates \ac{w} directly but, rather, it regulates the sweat rate~\cite{ASHRA2017}.
-Skin wettedness varies as a function of the activity of the sweat glands and the environmental conditions~\cite{ASHRA2017}.
-While \ac{w} can theoretically range from 0 to 1, in practice, \ac{w} is strongly correlated with thermal stress and warm discomfort.
-% todo remove consequently below
-consequently there is a \ac{w-max} for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
+Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}, the human body does not regulates \ac{w} directly but, rather, it regulates the sweat rate.
+Skin wettedness varies as a function of the activity of the sweat glands and the environmental conditions.
+It correlates with warm discomfort and it is a good measure of thermal stress.
+While \ac{w} can theoretically range from 0 to 1 and skin wettedness can approach 1.0 while the body still maintains thermoregulatory control~\cite{ASHRA2017}.
+In most situations, the upper limit of \ac{w} is lower than 1.
+\mycite{GaggeSET} used the following equations to determine \ac{w-max} for sustained activity for healthy and acclimatized humans:
 
-We estimated \ac{w-max} using the following equation from the \mycite{GaggeSET} model:
-
-% todo These equations are presumably from the SET model by Gagge?  Should indicate that.  Also, there are physiological sweat rate control equations that affect wmax, right? Do they need to be described?
+% todo ED There are physiological sweat rate control equations that affect wmax, right? Do they need to be described?
 
 \begin{equation}
     w_{max}=
