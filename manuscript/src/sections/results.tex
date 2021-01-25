@@ -9,19 +9,19 @@ The sensible heat loss from the skin to the environment is proportional to the d
 Consequently, for values of \ac{t-op} higher than \ac{t-sk} the body gains sensible heat from its environment and the term \ac{c-r} becomes negative.
 Figure~\ref{fig:comparison_models}A shows how sensible heat loss estimated with the \mycite{GaggeSET} and the \mycite{Jay2015} models vary as a function of \ac{t-op}, \ac{rh}, and \ac{v}.
 The former model iteratively determines \ac{t-sk}, while the latter assumes it to be constant and equal to 35~$^{\circ}$C\@.
-When heat gains exceed heat losses, the \mycite{GaggeSET} model estimates that some heat energy gets stored in the body and consequently \ac{t-sk} increases, as shown in Figure~\ref{fig:results_model_2}A and ~\ref{fig:results_model_2}C, respectively.
+When heat gains exceed heat losses, the \mycite{GaggeSET} model estimates that some heat energy is stored in the body and consequently \ac{t-sk} increases, as shown in Figure~\ref{fig:results_model_2}A and ~\ref{fig:results_model_2}C, respectively.
 This reduces the rate at which sensible heat gain increases as \ac{t-op} increases.
 
 The values of \ac{w} for two air speeds are shown in Figure~\ref{fig:comparison_models}B\@.
 The skin wettedness is allowed by the model to increase until it reaches the value of \ac{w-max}, after that it plateaus and remains constant.
 For young adults, \mycite{Jay2015} assumed \ac{w-max} to be equal to 0.65 for the `fan on' condition and 0.85 for the `fan off' condition.
 From Figure~\ref{fig:comparison_models}B it can be observed that the values of \ac{w-max} estimated by the \mycite{GaggeSET} for the same air speeds are lower.
-The operative temperature at which \ac{w} equals \ac{w-max} is a inversely proportional to the value of \ac{rh}.
+The operative temperature at which \ac{w} equals \ac{w-max} is inversely proportional to the value of \ac{rh}.
 
 \begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_models_v2}
-    \caption{Results obtained with the the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET}.
+    \caption{Results obtained with the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET}.
     Each Figure shows how a variable changes as a function of \ac{t-op} for a set combination of \ac{rh} and \ac{v}.
     Figure: A) \Acf{c-r}.
     B) \Acf{w}.
@@ -64,10 +64,10 @@ When the body cannot longer dissipate exogenous and endogenous heat gains, the e
 
 % note: Federico to Stefano - The increase in the core temperature it is a concern, but as you can see from Figure 3 if the fans are on, the core body temperature is lower than when fans are off. This is true till a certain point when this trend is inverted and the core temperature with the fans on is higher than with the fan off. As you can see from Figure 3 the point in which the two lines intersect is the same point above which in Figure 7 we are no longer recommending to use electrical fans. Hence, fans are still beneficial to use, even though people may be suffering, they are better than nothing. Moreover, from figure 3 it can be observed that the critical temperature above which core body temperature starts increasing is higher when fans are turned on, and this temperature is higher than 35C. Till that temperature the use of fans is actually good since it onsets the increase in the core temperature.
 
-To further validate the results of our model, we decided to plot how the predicted value of \ac{t-cr} would vary as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
+To validate the results of our model, we decided to plot how the predicted value of \ac{t-cr} would vary as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
 The results are shown in Figure~\ref{fig:comparison_ravanelli}.
 It should be noted that \mycite{Rate2015} only reported the core body temperature of one participant.
-Consequently, despite the our predicted values are in agreement with their experimental data (mean absolute error~=~0.04~$^{\circ}$C), more quantitative data are needed to validate our results.
+Consequently, despite the agreement with their experimental data (mean absolute error~=~0.04~$^{\circ}$C), more quantitative data will be needed for validation.
 
 \begin{figure}[thb!]
     \centering
@@ -85,7 +85,7 @@ Each line demarcates the conditions above which not all individuals would be abl
 The Figure shows the results obtained with both the \mycite{GaggeSET} and the \mycite{Jay2015} models.
 For a specific value of \ac{v}, the maximum \ac{t-op} at which heat strain is estimated to occur decreases as the value of \ac{rh} increases, since as previously shown the value of \ac{e-max} is inversely proportional to \ac{rh}.
 In addition, it can be observed that for a specific value of \ac{rh}, as the value of \ac{v} grows, the overall increase in the maximum critical temperature rapidly decreases.
-For example, in an environment with \ac{rh}~=~60~\%, increasing \ac{v} from 0.2~m/s to 0.8~m/s then to 4.5~m/s lead to an increase of the critical temperature of approximately 2.3~$^{\circ}$C and 0.8~$^{\circ}$C, respectively.
+For example, in an environment with \ac{rh}~=~60~\%, increasing \ac{v} from 0.2~m/s to 0.8~m/s and then to 4.5~m/s leads to an increase of the critical temperature of approximately 2.3~$^{\circ}$C and 0.8~$^{\circ}$C, respectively.
 The slope of the heat stress curve flattens for values of \ac{rh} lower than 20 \%.
 This can be explained by the fact, not shown in the Figures, that for low values of \ac{rh} skin blood flow reaches its upper limit causing thermal strain.
 
@@ -100,7 +100,7 @@ This can be explained by the fact, not shown in the Figures, that for low values
 
 \subsection{Metabolic Rate and Clothing}\label{subsec:met-clo}
 
-To better understand how personal factors would impact the body ability to dissipate heat, we calculated when heat stress would occur for different combinations of \ac{met} and \ac{clo}.
+To better understand how personal factors would impact the body's ability to dissipate heat, we calculated when heat stress would occur for different combinations of \ac{met} and \ac{clo}.
 Results for people wearing light summer clothing (walking shorts, short-sleeve shirt and sandals, \acs{clo}~=~0.36~clo), and office summer clothing (trousers, short-sleeve shirt, and closed shoes \acs{clo}~=~0.5~clo) who are either seated reading or writing (\ac{met}~=~1.0 met) or standing relaxed (\ac{met}~=~1.2~met) are shown in Figure~\ref{fig:met_clo}.
 As expected, decreasing both \ac{met} and \ac{clo} has a net positive effect since it reduces both heat gain and thermal resistance, respectively
 
@@ -146,11 +146,14 @@ We also compared the results of the \mycite{GaggeSET} model with experimental re
 In Figure~\ref{fig:use_fans_experimental} we are presenting the results obtained by \mycite{Morris2019} and \mycite{Rate2015}.
 The former determined that electric fans (\ac{v}~=~2.0~m/s) are beneficial when \ac{t-db}~=~40~$^{\circ}$C and \ac{rh}~=~51~\%, but should not be used when \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\%.
 While \mycite{Rate2015} concluded that electric fans (\ac{v}~=~4.0~m/s) help in preventing heat-related elevation in heart rate and \ac{t-cr} in both of the following conditions \ac{t-db}~=~42~$^{\circ}$C and \ac{rh}~=~50~\%, and \ac{t-db}~=~36~$^{\circ}$C and \ac{rh}~=~80~\%.
-Our results are in agreement with those obtained by \mycite{Rate2015} and those obtained by \mycite{Morris2019} when participants were exposed to \ac{t-db}~=~40~$^{\circ}$C and \ac{rh}~=~51~\%.
-However, the \mycite{GaggeSET} also predicts that the use of electrical fans should be beneficial when \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\%, however, these results are in disagreement with the experimental results of \mycite{Morris2019}.
-We would like to remember to the reader that, as previously mentioned in the Introduction Section, the enthalpy of the air in \mycite{Morris2019} experiment was lower in the scenario with lower \ac{rh}.
+Our results are in agreement with those obtained by \mycite{Rate2015} and those obtained by \mycite{Morris2019} in which participants were exposed to \ac{t-db}~=~40~$^{\circ}$C and \ac{rh}~=~51~\%.
+However, the Gagge model also predicts that the use of electrical fans should be beneficial when \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\%, however, these results are in disagreement with the experimental results of \mycite{Morris2019}.
+% todo EA This whole validation section is inserted into a section calle 'when can electric fans be used?"  This is really hard for the reader.  Need to reorganize and separate these issues.
+
+% todo add section: Adding evaporative cooling to air or skin
+As previously mentioned in the Introduction Section, the enthalpy of the air in \mycite{Morris2019} experiment was lower in the scenario with higher temperature and lower \ac{rh}.
 The black dashed lines, in Figure~\ref{fig:use_fans_experimental}, are isoenthalpic lines passing through the conditions studied by \mycite{Morris2019}.
-Evaporative cooling technologies can, therefore, be used to reduce the value of \ac{t-db} and avoid heat strain.
+Evaporative cooling technologies could, therefore, be used to reduce the value of \ac{t-db} and avoid heat strain.
 Evaporative cooling can be achieved by spraying water in the air or even by placing wet towels near the electric fan.
 
 \begin{figure}[thb!]
@@ -179,8 +182,8 @@ In 95 of them, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and these ci
 
 We estimated that in all the 115 most populous cities the use of electrical fans would be beneficial for healthy adults seated quietly (\ac{met}~=~1.0~met) and wearing a value of \ac{clo} equal to 0.36~clo.
 The \mycite{GaggeSET} model predicted that healthy adults living in 74 cities (approximately 394 million inhabitants) should not experience heat strain even without increasing air movement.
-However, they should still be encouraged in using electrical fans to improve thermal comfort conditions in a energy efficient way.
-An additional 33 million people would possibly avoid heat strain by simply elevating air speed up to 0.8~m/s.
+However, they should still be encouraged in using electrical fans to improve their thermal comfort in an energy efficient way.
+An additional 33 million people would avoid heat strain by elevating the air speed up to 0.8~m/s.
 
 \begin{figure}[thb!]
     \centering

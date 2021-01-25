@@ -3,11 +3,14 @@
 
 \section{Methodology}\label{sec:methodology}
 
-We used the heat balance model that \mycite{GaggeSET} originally developed to derive the \ac{set} to determine when the use of elevated air moment (i.e., \ac{v} $>$ 0.2 m/s) would be beneficial to cool people.
 The heat balance model allows to estimate how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
 It should be noted that \ac{t-db} and \ac{v} are the average values measured at different heights over a period of at least three minutes.
 These heights are 0.1, 0.6 and 1.1~m for seated people and 0.1, 1.1 and 1.7~m for standing occupants~\cite{ashrae552017}.
+
+% todo EA This is only true for how Std 55 applies the model. Gagge did not use those definitions, and it's overly restrictive to put them into this text.    I would delete this; just say for the model to work, the air flow needs to affect a significant part of the body.  The best paper that looked into local airflow and the derivation of the SET model is in red:
+
+% todo cite this paper: https://www.sciencedirect.com/science/article/pii/S0360132314000298
 
 Section~\ref{subsec:energy-balance} describe the main Equations used by the model to derive the results.
 
@@ -24,8 +27,8 @@ The energy balance in the human body is described by:
 
 This equation assumes that the body comprises two main thermal compartments: the skin and the core.
 If the exogenous and endogenous heat gains cannot be compensated by heat loss, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
-One of the main differences between our proposed model and the one used by \mycite{Jay2015} is that their model does not accounts for heat stored in the core or the skin compartment, hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
-Calculating how \ac{t-sk} and \ac{t-cr} vary as a function of different environmental and personal factors allowed us to better predict how much heat the body exchanges with its surrounding environment.
+One of the main differences between our proposed model and the one used by \mycite{Jay2015} is that their model does not account for heat stored in the core or the skin compartment, hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
+Calculating how \ac{t-sk} and \ac{t-cr} vary as a function of different environmental and personal factors allows us to better predict how much heat the body exchanges with its surrounding environment.
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental (\ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}), and personal factors (\ac{met}, and \ac{clo})~\cite{ASHRA2017}.
 
@@ -61,7 +64,7 @@ The equation can be expressed as:
 \end{equation}
 
 \begin{equation}
-    h=h_{c} + h_{r} = \max(3, 8.6 v^{0.53}) p_{atm}^{0.53} + 4 \varepsilon \sigma \frac{A_{\mathrm{r}}}{A_{body}}\left[273.2+\frac{\left(t_{\mathrm{cl}}+\overline{t_{r}}\right)}{2}\right]^{3}\label{eq:h}
+    h=h_{c} + h_{r} = \max(3, 8.6 V^{0.53}) p_{atm}^{0.53} + 4 \varepsilon \sigma \frac{A_{\mathrm{r}}}{A_{body}}\left[273.2+\frac{\left(t_{\mathrm{cl}}+\overline{t_{r}}\right)}{2}\right]^{3}\label{eq:h}
 \end{equation}
 
 Where the ratio between \ac{a-r} and \ac{body-a} is assumed to be 0.70 for a sitting person and 0.73 for a standing person~\cite{Fanger1967}.
@@ -84,12 +87,15 @@ The \acf{e-sk} comprises two terms the \ac{e-rsw} and the \ac{e-dif}.
     E_{s k}=E_{rsw}+E_{dif}=\frac{w\left(p_{s k, s}-p_{a}\right)}{R_{e, c l}+1 /\left(f_{c l} h_{e}\right)}\label{eq:latent-skin}
 \end{equation}
 
-Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}.
-The human body does not regulates \ac{w} directly but, rather, it regulates the sweat rate~\cite{ASHRA2017}.
+Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}, the human body does not regulates \ac{w} directly but, rather, it regulates the sweat rate~\cite{ASHRA2017}.
 Skin wettedness varies as a function of the activity of the sweat glands and the environmental conditions~\cite{ASHRA2017}.
-While, theoretically \ac{w} can range from 0 to 1, in practice, \ac{w} is strongly correlated with thermal stress and warm discomfort, consequently there is a \ac{w-max} for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
+While \ac{w} can theoretically range from 0 to 1, in practice, \ac{w} is strongly correlated with thermal stress and warm discomfort.
+% todo remove consequently below
+consequently there is a \ac{w-max} for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
 
-We estimated \ac{w-max} using the following equation:
+We estimated \ac{w-max} using the following equation from the \mycite{GaggeSET} model:
+
+% todo These equations are presumably from the SET model by Gagge?  Should indicate that.  Also, there are physiological sweat rate control equations that affect wmax, right? Do they need to be described?
 
 \begin{equation}
     w_{max}=
@@ -123,18 +129,18 @@ We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5~clo, and \ac{met}~=
 It could be argued that some people during heatwaves may be wearing less clothes than that, hence, a value of \ac{clo} equal to 0.36 clo (i.e., walking shorts, short-sleeve shirt and sandals) would be more appropriate, however, we wanted to use a more conservative value.
 Results for different combinations of environmental and personal conditions can be generated using our online tool.
 In this manuscript we assumed the \ac{i-cl} to be constant and equal to 1 and 0.45, as assumed by \mycite{GaggeSET}, for naked and clothed people, respectively.
-User can, however, change this value in the source code.
-We reported heat losses per unit of surface area.
-Thermal stress was assumed to occur when either of the following parameters reached its maximum value \ac{w}, skin blood flow or \ac{m-sweat}.
-The former assumption was based on the fact that there is a \ac{w-max} for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
+Users can, however, change this value in the source code.
+We report heat losses per unit of skin surface area.
+Thermal stress is assumed to occur when either of the following parameters reach their maximum value: \ac{w}, skin blood flow, or \ac{m-sweat}.
+The former assumption is based on the fact that there is a \ac{w-max} for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
 The other two assumptions are based on the fact that \mycite{GaggeSET} state that serious danger of fatality exists when blood flow from core to skin is maximal or sweating reaches its maximum.
 We assumed that the use of electrical fans is detrimental when the value of \ac{t-cr} calculated for values of \ac{v} higher than 0.2~m/s exceeds the value determined for the `still air' condition.
 
 Results were calculated using the  \verb|pythermalcomfort| Python package~\cite{Tartarini2020a} function \verb|use_fans_heatwaves|.
 A copy of the algorithm we used to calculate the results can also be found in \ref{sec:python_code}.
 Lines in Figures~\ref{fig:comparison_models}, \ref{fig:results_model_2}, \ref{fig:comparison_air_speed}, \ref{fig:met_clo}, \ref{fig:energy_storage_delta}, and \ref{fig:use_fans_and_population} were smoothed using the \verb|Scipy| function \verb|ndimage.gaussian_filter1d|.
-Moreover, we develop a tool that can be used to generate interactive figures that show the environmental conditions under which the use of elevated air speeds is beneficial.
-This tool was added and integrated in the CBE Thermal Comfort Tool~\cite{Tartarini2020}.
+Moreover, we developed a tool that can be used to generate interactive figures that show the environmental conditions under which the use of elevated air speeds is beneficial.
+This tool has been added and integrated into the CBE Thermal Comfort Tool~\cite{Tartarini2020}.
 
 \subsection{Weather Data}\label{subsec:weather-data}
 
@@ -144,7 +150,7 @@ We compared the results obtained with the heat balance model with the climatic d
 From the ASHRAE climatic design dataset we extracted information regarding the maximum extreme \ac{t-db} and \ac{t-wb} recorded across more than 5000 stations worldwide with a 10 year return period.
 For more information about the ASHRAE climate design dataset please refer to Chapter 14 of the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
 Location of the stations and their respective maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}.
-We did not show data from stations with a maximum temperature lower than 26~$^\circ$C\@ since we are only interested in assessing the benefit of using fans during hot days.
+We do not show data from stations with a maximum temperature lower than 26~$^\circ$C\@ since we are only interested in assessing the benefit of using fans during hot days.
 
 \begin{figure}[thb!]
     \centering
@@ -153,17 +159,17 @@ We did not show data from stations with a maximum temperature lower than 26~$^\c
     \label{fig:world-map}
 \end{figure}
 
-Few data was available for the Sub-Saharan Africa where approximately 40~\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
+Few data are available for the Sub-Saharan Africa where approximately 40~\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
 
 For each location we assumed that both the maximum extreme \ac{t-db} and wet-bulb temperatures could be recorded at the same time.
-This is an approximation and it is arguably overestimating the most extreme condition due to the fact that the likelihood that both conditions would occur at the same time is extremely low.
+This is an approximation and it is arguably overestimating the most extreme condition because the likelihood of both conditions occurring at the same time is extremely low.
 However, we assumed this to be the most extreme heat event that could occur in each location.
 In addition, we assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
 Conditions indoors may, however, be slightly less severe than outdoors since the thermal mass of the building may dump and shift peaks in outdoor temperature.
 At the same time, the opposite scenario can also occur if there is a significant amount of internal load or solar gains indoors.
 
 The EM-DAT contains detailed information on when the heatwave occurred, the location, the number of deaths, and the maximum temperature recorded.
-However, it does not contain information about the \ac{rh} which is essential in determining whether the use of electrical fans would have been beneficial or not.
+However, it does not contain information about the \ac{rh} which is important for determining whether the use of electrical fans would have been beneficial or not.
 
 \subsection{City Population Data}\label{subsec:population-data}
 
@@ -171,7 +177,7 @@ We obtained the city population data from the demographic statistics database wh
 The database was last updated in August 2020 and we used it to gather information about the number of people who live in the 115 most populous cities in the world.
 When available we used the population of the urban agglomerate rather than of the city administrative boundary.
 We then combined the population with the ASHRAE weather data to determine during extreme heat events: i) how many people were at high risk of experiencing \ac{t-db} higher than 35~$^{\circ}$C\@; and ii) how many people would benefit from the use of electrical fans.
-As previously mentioned in Section~\ref{subsec:weather-data} weather data were not available for all the major cities in the world.
+As mentioned in Section~\ref{subsec:weather-data} weather data were not available for all the major cities in the world.
 Consequently, we had to exclude the following cities from our analysis: Lagos in Nigeria, Dar es-Salaam and Mwanza in Tanzania, Dhaka in Bangladesh, Faisalabad in Pakistan, Zibo and Zhongshan in China, Addis Ababa in Ethiopia, and Bandung in Indonesia.
 A full list of the cities we included in the analysis is provided in the \ref{sec:pop_weather}.
 
