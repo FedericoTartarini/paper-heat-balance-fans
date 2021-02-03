@@ -3,7 +3,7 @@
 
 \section{Results}\label{sec:results}
 
-\subsection{Heat Losses, Gains and Physiological Variables}\label{subsec:res-heat-loss-physiological}
+\subsection{Heat Losses, Gains, and Physiological Variables}\label{subsec:res-heat-loss-physiological}
 
 The sensible heat loss from the skin to the environment is proportional to the difference between the \ac{t-sk} and \ac{t-op}, as shown in Equation~\ref{eq:c-r}.
 Consequently, for values of \ac{t-op} higher than \ac{t-sk} the body gains sensible heat from its environment and the term \ac{c-r} becomes negative.
@@ -13,7 +13,7 @@ When heat gains exceed heat losses, the \mycite{GaggeSET} model estimates that s
 This reduces the rate at which sensible heat gain increases as \ac{t-op} increases.
 
 The values of \ac{w} for two air speeds are shown in Figure~\ref{fig:comparison_models}B\@.
-The skin wettedness is allowed by the model to increase until it reaches the value of \ac{w-max}, after that it plateaus and remains constant.
+The skin wettedness is allowed by the model to increase until it reaches the value of \ac{w-max}, after that, it plateaus and remains constant.
 For young adults, \mycite{Jay2015} assumed \ac{w-max} to be equal to 0.65 for the `fan on' condition and 0.85 for the `fan off' condition.
 From Figure~\ref{fig:comparison_models}B it can be observed that the values of \ac{w-max} estimated by the \mycite{GaggeSET} for the same air speeds are lower.
 The operative temperature at which \ac{w} equals \ac{w-max} is inversely proportional to the value of \ac{rh}.
@@ -42,7 +42,7 @@ This is because humid air has a higher \ac{p-a} than dry air.
 The reduction in \ac{e-max} estimated by our model is lower than the one estimated by \mycite{Jay2015} since an increase in \ac{t-sk} elevates the vapor pressure gradient between the skin and its surrounding environment.
 
 The \acf{m-sweat} is shown in Figure~\ref{fig:comparison_models}D\@.
-The difference between the results obtained with the two heat balance models can be attributed to the fact that \citeauthor{Jay2015} calculate the value of \ac{m-sweat} as a function of the required latent energy that the body should in theory dissipate to achieve thermal neutrality.
+The difference between the results obtained with the two heat balance models can be attributed to the fact that \citeauthor{Jay2015} calculate the value of \ac{m-sweat} as a function of the required latent energy that the body should, in theory, dissipate to achieve thermal neutrality.
 On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as a function of regulatory signals and they assume that \ac{m-sweat} cannot exceed 500~mL/h.
 
 % note In the most recent paper from Jay, they assume that the max sweat rate is 440 mL/h (in their model). However, we can sweat more than 500 mL/h, for example in a field study participants exposed to 47C and 10%  sweated 691 mL/h (when fan were on) but when fan off they sweated 328g/h. Under 40C and 50% they sweated 346 and 216 g/h, with fan and no fan, respectively. Hence, only with very low humidity, high temp and fan  on people sweated more than 500. I do not know what it the max value we can sweat, I guess it would vary from person to person. Moreover, Gagge's model estimates that the a value of 500mL/h is only reached in extreme conditions (red area Figure 7) when fans should no longer be used. I am planning to add a table at the end of the
@@ -64,7 +64,7 @@ When the body cannot longer dissipate exogenous and endogenous heat gains, the e
 
 % note Federico to Stefano - The increase in the core temperature it is a concern, but as you can see from Figure 3 if the fans are on, the core body temperature is lower than when fans are off. This is true till a certain point when this trend is inverted and the core temperature with the fans on is higher than with the fan off. As you can see from Figure 3 the point in which the two lines intersect is the same point above which in Figure 7 we are no longer recommending to use electrical fans. Hence, fans are still beneficial to use, even though people may be suffering, they are better than nothing. Moreover, from figure 3 it can be observed that the critical temperature above which core body temperature starts increasing is higher when fans are turned on, and this temperature is higher than 35C. Till that temperature the use of fans is actually good since it onsets the increase in the core temperature.
 
-To validate the results of our model, we decided to plot how the predicted value of \ac{t-cr} would vary as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
+To validate the results of our model, we examined how the predicted value of \ac{t-cr} varies as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
 The results are shown in Figure~\ref{fig:comparison_ravanelli}.
 It should be noted that \mycite{Rate2015} only reported the core body temperature of one participant.
 Consequently, despite the agreement with their experimental data (mean absolute error~=~0.04~$^{\circ}$C), more quantitative data will be needed for validation.
@@ -83,7 +83,7 @@ Consequently, despite the agreement with their experimental data (mean absolute 
 The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat stress would start to occur is presented in Figure~\ref{fig:comparison_air_speed}.
 Each line demarcates the conditions above which not all individuals would be able to compensate for endogenous and exogenous heat gains.
 The Figure shows the results obtained with both the \mycite{GaggeSET} and the \mycite{Jay2015} models.
-For a specific value of \ac{v}, the maximum \ac{t-op} at which heat strain is estimated to occur decreases as the value of \ac{rh} increases, since as previously shown the value of \ac{e-max} is inversely proportional to \ac{rh}.
+For a specific value of \ac{v}, the maximum \ac{t-op} at which heat strain is estimated to occur decreases as the value of \ac{rh} increases since, as previously shown, the value of \ac{e-max} is inversely proportional to \ac{rh}.
 In addition, it can be observed that for a specific value of \ac{rh}, as the value of \ac{v} grows, the overall increase in the maximum critical temperature rapidly decreases.
 For example, in an environment with \ac{rh}~=~60~\%, increasing \ac{v} from 0.2~m/s to 0.8~m/s and then to 4.5~m/s leads to an increase of the critical temperature of approximately 2.3~$^{\circ}$C and 0.8~$^{\circ}$C, respectively.
 The slope of the heat stress curve flattens for values of \ac{rh} lower than 20 \%.
@@ -111,10 +111,10 @@ As expected, decreasing both \ac{met} and \ac{clo} has a net positive effect sin
     \label{fig:met_clo}
 \end{figure}
 
-\subsection{When Electrical Fans Can be Used?}\label{subsec:use-fans}
+\subsection{When Can Electric Fans be Used?}\label{subsec:use-fans}
 
 The environmental conditions above which the use of elevated air speeds would be detrimental according to or model is shown in Figure~\ref{fig:energy_storage_delta}.
-We used a red filling to highlight the region in which electrical fans should not be used, while we used a green background to depict when elevated air speed can be used to cool the human body.
+We used a red shading to highlight the region in which electric fans should not be used, while we used a green background to depict when elevated air speed can be used to cool the human body.
 We also plotted the lines above which thermal stress is expected to occur (see Figure~\ref{fig:comparison_air_speed} for more details).
 For a specific value of \ac{rh}, as the value of \ac{v} increases the critical temperature at which thermal stress would occur also increases, as previously stated.
 This can be explained that \ac{e-max} increases by a greater amount than and \ac{c-r}.
@@ -123,8 +123,7 @@ This causes the body to heats up faster for higher values of \ac{v}.
 
 We used a scatter plot to visualize the maximum extreme weather conditions recorded worldwide in more than 5000 stations.
 Based on the climate data obtained from the 2017 ASHRAE Handbook--Fundamentals we determined that in approximately 73~\% of the locations thermal stress should not occur even without air movement, however, this number increases to 90~\% and 94~\% when \ac{v} is increased to 0.8~m/s and 4.5~m/s, respectively.
-The use of fans during heatwaves would, therefore, be beneficial in the great majority of the locations worldwide.
-With the exception of 29 locations where the use of \ac{v} higher than 0.8~m/s would be detrimental for the human body, and 7 locations where elevated air movement should not be used in any scenario.
+The use of fans during heatwaves would be beneficial in the great majority of the locations worldwide with the exception of 29 locations where the use of \ac{v} higher than 0.8~m/s would be detrimental and 7 locations where elevated air movement is not recommended in any scenario.
 
 % https://advances.sciencemag.org/content/6/19/eaaw1838
 
@@ -133,21 +132,22 @@ With the exception of 29 locations where the use of \ac{v} higher than 0.8~m/s w
     \includegraphics[width=\textwidth]{figures/use_fans}
     \caption{The green area shows the environmental conditions in which the use of fans is beneficial since they provide additional cooling to the human body.
     The dark lines demarcate the regions above which thermal stress is predicted to occur for that specific \ac{v}.
-    In the hatched area, while the use of fans it is still beneficial, people are most likely to suffer from heat strain.
-    The red area demarcates the region in which electrical fans should not be used.
+    In the hatched area, while the use of fans is still beneficial, people are most likely to suffer from heat strain.
+    The red area demarcates the region in which electric fans should not be used.
     The dots show the maximum extreme climate conditions recorded over the last 10 years in more than 5000 locations worldwide.
-    The red line depicts the current upper temperature limit above which many standards discourage people from using electrical fans.}
+    The red line depicts the current upper temperature limit above which many standards discourage people from using electric fans.}
     \label{fig:energy_storage_delta}
 \end{figure}
 
 % todo report estimated sweat heat lossess too, either using a table or a heatmap
 
 We also compared the results of the \mycite{GaggeSET} model with experimental results previously published.
-In Figure~\ref{fig:use_fans_experimental} we are presenting the results obtained by \mycite{Morris2019} and \mycite{Rate2015}.
+In Figure~\ref{fig:use_fans_experimental} we present the results obtained by \mycite{Morris2019} and \mycite{Rate2015}.
 The former determined that electric fans (\ac{v}~=~2.0~m/s) are beneficial when \ac{t-db}~=~40~$^{\circ}$C and \ac{rh}~=~51~\%, but should not be used when \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\%.
-While \mycite{Rate2015} concluded that electric fans (\ac{v}~=~4.0~m/s) help in preventing heat-related elevation in heart rate and \ac{t-cr} in both of the following conditions \ac{t-db}~=~42~$^{\circ}$C and \ac{rh}~=~50~\%, and \ac{t-db}~=~36~$^{\circ}$C and \ac{rh}~=~80~\%.
+\mycite{Rate2015} concluded that electric fans (\ac{v}~=~4.0~m/s) help in preventing heat-related elevation in heart rate and \ac{t-cr} in both of the following conditions \ac{t-db}~=~42~$^{\circ}$C and \ac{rh}~=~50~\%, and \ac{t-db}~=~36~$^{\circ}$C and \ac{rh}~=~80~\%.
 Our results are in agreement with those obtained by \mycite{Rate2015} and those obtained by \mycite{Morris2019} in which participants were exposed to \ac{t-db}~=~40~$^{\circ}$C and \ac{rh}~=~51~\%.
-However, the Gagge model also predicts that the use of electrical fans should be beneficial when \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\%, however, these results are in disagreement with the experimental results of \mycite{Morris2019}.
+However, the Gagge model also predicts that the use of electric fans should be beneficial when \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\%. 
+This result is in disagreement with the experimental results of \mycite{Morris2019}.
 % todo EA This whole validation section is inserted into a section calle 'when can electric fans be used?" This is really hard for the reader. Need to reorganize and separate these issues.
 
 As previously mentioned in the Introduction Section, the enthalpy of the air in \mycite{Morris2019} experiment was lower in the scenario with higher temperature and lower \ac{rh}.
@@ -158,18 +158,18 @@ Evaporative cooling can be achieved by spraying water in the air or even by plac
 \begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/summary_use_fans_comparison_experimental}
-    \caption{Environmental conditions under which the use of the electrical fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:energy_storage_delta}.
+    \caption{Environmental conditions under which the use of the electric fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:energy_storage_delta}.
     }
     \label{fig:use_fans_experimental}
 \end{figure}
 
 % todo compare results in the above figure with the results obtained by Gagnon
 
-To better quantify how many people would benefit from the use of electrical fans we combined the city population with the weather data.
+To better quantify how many people would benefit from the use of electric fans we combined the city population with the weather data.
 The former contained data from the 115 most populous cities worldwide.
 We plotted the data in Figure~\ref{fig:map-population-temperature}.
 Each marker shows where the city is located, the dot size is proportional to the number of people living in that urban area, while the color shows the extreme \ac{t-db} recorded in that city.
-In 2020, a total of approximately 650 million people (8~\% percent of global population) lived in the urban agglomerate of the 115 largest cities.
+In 2020, a total of approximately 650 million people (8~\% percent of the global population) lived in the urban agglomerate of the 115 largest cities.
 In 95 of them, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and these cities had a total population of approximately 550 million people.
 
 \begin{figure}[thb!]
@@ -179,15 +179,15 @@ In 95 of them, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and these ci
     \label{fig:map-population-temperature}
 \end{figure}
 
-We estimated that in all the 115 most populous cities the use of electrical fans would be beneficial for healthy adults seated quietly (\ac{met}~=~1.0~met) and wearing a value of \ac{clo} equal to 0.36~clo.
+We estimated that in all the 115 most populous cities the use of electric fans would be beneficial for healthy adults seated quietly (\ac{met}~=~1.0~met) and wearing a value of \ac{clo} equal to 0.36~clo.
 The \mycite{GaggeSET} model predicted that healthy adults living in 74 cities (approximately 394 million inhabitants) should not experience heat strain even without increasing air movement.
-However, they should still be encouraged in using electrical fans to improve their thermal comfort in an energy efficient way.
+However, they should still be encouraged in using electric fans to improve their thermal comfort in an energy-efficient way.
 An additional 33 million people would avoid heat strain by elevating the air speed up to 0.8~m/s.
 
 \begin{figure}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/use_fans_and_population}
-    \caption{Environmental conditions under which the use of the electrical fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:energy_storage_delta}.
+    \caption{Environmental conditions under which the use of the electric fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:energy_storage_delta}.
     Each dot shows the maximum extreme climate conditions recorded over the last 10 years in each of the 115 most populous cities worldwide.
     These results were calculated assuming \ac{t-r}~=~\ac{t-db}, \ac{clo}~=~0.35~clo, \ac{met}~=~1.0~met.}
     \label{fig:use_fans_and_population}
