@@ -111,7 +111,7 @@ class DataAnalysis:
 
         return ax, m
 
-    def plot_map_world(self, save_fig):
+    def weather_data_world_map(self, save_fig):
 
         # draw map contours
         plt.figure(figsize=(7, 3.78))
@@ -169,7 +169,7 @@ class DataAnalysis:
         else:
             plt.show()
 
-    def model_comparison(self, save_fig=True):
+    def gagge_results_physio_heat_loss(self, save_fig=True):
 
         fig_0, ax_0 = plt.subplots(4, 2, figsize=(7, 8), sharex="all", sharey="row")
         fig_1, ax_1 = plt.subplots(2, 2, figsize=(7, 7), sharex="all")
@@ -397,7 +397,7 @@ class DataAnalysis:
         else:
             plt.show()
 
-    def figure_2(self, save_fig=True):
+    def gagge_results_physiological(self, save_fig=True):
 
         fig_1, ax_1 = plt.subplots(2, 2, figsize=(7, 7), sharex="all")
 
@@ -633,10 +633,9 @@ class DataAnalysis:
         else:
             plt.show()
 
-    def comparison_air_speed(self, save_fig):
+    def heat_strain_different_v(self, save_fig=False):
 
         fig, ax = plt.subplots(figsize=(7, 6))
-
         ax.grid(c="lightgray")
 
         heat_strain = {}
@@ -644,7 +643,6 @@ class DataAnalysis:
         for ix, v in enumerate(self.v_range):
 
             heat_strain[v] = {}
-
             color = self.colors_f3[ix]
 
             for rh in np.arange(0, 105, 1):
@@ -654,7 +652,13 @@ class DataAnalysis:
                     r = use_fans_heatwaves(ta, ta, v, rh, 1.1, 0.5, wme=0)
 
                     # determine critical temperature at which heat strain would occur
-                    if r["heat_strain"]:
+                    if (
+                        r["heat_strain"]
+                        # or r["temp_core"]
+                        # > use_fans_heatwaves(
+                        #     ta, ta, self.v_range[0], rh, 1.1, 0.5, wme=0
+                        # )["temp_core"]
+                    ):
                         heat_strain[v][rh] = ta
                         break
 
@@ -693,7 +697,6 @@ class DataAnalysis:
         )
 
         sns.despine(left=True, bottom=True, right=True)
-
         plt.legend(frameon=False)
 
         plt.tight_layout()
@@ -1478,6 +1481,7 @@ class DataAnalysis:
     def summary_use_fans_comparison_experimental(self, save_fig):
         rh_arr = np.arange(34, 110, 2)
         tmp_low = []
+        tmp_high = []
 
         for rh in rh_arr:
 
@@ -1487,6 +1491,12 @@ class DataAnalysis:
                     - use_fans_heatwaves(x, x, 0.2, rh, 1.1, 0.5, wme=0)["temp_core"]
                 )
 
+            v = 4.5
+            try:
+                tmp_high.append(optimize.brentq(function, 30, 130))
+            except ValueError:
+                tmp_high.append(np.nan)
+
             v = 0.8
             try:
                 tmp_low.append(optimize.brentq(function, 30, 130))
@@ -1495,6 +1505,7 @@ class DataAnalysis:
 
         fig, ax = plt.subplots()
 
+        # plot heat strain lines
         # plot heat strain lines
         for key in self.heat_strain.keys():
             if key == 0.2:
@@ -1512,13 +1523,29 @@ class DataAnalysis:
                     )
                 )
             if key == 0.8:
-                ax.plot(
+                (ln_0,) = ax.plot(
                     list(self.heat_strain[key].keys()),
                     list(self.heat_strain[key].values()),
                     c="k",
                     linestyle="-.",
+                    label="V = 0.8 m/s",
                 )
                 f_08_critical = np.poly1d(
+                    np.polyfit(
+                        list(self.heat_strain[key].keys()),
+                        list(self.heat_strain[key].values()),
+                        2,
+                    )
+                )
+            if key == 4.5:
+                (ln_1,) = ax.plot(
+                    list(self.heat_strain[key].keys()),
+                    list(self.heat_strain[key].values()),
+                    c="k",
+                    linestyle=":",
+                    label="V = 4.5 m/s",
+                )
+                f_45_critical = np.poly1d(
                     np.polyfit(
                         list(self.heat_strain[key].keys()),
                         list(self.heat_strain[key].values()),
@@ -1528,31 +1555,44 @@ class DataAnalysis:
 
         x_new, y_new = interpolate(rh_arr, tmp_low)
 
-        # (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
+        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.")
 
-        ax.fill_between(
-            x_new, y_new, 100, color="tab:red", alpha=0.2, zorder=100,
-        )
         fb_0 = ax.fill_between(
-            x_new, y_new, 100, color="tab:orange", alpha=0.2, zorder=100,
+            x_new,
+            y_new,
+            100,
+            color="tab:red",
+            alpha=0.2,
+            zorder=100,
+            label="No fan - V = 4.5 m/s",
         )
 
         df = pd.DataFrame(self.heat_strain)
-        df_fan_above = df[df[0.8] >= df[0.2] - 0.2]
-        df_fan_below = df[df[0.8] <= df[0.2]]
+        df_fan_above = df[df[4.5] >= df[0.8]]
+        df_fan_below = df[df[4.5] <= df[0.8] + 0.073]
 
         x_new, y_new = interpolate(
-            rh_arr, tmp_low, x_new=list(df_fan_above.index.values)
+            rh_arr, tmp_high, x_new=list(df_fan_above.index.values)
         )
+        (ln_1,) = ax.plot(x_new, y_new, c="k", linestyle=":")
 
         ax.fill_between(
             x_new,
-            df_fan_above[0.8].values,
+            df_fan_above[4.5].values,
             y_new,
             facecolor="none",
             zorder=100,
             hatch="/",
             edgecolor="silver",
+        )
+
+        fb_1 = ax.fill_between(
+            x_new,
+            y_new,
+            100,
+            color="tab:orange",
+            alpha=0.2,
+            label="No fan - V = 0.8 m/s",
         )
 
         # green part on the right
@@ -1564,35 +1604,29 @@ class DataAnalysis:
         # ax.fill_between(
         #     df_fan_below.index,
         #     0,
-        #     df_fan_below[0.8].values,
+        #     df_fan_below[4.5].values,
         #     color="tab:green",
         #     alpha=0.2,
         # )
-
-        # blue part below evaporative cooling
-        ax.fill_between(
-            df_fan_below.index,
-            df_fan_below[0.8].values,
-            100,
-            color="tab:red",
-            alpha=0.2,
-        )
-        ax.fill_between(
-            df_fan_below.index,
-            df_fan_below[0.8].values,
-            100,
-            color="tab:orange",
-            alpha=0.2,
-        )
+        #
+        # # blue part below evaporative cooling
+        # ax.fill_between(
+        #     df_fan_below.index,
+        #     df_fan_below[4.5].values,
+        #     100,
+        #     color="tab:blue",
+        #     alpha=0.2,
+        # )
 
         ax.set(
             ylim=(29, 50),
             xlim=(0, 100),
             xlabel=r"Relative humidity ($RH$) [%]",
-            ylabel=r"Operative temperature ($t_{o}$) [°C]",
+            ylabel=self.label_t_op,
         )
+
         ax.text(
-            10, 38.75, "Use fans", size=12, ha="center", va="center",
+            10, 41.25, "Use fans", size=12, ha="center", va="center",
         )
         ax.text(
             0.85,
@@ -1604,7 +1638,7 @@ class DataAnalysis:
         )
         text_dic = [
             {"txt": "Thermal strain\nv =0.2m/s", "x": 80, "y": 31.5, "r": -21},
-            {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 33, "r": -22},
+            # {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 33, "r": -22},
         ]
 
         for obj in text_dic:
@@ -1653,19 +1687,19 @@ class DataAnalysis:
             facecolor="w", loc="lower left",
         )
 
-        # plot enthalpy line
-        reference_enthalpies = [100805.98, 73007.24]
-        for enthalpy in reference_enthalpies:
-            rh_const_enthalpy = []
-            for tmp in self.ta_range:
-                hr = psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(enthalpy, tmp)
-                rh_const_enthalpy.append(
-                    psychrolib.GetRelHumFromHumRatio(tmp, hr, 101325) * 100
-                )
-
-            ax.plot(
-                rh_const_enthalpy, self.ta_range, c="k", linestyle=":",
-            )
+        # # plot enthalpy line
+        # reference_enthalpies = [100805.98, 73007.24]
+        # for enthalpy in reference_enthalpies:
+        #     rh_const_enthalpy = []
+        #     for tmp in self.ta_range:
+        #         hr = psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(enthalpy, tmp)
+        #         rh_const_enthalpy.append(
+        #             psychrolib.GetRelHumFromHumRatio(tmp, hr, 101325) * 100
+        #         )
+        #
+        #     ax.plot(
+        #         rh_const_enthalpy, self.ta_range, c="k", linestyle=":",
+        #     )
 
         fig.tight_layout()
         ax.grid(c="lightgray")
@@ -1936,40 +1970,40 @@ if __name__ == "__main__":
     self = DataAnalysis()
 
     figures_to_plot = [
-        # "heat_loss",
-        # "physio_variables",
-        # "weather_data",
-        # "heat_strain_limits",
+        # "gagge_results_physio_heat_loss",
+        # "gagge_results_physiological",
+        # "weather_data_world_map",
+        # "heat_strain_different_v",
         # "ravanelli_comp",
-        # "personal_factors",
-        # "fan_usage_region_weather",
-        # "summary_use_fans_comparison_experimental",
-        # "fan_usage_region_cities",
+        # "met_clo",
+        # "summary_use_fans_weather",
+        "summary_use_fans_comparison_experimental",
+        # "summary_use_fans_and_population",
         # "world_map_population_weather",
         # "table_list_cities"
-        "sweat_rate"
+        # "sweat_rate"
     ]
 
     save_figure = True
 
     for figure_to_plot in figures_to_plot:
-        if figure_to_plot == "heat_loss":
-            self.model_comparison(save_fig=save_figure)
-        if figure_to_plot == "physio_variables":
-            self.figure_2(save_fig=save_figure)
-        if figure_to_plot == "heat_strain_limits":
-            self.comparison_air_speed(save_fig=save_figure)
-        if figure_to_plot == "weather_data":
-            self.plot_map_world(save_fig=save_figure)
+        if figure_to_plot == "gagge_results_physio_heat_loss":
+            self.gagge_results_physio_heat_loss(save_fig=save_figure)
+        if figure_to_plot == "gagge_results_physiological":
+            self.gagge_results_physiological(save_fig=save_figure)
+        if figure_to_plot == "heat_strain_different_v":
+            self.heat_strain_different_v(save_fig=save_figure)
+        if figure_to_plot == "weather_data_world_map":
+            self.weather_data_world_map(save_fig=save_figure)
         if figure_to_plot == "ravanelli_comp":
             self.comparison_ravanelli(save_fig=save_figure)
-        if figure_to_plot == "personal_factors":
+        if figure_to_plot == "met_clo":
             self.met_clo(save_fig=save_figure)
         if figure_to_plot == "summary_use_fans_comparison_experimental":
             self.summary_use_fans_comparison_experimental(save_fig=save_figure)
-        if figure_to_plot == "fan_usage_region_weather":
+        if figure_to_plot == "summary_use_fans_weather":
             self.summary_use_fans(save_fig=save_figure)
-        if figure_to_plot == "fan_usage_region_cities":
+        if figure_to_plot == "summary_use_fans_and_population":
             self.summary_use_fans_and_population(save_fig=save_figure)
         if figure_to_plot == "world_map_population_weather":
             analyse_population_data(save_fig=save_figure)
