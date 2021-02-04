@@ -45,12 +45,30 @@ class DataAnalysis:
         except FileNotFoundError:
             self.heat_strain = {}
 
-        try:
-            self.heat_strain_ollie = np.load(
-                os.path.join("code", "heat_strain_ollie.npy"), allow_pickle="TRUE"
-            ).item()
-        except FileNotFoundError:
-            self.heat_strain_ollie = {}
+        self.heat_strain_ollie = {}
+        self.heat_strain_ollie[4.5] = {
+            10.234375: 48.02926829,
+            19.90234375: 44.71707317,
+            29.1796875: 42.39512195,
+            39.3359375: 40.27804878,
+            49.8828125: 38.36585366,
+            60.33203125: 36.65853659,
+            71.07421875: 35.29268293,
+            81.328125: 34.06341463,
+            89.82421875: 33.03902439,
+            99.8828125: 32.08292683,
+        }
+        self.heat_strain_ollie[0.2] = {
+            9.901960784: 45.05982906,
+            20: 41.70940171,
+            29.50980392: 39.21367521,
+            39.41176471: 37.12820513,
+            53.62745098: 34.73504274,
+            66.37254902: 32.85470085,
+            78.62745098: 31.24786325,
+            90.09803922: 30.11965812,
+            100.0980392: 29.12820513,
+        }
 
         self.conn = sqlite3.connect(
             os.path.join(os.getcwd(), "code", "weather_ashrae.db")
