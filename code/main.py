@@ -45,29 +45,30 @@ class DataAnalysis:
         except FileNotFoundError:
             self.heat_strain = {}
 
-        self.heat_strain_ollie = {}
-        self.heat_strain_ollie[4.5] = {
-            10.234375: 48.02926829,
-            19.90234375: 44.71707317,
-            29.1796875: 42.39512195,
-            39.3359375: 40.27804878,
-            49.8828125: 38.36585366,
-            60.33203125: 36.65853659,
-            71.07421875: 35.29268293,
-            81.328125: 34.06341463,
-            89.82421875: 33.03902439,
-            99.8828125: 32.08292683,
-        }
-        self.heat_strain_ollie[0.2] = {
-            9.901960784: 45.05982906,
-            20: 41.70940171,
-            29.50980392: 39.21367521,
-            39.41176471: 37.12820513,
-            53.62745098: 34.73504274,
-            66.37254902: 32.85470085,
-            78.62745098: 31.24786325,
-            90.09803922: 30.11965812,
-            100.0980392: 29.12820513,
+        self.heat_strain_ollie = {
+            4.5: {
+                10.234375: 48.02926829,
+                19.90234375: 44.71707317,
+                29.1796875: 42.39512195,
+                39.3359375: 40.27804878,
+                49.8828125: 38.36585366,
+                60.33203125: 36.65853659,
+                71.07421875: 35.29268293,
+                81.328125: 34.06341463,
+                89.82421875: 33.03902439,
+                99.8828125: 32.08292683,
+            },
+            0.2: {
+                9.901960784: 45.05982906,
+                20: 41.70940171,
+                29.50980392: 39.21367521,
+                39.41176471: 37.12820513,
+                53.62745098: 34.73504274,
+                66.37254902: 32.85470085,
+                78.62745098: 31.24786325,
+                90.09803922: 30.11965812,
+                100.0980392: 29.12820513,
+            },
         }
 
         self.conn = sqlite3.connect(
@@ -1062,22 +1063,30 @@ class DataAnalysis:
         # plot extreme weather events
         df_queried = pd.read_sql(
             "SELECT wmo, "
-            '"n-year_return_period_values_of_extreme_DB_10_max" as db_max, '
-            '"n-year_return_period_values_of_extreme_WB_10_max" as wb_max '
+            '"n-year_return_period_values_of_extreme_DB_50_max" as db_max, '
+            '"n-year_return_period_values_of_extreme_WB_50_max" as wb_max, '
+            '"cooling_DB_MCWB_0.4_DB" as cool_db, '
+            '"cooling_DB_MCWB_0.4_MCWB" as cool_wb '
             "FROM data",
             con=self.conn,
         )
 
         arr_rh = []
-        df_queried[["db_max", "wb_max"]] = df_queried[["db_max", "wb_max"]].apply(
-            pd.to_numeric, errors="coerce"
-        )
+        df_queried[["wmo", "db_max", "wb_max", "cool_db", "cool_wb"]] = df_queried[
+            ["wmo", "db_max", "wb_max", "cool_db", "cool_wb"]
+        ].apply(pd.to_numeric, errors="coerce")
         df_queried.dropna(inplace=True)
         for ix, row in df_queried.iterrows():
-            arr_rh.append(
-                psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
-                * 100
+            hr = psychrolib.GetHumRatioFromTWetBulb(
+                row["cool_db"], row["cool_wb"], 101325
             )
+            arr_rh.append(
+                psychrolib.GetRelHumFromHumRatio(row["db_max"], hr, 101325) * 100
+            )
+            # arr_rh.append(
+            #     psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
+            #     * 100
+            # )
 
         # calculate number of stations where db_max exceeds critical temperature
         f_08_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_low, 2,))
@@ -1991,11 +2000,11 @@ if __name__ == "__main__":
         # "gagge_results_physio_heat_loss",
         # "gagge_results_physiological",
         # "weather_data_world_map",
-        # "heat_strain_different_v",
+        "heat_strain_different_v",
         # "ravanelli_comp",
         # "met_clo",
         # "summary_use_fans_weather",
-        "summary_use_fans_comparison_experimental",
+        # "summary_use_fans_comparison_experimental",
         # "summary_use_fans_and_population",
         # "world_map_population_weather",
         # "table_list_cities"
