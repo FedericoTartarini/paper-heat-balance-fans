@@ -125,7 +125,7 @@ Results for different combinations of environmental and personal conditions can 
 In this manuscript, we assumed the \ac{i-cl} to be constant and equal to 1 and 0.45, as assumed by \mycite{GaggeSET}, for naked and clothed people, respectively.
 Users can, however, change this value in the source code.
 We report heat losses per unit of skin surface area.
-Thermal stress is assumed to occur when either of the following parameters reach their maximum value: \ac{w}, skin blood flow, or \ac{m-sweat}.
+Thermal strain is assumed to occur when either of the following parameters reach their maximum value: \ac{w}, skin blood flow, or \ac{m-sweat}.
 The former assumption is based on the fact that there is a \ac{w-max} for sustained activity for healthy and acclimatized humans~\cite{ASHRA2017}.
 The other two assumptions are based on the fact that \mycite{GaggeSET} state that serious danger of fatality exists when blood flow from the core to the skin is maximal or sweating reaches its maximum.
 We assumed that the use of electric fans is detrimental when the value of \ac{t-cr} calculated for values of \ac{v} higher than 0.2~m/s exceeds the value determined for the `still air' condition.
@@ -140,24 +140,41 @@ This tool has been added and integrated into the CBE Thermal Comfort Tool~\cite{
 
 To better understand in which locations worldwide the use of electric fans would be beneficial we compared the results obtained from the heat balance model with the climatic data provided in the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017} and the records from the Emergency Events Database (EM-DAT) which contains a list of the deadliest heatwaves recorded from 1936 to the present date~\cite{EMDATThe70:online}.
 
-From the ASHRAE climatic design dataset, we extracted information regarding the maximum extreme \ac{t-db} and \ac{t-wb} recorded across more than 5000 stations worldwide with a 10 year return period.
+From the ASHRAE climatic design dataset extracted weather data from more than 5000 stations worldwide.
+For each station we collected the: maximum extreme \ac{t-db} with a 20 year return period;
+and the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
 For more information about the ASHRAE climate design dataset please refer to Chapter 14 of the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
 The location of the stations and their respective maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}.
 We do not show data from stations with a maximum temperature lower than 26~$^\circ$C\@ since we are only interested in assessing the benefit of using fans during hot days.
 
 \begin{figure}[thb!]
     \centering
-    \includegraphics[width=\textwidth]{figures/world-map.png}
-    \caption{Shows the location of each weather station that was included in the analysis and the maximum extreme dry-bulb temperature with a 10 year return period.}
+    \includegraphics[width=\textwidth]{figures/world-map}
+    \caption{Shows the location of each weather station that was included in the analysis and the maximum extreme dry-bulb temperature with a 20 year return period.}
     \label{fig:world-map}
 \end{figure}
 
 Few data are available for Sub-Saharan Africa where approximately 40~\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
 
-For each location, we assumed that both the maximum extreme \ac{t-db} and wet-bulb temperatures could be recorded at the same time.
+In order to determine the coincident value of \ac{rh} when the maximum extreme \ac{t-db} with a 20 year return period was recorded we used the following two methods:
+
+\textit{Constant humidity ratio} -- Firstly, we determined the humidity ratio for each location based on using the following temperatures the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
+We then assumed that during an heatwave the humidity ratio would remain constant while only the value of \ac{t-db} would increase.
+This assumption allowed us to estimate, for each location, the value of \ac{rh} for each extreme \ac{t-db}.
+This is an approximation and it does not take into account that during heat waves the value of humidity ratio could increase.
+
+\textit{Coincident extreme conditions} -- In parallel we also estimated the value of \ac{rh} using the maximum extreme \ac{t-db} and \ac{t-wb} reported in the ASHRAE climate design dataset for each location.
+This method assumes that both temperatures would occur at the same time in each location.
 This is an approximation and it is arguably overestimating the most extreme condition because the likelihood of both conditions occurring at the same time is extremely low.
-However, we assumed this to be the most extreme heat event that could occur in each location.
-In addition, we assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
+
+We compared the results, obtained using both models, to the data that \mycite{Hospers2020} reported in their manuscript.
+\mycite{Hospers2020} obtained hourly data for the 100 most populous metropolitan areas in the U.S. from January 1st, 2000 to December 31st, 2019.
+They purchased the data from fromCustomWeather (CustomWeather, Inc., 271Miller AvenueMill Valley, CA, USA 94941).
+From this dataset they determined the peak \ac{t-db} and corresponding \ac{rh} for each location.
+Results of this comparison are presented in \ref{sec:validation_rh}.
+We concluded that the constant humidity ratio assumption led to more accurate results than the other proposed method.
+
+We also assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
 Conditions indoors may, however, be slightly less severe than outdoors since the thermal mass of the building may dump and shift peaks in outdoor temperature.
 At the same time, the opposite scenario can also occur if there is a significant amount of internal load or solar gains indoors.
 

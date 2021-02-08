@@ -111,8 +111,8 @@ def import_ashrae_data():
 
     df_ashrae = pd.read_sql(
         "SELECT wmo, lat, long, place, "
-        '"n-year_return_period_values_of_extreme_DB_10_max" as db_max, '
-        '"n-year_return_period_values_of_extreme_WB_10_max" as wb_max '
+        '"n-year_return_period_values_of_extreme_DB_20_max" as db_max, '
+        '"n-year_return_period_values_of_extreme_WB_20_max" as wb_max '
         "FROM data",
         con=sqlite3.connect(os.path.join(os.getcwd(), "code", "weather_ashrae.db")),
     )

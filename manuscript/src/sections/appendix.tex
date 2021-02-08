@@ -2,10 +2,40 @@
 %! Date = 20/01/2021
 
 \appendix
+
+
 \section{Source Code Heat Balance Model}\label{sec:python_code}
 
-    \lstinputlisting[language=Python, caption={Python code used to calculate heat losses and physiological variables as a function of environmental and personal factors},label={lst:pythonCode}, mathescape=true]{../../code/heat_balance_model.py}
+\lstinputlisting[language=Python, caption={Python code used to calculate heat losses and physiological variables as a function of environmental and personal factors},label={lst:pythonCode}, mathescape=true]{../../code/heat_balance_model.py}
+
+
+\section{Validation methodology to calculate relative humidity}\label{sec:validation_rh}
+
+In this section we present the results obtained with the following methods: the \textit{constant humidity ratio}, and the \textit{coincident extreme conditions}, with the weather data from 42 cities from the \mycite{Hospers2020} dataset.
+More information about each model can be found in Section\ref{subsec:weather-data}.
+
+Figure~\ref{fig:scatter_comparison_prediction} shows the \ac{rh} values estimated using both models and the experimental data.
+The vertical error 0.7 (0.3, 1.0)~$^{\circ}$C [mean, (Q1, Q3)] is caused by the fact that \mycite{Hospers2020} data were include more recent weather observations than the ASHRAE dataset.
+The horizontal error is the difference between the experimental \ac{rh} value and the one predicted by the respective model.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/scatter_comparison_prediction}
+    \caption{\ac{rh} values estimated using the \textit{constant humidity ratio} and the \textit{coincident extreme conditions} models, and the experimental data from \mycite{Hospers2020}.}
+    \label{fig:scatter_comparison_prediction}
+\end{figure}
+
+Figure~\ref{fig:delta_rh} shows the difference between the predicted \ac{rh} values estimated using the \textit{constant humidity ratio} and the \textit{coincident extreme conditions} models, and the experimental data from \mycite{Hospers2020}.
+The predictions obtained using the \textit{constant humidity ratio} model 1.3 (-1.4, 6.3)~\% were significantly more accurate than the results obtained the \textit{coincident extreme conditions} model 13.6 (-3.8, 17.4)~\%.
+The latter in the great majority of the cases overestimated the value of \ac{rh}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{figures/delta_rh}
+    \caption{Difference between the predicted \ac{rh} value estimated using the \textit{constant humidity ratio} and the \textit{coincident extreme conditions}, and the experimental data from \mycite{Hospers2020}.}
+    \label{fig:delta_rh}
+\end{figure}
 
 \section{Population and Weather Data}\label{sec:pop_weather}
 
-    \input{tables/pop_weather_edited.tex}
+\input{tables/pop_weather_edited.tex}

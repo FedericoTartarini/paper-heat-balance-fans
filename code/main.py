@@ -138,8 +138,8 @@ class DataAnalysis:
 
         df = pd.read_sql(
             "SELECT wmo, lat, long, place, "
-            '"n-year_return_period_values_of_extreme_DB_10_max" as db_max, '
-            '"n-year_return_period_values_of_extreme_WB_10_max" as wb_max '
+            '"n-year_return_period_values_of_extreme_DB_20_max" as db_max, '
+            '"n-year_return_period_values_of_extreme_WB_20_max" as wb_max '
             "FROM data",
             con=self.conn,
         )
@@ -177,7 +177,7 @@ class DataAnalysis:
             fraction=0.1,
             pad=0.1,
             aspect=40,
-            label="Extreme dry-bulb air temperature ($t_{db}$) 10 years [°C]",
+            label="Extreme dry-bulb air temperature ($t_{db}$) [°C]",
             ticks=bounds,
             orientation="horizontal",
         )
@@ -1063,8 +1063,8 @@ class DataAnalysis:
         # plot extreme weather events
         df_queried = pd.read_sql(
             "SELECT wmo, "
-            '"n-year_return_period_values_of_extreme_DB_50_max" as db_max, '
-            '"n-year_return_period_values_of_extreme_WB_50_max" as wb_max, '
+            '"n-year_return_period_values_of_extreme_DB_20_max" as db_max, '
+            '"n-year_return_period_values_of_extreme_WB_20_max" as wb_max, '
             '"cooling_DB_MCWB_0.4_DB" as cool_db, '
             '"cooling_DB_MCWB_0.4_MCWB" as cool_wb '
             "FROM data",
@@ -1093,6 +1093,8 @@ class DataAnalysis:
         f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
 
         df_queried["rh"] = arr_rh
+        # todo the code below is incorrect since the ploifit is not the same as the
+        #  curve shown in the figure
         df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
         df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
         df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
@@ -1401,12 +1403,28 @@ class DataAnalysis:
         # selecting only the most 115 populous cities
         df_queried = df_queried[df_queried.index < 115]
 
+        df_ashrae = pd.read_sql(
+            "SELECT wmo, "
+            '"cooling_DB_MCWB_0.4_DB" as cool_db, '
+            '"cooling_DB_MCWB_0.4_MCWB" as cool_wb '
+            "FROM data",
+            con=self.conn,
+        )
+
+        df_ashrae[["wmo", "cool_db", "cool_wb"]] = df_ashrae[
+            ["wmo", "cool_db", "cool_wb"]
+        ].apply(pd.to_numeric, errors="coerce")
+
+        df_queried = pd.merge(df_queried, df_ashrae, on="wmo", how="left",)
+
         arr_rh = []
         df_queried.dropna(inplace=True)
         for ix, row in df_queried.iterrows():
+            hr = psychrolib.GetHumRatioFromTWetBulb(
+                row["cool_db"], row["cool_wb"], 101325
+            )
             arr_rh.append(
-                psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
-                * 100
+                psychrolib.GetRelHumFromHumRatio(row["db_max"], hr, 101325) * 100
             )
 
         # calculate number of stations where db_max exceeds critical temperature
@@ -1414,6 +1432,7 @@ class DataAnalysis:
         # f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
 
         df_queried["rh"] = arr_rh
+        # todo the code below is incorrect since the ploifit is not the same as the curve shown in the figure
         df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
         df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
         # df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
@@ -1474,7 +1493,7 @@ class DataAnalysis:
 
         ax.annotate(
             "Jeddah, Saudi Arabia, pop. 3.8 million",
-            xy=(39, 48.5),
+            xy=(16, 49.4),
             xytext=(49, 48.75),
             size=10,
             arrowprops=dict(relpos=(0, 0), arrowstyle="->", connectionstyle="angle",),
@@ -1931,7 +1950,7 @@ def analyse_population_data(save_fig=False):
         fraction=0.1,
         pad=0.1,
         aspect=40,
-        label="Extreme dry-bulb air temperature ($t_{db}$) 10 years [°C]",
+        label="Extreme dry-bulb air temperature ($t_{db}$) [°C]",
         ticks=bounds,
         orientation="horizontal",
         extend="min",
@@ -1988,6 +2007,181 @@ def table_list_cities():
     )
 
 
+def compare_hospers_ashrae_weather(save_fig=True):
+    df_hospers = pd.read_csv(
+        os.path.join(os.getcwd(), "code", "extreme_weather_us.csv"),
+        encoding="ISO-8859-1",
+    )
+    df_hospers["City"] = df_hospers["City"].str.lower()
+
+    # get weather data
+    df_population_weather = pd.read_csv(
+        os.path.join(os.getcwd(), "code", "population_weather.csv"),
+        encoding="ISO-8859-1",
+    )
+
+    df_population_weather = df_population_weather[
+        df_population_weather["country"] == "u.s."
+    ]
+
+    df_merged = pd.merge(
+        df_hospers, df_population_weather, left_on="City", right_on="city", how="left",
+    )
+
+    df_merged["state"] = df_merged["place"].str.split(", ", expand=True)[1]
+    df_merged = df_merged[df_merged["state"] == df_merged["Abbreviation"]]
+
+    df_ashrae = pd.read_sql(
+        "SELECT wmo, "
+        '"cooling_DB_MCWB_0.4_DB" as cool_db, '
+        '"cooling_DB_MCWB_0.4_MCWB" as cool_wb, '
+        '"n-year_return_period_values_of_extreme_DB_20_max" as db_max_50, '
+        '"n-year_return_period_values_of_extreme_WB_20_max" as wb_max_50 '
+        "FROM data",
+        con=self.conn,
+    )
+
+    df_ashrae[["wmo", "cool_db", "cool_wb", "db_max_50", "wb_max_50"]] = df_ashrae[
+        ["wmo", "cool_db", "cool_wb", "db_max_50", "wb_max_50"]
+    ].apply(pd.to_numeric, errors="coerce")
+
+    df_merged = pd.merge(df_merged, df_ashrae, on="wmo", how="left",)
+
+    df_merged = df_merged.dropna(subset=["Value"])
+
+    temperature_ref = "db_max_50"
+
+    check = df_merged[["City", "Peak T", temperature_ref]]
+    check["delta"] = check["Peak T"] - check[temperature_ref]
+
+    arr_rh = []
+    arr_rh_wb_extr = []
+    for ix, row in df_merged.iterrows():
+        hr = psychrolib.GetHumRatioFromTWetBulb(row["cool_db"], row["cool_wb"], 101325)
+        arr_rh.append(
+            psychrolib.GetRelHumFromHumRatio(row[temperature_ref], hr, 101325) * 100
+        )
+        arr_rh_wb_extr.append(
+            psychrolib.GetRelHumFromTWetBulb(
+                row[temperature_ref], row["wb_max"], 101325
+            )
+            * 100
+        )
+
+    df_merged["rh"] = arr_rh
+    df_merged["rh_wb_extr"] = arr_rh_wb_extr
+
+    df_merged["Constant HR"] = -df_merged["Peak RH"] + df_merged["rh"]
+    df_merged["Concurrent extreme"] = -df_merged["Peak RH"] + df_merged["rh_wb_extr"]
+
+    df_merged["delta max T"] = abs(df_merged["Peak T"] - df_merged["db_max_50"])
+    df_merged["delta max T"].describe()
+    # df_merged.loc[df_merged["delta max T"]>2, ['City', 'Abbreviation', 'Peak T', 'db_max_50', "Peak RH", "rh"]]
+
+    df_merged[["Constant HR"]].describe().round(1)
+    df_merged[["Concurrent extreme"]].describe().round(1)
+
+    # drop data from LA and oxnard since have some issues
+    df_merged = df_merged[~df_merged["City"].isin(["los angeles", "oxnard"])]
+
+    fig, axs = plt.subplots(1, 1, sharex=True, figsize=(7, 3.78))
+    df_plot = df_merged[["Constant HR", "Concurrent extreme"]].unstack().reset_index()
+    df_plot.columns = ["model", "constant", "Delta relative humidity (RH) [%]"]
+    df_plot.constant = "1"
+    # sns.violinplot(df_merged["Constant HR"], ax=axs[0], cut=0)
+    # sns.violinplot(df_merged["Concurrent extreme"], ax=axs[1], cut=0)
+    sns.violinplot(
+        x="constant",
+        y="Delta relative humidity (RH) [%]",
+        hue="model",
+        split=True,
+        ax=axs,
+        cut=0,
+        data=df_plot,
+        inner="quartile",
+        palette=self.colors,
+    )
+    plt.xlabel("")
+    plt.grid(c="lightgray")
+    plt.legend(frameon=False)
+    sns.despine(left=True, bottom=True, right=True, top=True)
+    axs.get_xaxis().set_ticks([])
+    plt.tight_layout()
+
+    if save_fig:
+        plt.savefig(os.path.join(self.dir_figures, "delta_rh.png"), dpi=300)
+    else:
+        plt.show()
+
+    fig, axs = plt.subplots(1, 2, sharey=True, figsize=(7, 3.78))
+    axs[0].scatter(
+        df_merged["Peak RH"], df_merged["Peak T"], c="k", label="Hospers et al. (2020)"
+    )
+    axs[0].scatter(
+        df_merged["rh"],
+        df_merged[temperature_ref],
+        c=self.colors[0],
+        label="Constant HR",
+    )
+    for ix, row in df_merged.iterrows():
+        axs[0].arrow(
+            row["Peak RH"],
+            row["Peak T"],
+            row["rh"] - row["Peak RH"],
+            row[temperature_ref] - row["Peak T"],
+            shape="full",
+            color="gray",
+            length_includes_head=True,
+            zorder=0,
+            # head_length=3.0,
+            # head_width=1.5,
+        )
+    axs[0].set_ylim(30, 50)
+    axs[0].set_xlim(0, 60)
+    axs[0].set_xlabel("Relative humidity ($RH$) [%]")
+    axs[0].set_ylabel("Dry-bulb air temperature ($t_{db}$) [°C]")
+    axs[0].legend(frameon=False)
+    axs[0].grid(c="lightgray")
+
+    axs[1].scatter(df_merged["Peak RH"], df_merged["Peak T"], c="k")
+    axs[1].scatter(
+        df_merged["rh_wb_extr"],
+        df_merged[temperature_ref],
+        c=self.colors[1],
+        label="Concurrent extreme",
+    )
+    for ix, row in df_merged.iterrows():
+        axs[1].arrow(
+            row["Peak RH"],
+            row["Peak T"],
+            row["rh_wb_extr"] - row["Peak RH"],
+            row[temperature_ref] - row["Peak T"],
+            shape="full",
+            color="gray",
+            length_includes_head=True,
+            zorder=0,
+            # head_length=3.0,
+            # head_width=1.5,
+        )
+    axs[1].set_ylim(30, 50)
+    axs[1].set_xlim(0, 60)
+    axs[1].set_xlabel("Relative humidity ($RH$) [%]")
+    # axs[1].set_ylabel("Dry-bulb air temperature ($t_{db}$) [°C]")
+
+    axs[1].legend()
+    axs[1].grid(c="lightgray")
+    axs[1].legend(frameon=False)
+    sns.despine(left=True, bottom=True, right=True, top=True)
+    plt.tight_layout()
+
+    if save_fig:
+        plt.savefig(
+            os.path.join(self.dir_figures, "scatter_comparison_prediction.png"), dpi=300
+        )
+    else:
+        plt.show()
+
+
 if __name__ == "__main__":
 
     plt.close("all")
@@ -2000,14 +2194,15 @@ if __name__ == "__main__":
         # "gagge_results_physio_heat_loss",
         # "gagge_results_physiological",
         # "weather_data_world_map",
-        "heat_strain_different_v",
+        # "heat_strain_different_v",
         # "ravanelli_comp",
         # "met_clo",
         # "summary_use_fans_weather",
         # "summary_use_fans_comparison_experimental",
         # "summary_use_fans_and_population",
         # "world_map_population_weather",
-        # "table_list_cities"
+        # "table_list_cities",
+        "compare_hospers_ashrae_weather",
         # "sweat_rate"
     ]
 
@@ -2038,6 +2233,8 @@ if __name__ == "__main__":
             table_list_cities()
         if figure_to_plot == "sweat_rate":
             self.sweat_rate_production(save_fig=save_figure)
+        if figure_to_plot == "compare_hospers_ashrae_weather":
+            compare_hospers_ashrae_weather(save_fig=save_figure)
 
     # ta = 45
     # rh = 30

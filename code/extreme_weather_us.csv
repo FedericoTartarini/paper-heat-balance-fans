@@ -1,0 +1,106 @@
+City,Abbreviation,Peak T,Peak RH,Fans detrimental,Days analysis,Avg detrimental days summer,Detrimental days
+Phoenix,AZ,48.3,6,801,1839,40.1,43.5
+Las Vegas,NV,47,2,611,1747,30.6,35
+Tucson,AZ,46.1,7,232,1839,11.6,12.6
+Stockton,CA,46,16,19,1838,1,1
+Riverside,CA,45,13,24,1839,1.2,1.3
+Little Rock,AR,45,19,2,1839,0.1,0.1
+Fresno,CA,44.4,19,74,1839,3.7,4
+Tulsa,OK,44.4,19,10,1839,0.5,0.5
+Bakersfield,CA,44,16,50,1839,2.5,2.7
+Oklahoma City,OK,43.9,14,9,1839,0.5,0.5
+McAllen,TX,43.9,19,1,1839,0.1,0.1
+Wichita,KS,43.3,19,8,1839,0.4,0.4
+Austin,TX,43.3,15,3,1839,0.2,0.2
+El Paso,TX,43,10,38,1839,1.9,2.1
+Boise City,ID,43,9,16,1839,0.8,0.9
+Sacramento,CA,43,17,13,1839,0.7,0.7
+Dallas,TX,42.8,22,5,1839,0.3,0.3
+San Antonio,TX,42.8,16,1,1839,0.1,0.1
+St. Louis,MO,42.2,13,1,1839,0.1,0.1
+Columbia,OH,42.2,17,1,1839,0.1,0.1
+Houston,TX,42.2,20,0,1747,0,0
+Augusta,GA,42,25,0,1839,0,0
+Kansas City,MO,41.7,26,0,1839,0,0
+Nashville,TN,41.7,17,0,1839,0,0
+Des Moines,IA,41.1,26,0,1839,0,0
+Jackson,MS,41.1,25,0,1839,0,0
+Chattanooga,TN,41.1,21,0,1839,0,0
+Salt Lake City,UT,41.1,11,3,1839,0.2,0.2
+Billings,MT,41.1,12,3,1839,0.2,0.2
+Memphis,TN,41.1,25,0,1839,0,0
+Birmingham,AL,41,17,0,1839,0,0
+Provo,UT,41,9,1,1839,0.1,0.1
+Baltimore,MD,41,20,0,1839,0,0
+Portland,OR,41,20,0,1748,0,0
+San Jose,CA,41,23,0,1839,0,0
+Richmond,VA,41,23,0,1839,0,0
+Omaha,NE,40.6,25,0,1839,0,0
+Greenville,SC,40.6,30,0,1836,0,0
+Knoxville,TN,40.6,22,0,1839,0,0
+Durham,NC,40.6,30,0,1839,0,0
+Spokane,WA,40.6,13,0,1839,0,0
+Washington,DC,40.6,35,0,1839,0,0
+Atlanta,GA,40.6,25,0,1839,0,0
+Indianapolis,IN,40.6,25,0,1839,0,0
+Raleigh,NC,40.6,30,0,1839,0,0
+Grand Rapids,MI,40,30,0,1839,0,0
+Albuquerque,NM,40,5,1,1839,0.1,0.1
+Louisville,KY,40,22,0,1839,0,0
+Worcester,MA,39.4,17,0,1826,0,0
+Allentown,PA,39.4,36,0,1838,0,0
+Baton Rouge,LA,39.4,30,0,1747,0,0
+Madison,WI,39.4,30,0,1839,0,0
+Sioux Falls,SD,39.4,26,0,1839,0,0
+Denver,CO,39.4,9,1,1839,0.1,0.1
+New York,NY,39.4,31,0,1812,0,0
+Chicago,IL,39.4,31,0,1793,0,0
+San Francisco,CA,39.4,19,0,1747,0,0
+Charlotte,NC,39.4,27,0,1839,0,0
+Cincinnati,OH,39.4,31,0,1839,0,0
+Hartford,CT,39,29,0,1839,0,0
+Lakeland,FL,39,33,0,1839,0,0
+Poughkeepsie,NY,39,29,0,1837,0,0
+Ogden,UT,39,14,0,1834,0,0
+Fargo,ND,39,33,0,1839,0,0
+Philadelphia,PA,39,24,0,1839,0,0
+Dayton,OH,38.9,30,0,1839,0,0
+Winston,NC,38.9,30,0,1838,0,0
+Toledo,OH,38.9,32,0,1839,0,0
+Harrisburg,PA,38.9,40,0,1839,0,0
+Boston,MA,38.9,30,0,1839,0,0
+Minneapolis,MN,38.9,32,0,1839,0,0
+Bridgeport,CT,38.3,38,0,1839,0,0
+Charleston,SC,38.3,33,0,1839,0,0
+Greensboro,NC,38.3,33,0,1839,0,0
+Springfield,MA,38.3,26,0,1838,0,0
+Detroit,MI,38.3,32,0,1839,0,0
+Virginia Beach,VA,38.3,44,0,1836,0,0
+Providence,RI,38.3,33,0,1839,0,0
+Milwaukee,WI,38.3,29,0,1839,0,0
+Jacksonville,FL,38.3,42,0,1839,0,0
+New Orleans,LA,38,37,0,1839,0,0
+New Haven,CT,38,37,0,1838,0,0
+Syracuse,NY,38,27,0,1839,0,0
+Akron,OH,37.8,37,0,1839,0,0
+Portland,ME,37.8,30,0,1839,0,0
+Albany,NY,37.2,41,0,1839,0,0
+North Port,FL,37.2,42,0,1839,0,0
+Colorado Springs,CO,37.2,18,0,1839,0,0
+Orlando,FL,37.2,39,0,1839,0,0
+Columbus,SC,37.2,38,0,1839,0,0
+Cape Coral,FL,37,37,0,1839,0,0
+Palm Bay,FL,37,47,0,1839,0,0
+Deltona,FL,36.7,34,0,1839,0,0
+Burlington,VT,36.7,32,0,1839,0,0
+Cheyenne,WY,36.7,13,0,1839,0,0
+Miami,FL,36.7,38,0,1839,0,0
+Cleveland,OH,36.7,35,0,1835,0,0
+Rochester,NY,36.1,46,0,1839,0,0
+Pittsburgh,PA,36.1,43,0,1839,0,0
+San Diego,CA,36,39,0,1839,0,0
+Tampa,FL,36,47,0,1839,0,0
+Buffalo,NY,35,37,0,1839,0,0
+Los Angeles,CA,34,26,0,1839,0,0
+Oxnard,CA,30,45,0,1839,0,0
+Seattle,WA,39.4,20,0,1840,0,0
