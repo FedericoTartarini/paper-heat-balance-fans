@@ -30,6 +30,8 @@ The operative temperature at which \ac{w} equals \ac{w-max} is inversely proport
     \label{fig:comparison_models}
 \end{figure}
 
+% note OJ - An issue needed to be considered here is a maximum sweat rate. With high air speeds the required sweat rate to achieve the theoretical Emax might not be possible.
+
 % note Stefano - this figure it is too complex and you should select only the most important cases.
 
 For \ac{t-op} higher than \ac{t-sk}, the negative effect that an increase in \ac{v} has on sensible heat gain is compensated by a greater increase in the \acf{e-sk} that the body can dissipate towards the surrounding environment.
@@ -44,6 +46,8 @@ The reduction in \ac{e-max} estimated by our model is lower than the one estimat
 The \acf{m-sweat} is shown in Figure~\ref{fig:comparison_models}D\@.
 The difference between the results obtained with the two heat balance models can be attributed to the fact that \citeauthor{Jay2015} calculate the value of \ac{m-sweat} as a function of the required latent energy that the body should, in theory, dissipate to achieve thermal neutrality.
 On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as a function of regulatory signals and they assume that \ac{m-sweat} cannot exceed 500~mL/h.
+
+% note OJ It is good that a max sweat rate is included... The Jay model assumes steady-state
 
 % note In the most recent paper from Jay, they assume that the max sweat rate is 440 mL/h (in their model). However, we can sweat more than 500 mL/h, for example in a field study participants exposed to 47C and 10%  sweated 691 mL/h (when fan were on) but when fan off they sweated 328g/h. Under 40C and 50% they sweated 346 and 216 g/h, with fan and no fan, respectively. Hence, only with very low humidity, high temp and fan  on people sweated more than 500. I do not know what it the max value we can sweat, I guess it would vary from person to person. Moreover, Gagge's model estimates that the a value of 500mL/h is only reached in extreme conditions (red area Figure 7) when fans should no longer be used. I am planning to add a table at the end of the
 
@@ -67,6 +71,7 @@ When the body cannot longer dissipate exogenous and endogenous heat gains, the e
 To validate the results of our model, we examined how the predicted value of \ac{t-cr} varies as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
 The results are shown in Figure~\ref{fig:comparison_ravanelli}.
 It should be noted that \mycite{Rate2015} only reported the core body temperature of one participant.
+% note OJ We have these data though so we could share them for all participants if you think they would be helpful
 Consequently, despite the agreement with their experimental data (mean absolute error~=~0.04~$^{\circ}$C), more quantitative data will be needed for validation.
 
 \begin{figure}[thb!]
@@ -132,6 +137,9 @@ This causes the body to heats up faster for higher values of \ac{v}.
     \label{fig:use_fans_experimental}
 \end{figure}
 
+% note OJ I would expect the curves to bend downwards at very low humidities.
+% note OJ I do not think the red dot is necessarily interpreted correctly. This should be "fans detrimental" so should be in the do not use fan area. We have no published the data yet, but this is VERY much the case for the elderly... at 47C/10% fan make things MUCH worse (i.e. genuinely dangerous) - so we do not want to miss this in this model - like we did in our 2015 paper!
+
 % todo compare results in the above figure with the results obtained by Gagnon2017
 
 To validate our results we used experimental data previously published.
@@ -163,6 +171,8 @@ The use of fans (\ac{v}~=~0.8~m/s) during heatwaves would be beneficial in all t
     \label{fig:energy_storage_delta}
 \end{figure}
 
+% note OJ I think a lot of the points in the top-left area should be labeled as fans being detrimental
+
 % https://advances.sciencemag.org/content/6/19/eaaw1838
 
 To better quantify how many people would benefit from the use of electric fans we combined the city population with the weather data.
@@ -180,7 +190,10 @@ In 95 of them, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and these ci
     \label{fig:map-population-temperature}
 \end{figure}
 
+% note OJ This is a nice figure but I think we might be overestimating the efficacy of fan use in hot/dry conditions?
+
 We estimated that in all the 115 most populous cities the use of electric fans would be beneficial for healthy adults seated quietly (\ac{met}~=~1.0~met) and wearing a value of \ac{clo} equal to 0.36~clo.
+% note OJ It would be great if some kind of economic outcome could be added to this?
 The \mycite{GaggeSET} model predicted that healthy adults living in 74 cities (approximately 394 million inhabitants) should not experience heat strain even without increasing air movement.
 However, they should still be encouraged in using electric fans to improve their thermal comfort in an energy-efficient way.
 An additional 33 million people would avoid heat strain by elevating the air speed up to 0.8~m/s.
@@ -193,6 +206,8 @@ An additional 33 million people would avoid heat strain by elevating the air spe
     These results were calculated assuming \ac{t-r}~=~\ac{t-db}, \ac{clo}~=~0.35~clo, \ac{met}~=~1.0~met.}
     \label{fig:use_fans_and_population}
 \end{figure}
+
+% note OJ Same concern about the top-left area in this figure.
 
 \subsection{Sweat Rate}\label{subsec:sweat-rate}
 
@@ -208,3 +223,5 @@ On the other hand, \ac{m-sweat} are higher with fan use when \ac{rh} is lower th
     \caption{Predicted \acf{m-sweat} at different combinations of \acf{t-db} and \acf{rh} for two values \acf{v}~=~0.2~m/s and 0.8~m/s.}
     \label{fig:sweat_rate}
 \end{figure}
+
+% note OJ Did you compare these estimated data to those reported in our physiological studies? Might be helpful

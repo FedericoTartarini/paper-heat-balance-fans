@@ -5,7 +5,9 @@
 
 The energy balance model estimates how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
+% note OJ Our perspective on this is that for determining environmental limits a fixed maximum Tsk value (associated with complete vasodilation) is sufficient, and less complicated
 \ac{v} is the average air speed of the flow that is used to cool the human body~\cite{Huang2014}.
+% note OJ Similarly, the absolute Tcore was previously not considered important to determine, rather whether the condition was uncompensable or not was thought to be most important as this does not require us to estimate exposure time
 
 Section~\ref{subsec:energy-balance} describes the main Equations used by the model to derive the results.
 
@@ -23,9 +25,12 @@ The energy balance in the human body is described by:
 This equation assumes that the body comprises two main thermal compartments: the skin and the core.
 If the exogenous and endogenous heat gains cannot be compensated by heat loss, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
 One of the main differences between our proposed model and the one used by \mycite{Jay2015} is that their model does not account for heat stored in the core or the skin compartment, hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
+% note OJ - See previous comment. Tcr was not necessarily fixed, rather the heat balance equation was solved for when Ereq exceeded Emax (with certain physiological limits), i.e. when uncompensable.
 Calculating how \ac{t-sk} and \ac{t-cr} vary as a function of different environmental and personal factors allows us to better predict how much heat the body exchanges with its surrounding environment.
+% note OJ - I would say that this is not necessarily correct. Tsk will modify dry heat loss (a little bit) but at the point of compensability tsk will be max, so a simplified model can just assume max Tsk with full vasodilation (35.5˚C). Absolute Tcore does not really drive sweat rate, Ereq does: see Ravanelli & Jay (2020) J Physiol (London).
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental (\ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}), and personal factors (\ac{met}, and \ac{clo})~\cite{ASHRA2017}.
+% note OJ - Based on this text it is not clear how Tcr modifies heat exchange as stated n the previous paragraph - I don't think it should.
 
 The equations used to determine sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficients were estimated empirically~\cite{ASHRA2017}.
 
@@ -35,7 +40,7 @@ All the terms presented in Equation~\ref{eq:heat-balance} are reported in power 
 Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of the \ac{body-w} and \ac{body-h}~\cite{DuBois}.
 
 \begin{equation}
-    A_{body} = 0.202 m^{0.425} l^{0.725}\label{eq:dubois}
+    A_{body} = 0.202 mass^{0.425} height^{0.725}\label{eq:dubois}
 \end{equation}
 
 In thermal comfort research, this value is generally assumed to be constant and equal to 1.8 m$^{2}$.
@@ -72,6 +77,7 @@ The value of \ac{t-op} varies as a function of the \ac{h-c}, \ac{h-r}, \ac{t-r} 
 
 In our model, the value of \ac{t-sk} is calculated iteratively since it varies as a function of the heat loss from the human body towards its environment and the heat transferred from the core to the skin node, as shown in Source Code~\ref{lst:pythonCode}.
 \Ac{t-cl} can be calculated as a function of \ac{t-op}, \ac{t-sk}, \ac{r-cl} and the resistance of the air layer.
+% note OJ - Is the disruption of the air layer with fanning and subsequent alteration in insulative/evaporative resistance properties accounted for
 
 \subsubsection{Latent Heat Loss from Skin, (\acs{e-sk})}
 
@@ -83,6 +89,15 @@ The \acf{e-sk} comprises two terms: the \ac{e-rsw} and the \ac{e-dif}.
 \end{equation}
 
 Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}, the human body does not regulate \ac{w} directly but, rather, it regulates the sweat rate.
+% note OJ - I know this might sound crazy, but I am not sure this is correct - which might be a problem with model. Physiological evidence points to the evaporative heat loss requirement for heat balance being the regulated variable - in a sense, i.e. this is what determines the steady-state SR. The onset and thermosensitivity of the thermoeffector response determines how hot someone gets before they reach steady-state.
+%We recently published a paper on this in J Physiol (London):
+%Ravanelli N, Imbeault P, Jay O (2020) Steady-state sweating during exercise is determined by the evaporative requirement for heat balance independently of absolute core and skin temperature. J Physiol (London); 598(13):2607-2619.
+%With an editorial: Mundel T (2020) Thermoregulatory sweating and evaporative heat loss during exercise: is the whole greater than the sum of its parts? J Physiol (London); 598(13):2535-2536.
+%This is further modified by skin temperature. See our recent paper in MSSE:
+%Hospers L, Cheuvront S, Kenefick RW, Jay O* (2020) Independent influence of skin temperature on whole-body sweat rate. Med Sci Sports Exerc; 52(11):2423-2429.
+%
+%...which is why I think you can get lower core temperature with a higher sweat rate with fan use in some conditions (e.g. the 40C/50%RH condition of Morris et al 2019).
+
 Skin wettedness varies as a function of the activity of the sweat glands and the environmental conditions.
 It correlates with warm discomfort and is a good measure of thermal stress.
 While \ac{w} can theoretically range from 0 to 1 and skin wettedness can approach 1.0 while the body still maintains thermoregulatory control~\cite{ASHRA2017}.
@@ -103,6 +118,7 @@ On the other hand, \mycite{Jay2015} adjusted the value of \ac{w-max} based on fa
 For young adults, they assumed \ac{w-max} to be equal to 0.65 for the `fan on' condition and 0.85 for the `fan off' condition.
 % todo add references
 These values are higher than those estimated by the \mycite{GaggeSET} model.
+% note OJ I might be missing it but I am not clear where how sweating efficiency has been accommodated? As discussed on our call, at lower RH values sweat efficiency approaches 100% even with a fan so fan just add dry heat (if Ta>Tsk) without much increase in evaporation -this causes the real Ta/RH threshold curve for fan use to bend downwards to lower temperature (on the y-axis) at lower humidity values. I think this would be very important to include.
 
 \subsubsection{Respiratory Losses, (\acs{q-res})}
 The human body exchanges both sensible and latent heat with its environment.
@@ -176,12 +192,15 @@ We concluded that the constant humidity ratio assumption led to more accurate re
 
 We also assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
 Conditions indoors may, however, be slightly less severe than outdoors since the thermal mass of the building may dump and shift peaks in outdoor temperature.
+% note OJ We just got pilloried for this same approach in our modeling paper for estimating the GHG reductions due to AC use by increasing the upper temperature for TC with increasing air speeds (submitted for ERL). We did not have this problem with our other recent submission to Lancet Planetary Health. In any case, it would be good include more detail supporting this rationale including some references.
 At the same time, the opposite scenario can also occur if there is a significant amount of internal load or solar gains indoors.
 
 The EM-DAT contains detailed information on when the heatwave occurred, the location, the number of deaths, and the maximum temperature recorded.
 However, it does not contain information about the \ac{rh} which is important for determining whether the use of electric fans would have been beneficial or not.
 
 \subsection{City Population Data}\label{subsec:population-data}
+
+% note OJ Just FYI. We have taken a similar approach in our recent Lancet PH submission. We have 110 cities from 6 continents and specifically selected some of them based on the project AC use according to Davis et al (2015) PNAS.
 
 We obtained the city population data from the demographic statistics database which is compiled and maintained by the \ac{un} statistics division~\cite{UNdatare88:online}.
 The database was last updated in August 2020 and we used it to gather information about the number of people who live in the 115 most populous cities in the world.
