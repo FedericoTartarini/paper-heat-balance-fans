@@ -11,7 +11,7 @@ def use_fans_heatwaves(
     clo,
     wme=0,
     body_surface_area=1.8258,
-    patm=101325,
+    p_atmospheric=101325,
 ):
     """
     Parameters
@@ -32,7 +32,7 @@ def use_fans_heatwaves(
         external work, [met] default 0
     body_surface_area : float
         body surface area, default value 1.8258 [m2] in [ft2] if `units` = 'IP'
-    patm : float
+    p_atmospheric : float
         atmospheric pressure, default value 101325 [Pa] in [atm] if `units` = 'IP'
     """
 
@@ -41,7 +41,7 @@ def use_fans_heatwaves(
     # variables to check if person is experiencing heat strain
     exc_blood_flow = False  # reached max blood flow
     exc_reg_sw = False  # reached max regulatory sweating
-    exc_pwet = False  # reached max skin wettedness
+    exc_p_wet = False  # reached max skin wettedness
 
     # Initial variables as defined in the ASHRAE 55-2017
     air_velocity = max(v, 0.1)
@@ -49,12 +49,12 @@ def use_fans_heatwaves(
     met_factor = 58.2  # met conversion factor
     sbc = 0.000000056697  # Stefan-Boltzmann constant (W/m2K4)
     # fixme
-    # c_sw = 170  # driving coefficient for regulatory sweating
-    # c_dil = 200  # driving coefficient for vasodilation
-    # c_str = 0.5  # driving coefficient for vasoconstriction
     c_sw = 170  # driving coefficient for regulatory sweating
-    c_dil = 120  # driving coefficient for vasodilation
-    c_str = 0.5  # driving coefficient for vasoconstriction
+    c_dil = 200  # driving coefficient for vasodilation
+    c_str = 0.1  # driving coefficient for vasoconstriction
+    # c_sw = 170  # driving coefficient for regulatory sweating
+    # c_dil = 120  # driving coefficient for vasodilation
+    # c_str = 0.5  # driving coefficient for vasoconstriction
 
     temp_skin_neutral = 33.7
     temp_core_neutral = 36.8
@@ -71,7 +71,7 @@ def use_fans_heatwaves(
     dry = 0  # total sensible heat loss, W
     p_wet = 0  # skin wettedness
 
-    pressure_in_atmospheres = patm / 101325
+    pressure_in_atmospheres = p_atmospheric / 101325
     length_time_simulation = 60  # length time simulation
     i = 0  # iteration counter
 
@@ -181,7 +181,7 @@ def use_fans_heatwaves(
             p_rsw = w_max / 0.94
             e_rsw = p_rsw * e_max
             e_diff = 0.06 * (1.0 - p_rsw) * e_max
-            exc_pwet = True
+            exc_p_wet = True
         if e_max < 0:
             e_diff = 0
             e_rsw = 0
@@ -204,9 +204,9 @@ def use_fans_heatwaves(
         "hl_dry": dry,
         "temp_core": temp_core,
         "temp_skin": temp_skin,
-        "heat_strain": any([exc_blood_flow, exc_pwet, exc_reg_sw]),
+        "heat_strain": any([exc_blood_flow, exc_p_wet, exc_reg_sw]),
         "exc_blood_flow": exc_blood_flow,
-        "exc_pwet": exc_pwet,
+        "exc_pwet": exc_p_wet,
         "exc_reg_sw": exc_reg_sw,
         "skin_blood_flow": skin_blood_flow,
         "sweating_required": reg_sw,

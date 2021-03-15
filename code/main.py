@@ -125,7 +125,9 @@ class DataAnalysis:
 
         m.drawcoastlines(linewidth=0.5, color="k")
         m.drawstates(
-            linewidth=0.5, linestyle="solid", color="gray",
+            linewidth=0.5,
+            linestyle="solid",
+            color="gray",
         )
 
         return ax, m
@@ -312,7 +314,10 @@ class DataAnalysis:
                     label=label,
                 )
                 ax_1[1][1].plot(
-                    self.ta_range, sweat_rate_ollie, color=color, linestyle="--",
+                    self.ta_range,
+                    sweat_rate_ollie,
+                    color=color,
+                    linestyle="--",
                 )
                 ax_1[1][0].plot(
                     self.ta_range,
@@ -561,7 +566,9 @@ class DataAnalysis:
                 ax=ax,
                 fmt="d",
                 cbar_ax=None if i else cbar_ax,
-                cbar_kws={"label": r"Sweat rate ($m_{rsw}$) [mL/(hm$^2$)]",},
+                cbar_kws={
+                    "label": r"Sweat rate ($m_{rsw}$) [mL/(hm$^2$)]",
+                },
                 annot_kws={"size": 8},
             )
             ax.set(
@@ -640,7 +647,9 @@ class DataAnalysis:
             xlabel="Relative humidity (RH) [%]",
         )
 
-        plt.legend(frameon=False,)
+        plt.legend(
+            frameon=False,
+        )
 
         sns.despine(left=True, bottom=True, right=True)
         f.tight_layout()
@@ -700,7 +709,10 @@ class DataAnalysis:
                 heat_strain[v][x_val] = y_val
 
             ax.plot(
-                x, y_smoothed, label=f"V = {v}m/s; Gagge et al. (1986)", c=color,
+                x,
+                y_smoothed,
+                label=f"V = {v}m/s; Gagge et al. (1986)",
+                c=color,
             )
 
         np.save(os.path.join("code", "heat_strain.npy"), heat_strain)
@@ -1089,8 +1101,20 @@ class DataAnalysis:
             # )
 
         # calculate number of stations where db_max exceeds critical temperature
-        f_08_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_low, 2,))
-        f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
+        f_08_no_fan = np.poly1d(
+            np.polyfit(
+                rh_arr,
+                tmp_low,
+                2,
+            )
+        )
+        f_45_no_fan = np.poly1d(
+            np.polyfit(
+                rh_arr,
+                tmp_high,
+                2,
+            )
+        )
 
         df_queried["rh"] = arr_rh
         # todo the code below is incorrect since the ploifit is not the same as the
@@ -1236,7 +1260,9 @@ class DataAnalysis:
             if v == 0.2:
                 f_02_critical = np.poly1d(
                     np.polyfit(
-                        list(heat_strain[v].keys()), list(heat_strain[v].values()), 2,
+                        list(heat_strain[v].keys()),
+                        list(heat_strain[v].values()),
+                        2,
                     )
                 )
 
@@ -1415,7 +1441,12 @@ class DataAnalysis:
             ["wmo", "cool_db", "cool_wb"]
         ].apply(pd.to_numeric, errors="coerce")
 
-        df_queried = pd.merge(df_queried, df_ashrae, on="wmo", how="left",)
+        df_queried = pd.merge(
+            df_queried,
+            df_ashrae,
+            on="wmo",
+            how="left",
+        )
 
         arr_rh = []
         df_queried.dropna(inplace=True)
@@ -1428,7 +1459,13 @@ class DataAnalysis:
             )
 
         # calculate number of stations where db_max exceeds critical temperature
-        f_08_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_low, 2,))
+        f_08_no_fan = np.poly1d(
+            np.polyfit(
+                rh_arr,
+                tmp_low,
+                2,
+            )
+        )
         # f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
 
         df_queried["rh"] = arr_rh
@@ -1496,7 +1533,11 @@ class DataAnalysis:
             xy=(16, 49.4),
             xytext=(49, 48.75),
             size=10,
-            arrowprops=dict(relpos=(0, 0), arrowstyle="->", connectionstyle="angle",),
+            arrowprops=dict(
+                relpos=(0, 0),
+                arrowstyle="->",
+                connectionstyle="angle",
+            ),
         )
 
         # horizontal line showing limit imposed by most of the standards
@@ -1505,7 +1546,12 @@ class DataAnalysis:
         # add legend
         plt.legend(
             [ln_2, ln_0, fb_0, fb_2],
-            ["V = 0.2 m/s", "V = 0.8 m/s", "No fans - V = 0.8 m/s", "Use fans",],
+            [
+                "V = 0.2 m/s",
+                "V = 0.8 m/s",
+                "No fans - V = 0.8 m/s",
+                "Use fans",
+            ],
             loc="lower left",
             ncol=2,
             facecolor="w",
@@ -1672,7 +1718,12 @@ class DataAnalysis:
         )
 
         ax.text(
-            10, 41.25, "Use fans", size=12, ha="center", va="center",
+            10,
+            41.25,
+            "Use fans",
+            size=12,
+            ha="center",
+            va="center",
         )
         ax.text(
             0.85,
@@ -1700,7 +1751,10 @@ class DataAnalysis:
             )
 
         plt.scatter(
-            15, 47, c="tab:red", label="fan not beneficial; Morris et al. (2019)",
+            15,
+            47,
+            c="tab:red",
+            label="fan not beneficial; Morris et al. (2019)",
         )
         # ax.text(
         #     27.1, 50, "H = 101 kJ/kg", ha="center", va="center", size=8, rotation=-60
@@ -1730,7 +1784,8 @@ class DataAnalysis:
 
         # # add legend
         plt.legend(
-            facecolor="w", loc="lower left",
+            facecolor="w",
+            loc="lower left",
         )
 
         # # plot enthalpy line
@@ -1836,6 +1891,8 @@ def ollie(is_fan_on, ta, rh, is_elderly):
     w_req = e_req / e_max
 
     s_w_eff = 1 - (w_req ** 2) / 2
+    # fixme testing different sweat efficiency
+    s_w_eff = 1
 
     s_req = (e_req / s_w_eff * 3600) / s_w_lat
 
@@ -2025,7 +2082,11 @@ def compare_hospers_ashrae_weather(save_fig=True):
     ]
 
     df_merged = pd.merge(
-        df_hospers, df_population_weather, left_on="City", right_on="city", how="left",
+        df_hospers,
+        df_population_weather,
+        left_on="City",
+        right_on="city",
+        how="left",
     )
 
     df_merged["state"] = df_merged["place"].str.split(", ", expand=True)[1]
@@ -2045,7 +2106,12 @@ def compare_hospers_ashrae_weather(save_fig=True):
         ["wmo", "cool_db", "cool_wb", "db_max_50", "wb_max_50"]
     ].apply(pd.to_numeric, errors="coerce")
 
-    df_merged = pd.merge(df_merged, df_ashrae, on="wmo", how="left",)
+    df_merged = pd.merge(
+        df_merged,
+        df_ashrae,
+        on="wmo",
+        how="left",
+    )
 
     df_merged = df_merged.dropna(subset=["Value"])
 
@@ -2194,7 +2260,7 @@ if __name__ == "__main__":
         # "gagge_results_physio_heat_loss",
         # "gagge_results_physiological",
         # "weather_data_world_map",
-        # "heat_strain_different_v",
+        "heat_strain_different_v",
         # "ravanelli_comp",
         # "met_clo",
         # "summary_use_fans_weather",
@@ -2202,11 +2268,11 @@ if __name__ == "__main__":
         # "summary_use_fans_and_population",
         # "world_map_population_weather",
         # "table_list_cities",
-        "compare_hospers_ashrae_weather",
+        # "compare_hospers_ashrae_weather",
         # "sweat_rate"
     ]
 
-    save_figure = True
+    save_figure = False
 
     for figure_to_plot in figures_to_plot:
         if figure_to_plot == "gagge_results_physio_heat_loss":
@@ -2236,10 +2302,10 @@ if __name__ == "__main__":
         if figure_to_plot == "compare_hospers_ashrae_weather":
             compare_hospers_ashrae_weather(save_fig=save_figure)
 
-    # ta = 45
-    # rh = 30
-    # v = 4.5
-    # pprint(fan_use_set(tdb=ta, tr=ta, v=v, rh=rh, met=1.1, clo=0.5, wme=0))
+    ta = 45
+    rh = 20
+    v = 4.5
+    pprint(use_fans_heatwaves(tdb=ta, tr=ta, v=v, rh=rh, met=1.1, clo=0.5, wme=0))
     #
     # for t in np.arange(33, 39, 0.1):
     #     rh = 60
