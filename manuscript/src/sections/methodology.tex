@@ -5,11 +5,7 @@
 
 The energy balance model estimates how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
-% note OJ Our perspective on this is that for determining environmental limits a fixed maximum Tsk value (associated with complete vasodilation) is sufficient, and less complicated
-% FT this is a default calculation in the Gagge model, do we need to change it?
 \ac{v} is the average air speed of the flow that is used to cool the human body~\cite{Huang2014}.
-% note OJ Similarly, the absolute Tcore was previously not considered important to determine, rather whether the condition was uncompensable or not was thought to be most important as this does not require us to estimate exposure time
-% FT the core temperature, in the Gagge's model, affects: the rate of energy transport between core and skin, the vasodilation/vasocontriction signal, sweathing, skin blood flow, etc.
 
 Section~\ref{subsec:energy-balance} describes the main Equations used by the model to derive the results.
 
@@ -27,10 +23,7 @@ The energy balance in the human body is described by:
 This equation assumes that the body comprises two main thermal compartments: the skin and the core.
 If the exogenous and endogenous heat gains cannot be compensated by heat loss, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
 One of the main differences between our proposed model and the one used by \mycite{Jay2015} is that their model does not account for heat stored in the core or the skin compartment, hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
-% note OJ - See previous comment. Tcr was not necessarily fixed, rather the heat balance equation was solved for when Ereq exceeded Emax (with certain physiological limits), i.e. when uncompensable.
 Calculating how \ac{t-sk} and \ac{t-cr} vary as a function of different environmental and personal factors allows us to better predict how much heat the body exchanges with its surrounding environment.
-% note OJ - I would say that this is not necessarily correct. Tsk will modify dry heat loss (a little bit) but at the point of compensability tsk will be max, so a simplified model can just assume max Tsk with full vasodilation (35.5C). Absolute Tcore does not really drive sweat rate, Ereq does: see Ravanelli & Jay (2020) J Physiol (London).
-% FT In Gagge's model t-cr influences sweat rate
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental (\ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}), and personal factors (\ac{met}, and \ac{clo})~\cite{ASHRA2017}.
 % note OJ - Based on this text it is not clear how Tcr modifies heat exchange as stated n the previous paragraph - I don't think it should.
@@ -80,13 +73,6 @@ The value of \ac{t-op} varies as a function of the \ac{h-c}, \ac{h-r}, \ac{t-r} 
 
 In our model, the value of \ac{t-sk} is calculated iteratively since it varies as a function of the heat loss from the human body towards its environment and the heat transferred from the core to the skin node, as shown in Source Code~\ref{lst:pythonCode}.
 \Ac{t-cl} can be calculated as a function of \ac{t-op}, \ac{t-sk}, \ac{r-cl} and the resistance of the air layer.
-% note OJ - Is the disruption of the air layer with fanning and subsequent alteration in insulative/evaporative resistance properties accounted for
-% FT - the model calcualtes the convective heat transfer coefficient using the following equations
-%    # h_cc corrected convective heat transfer coefficient
-%    h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
-%    # h_fc forced convective heat transfer coefficient, W/(m2 C)
-%    h_fc = 8.600001 * pow((air_velocity * pressure_in_atmospheres), 0.53)
-%    h_cc = max(h_cc, h_fc)
 
 \subsubsection{Latent Heat Loss from Skin, (\acs{e-sk})}
 
@@ -98,6 +84,25 @@ The \acf{e-sk} comprises two terms: the \ac{e-rsw} and the \ac{e-dif}.
 \end{equation}
 
 Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}, the human body does not regulate \ac{w} directly but, rather, it regulates the sweat rate.
+
+The value of \ac{m-sweat} can be predicted by the deviation of \ac{t-sk} and \ac{t-cr} from their set neutral value, and it is described by:
+
+% todo The equation below (ashrae fundamentals 2013 chapter 9 eq 71) is not finished I am checking with Ed and Charlie if it is correct
+
+\begin{equation}
+    m_{rsw}=c_{sw}((1 - \alpha) (t_{cr} - t_{cr,n}) + \alpha (t_{sk} - t_{sk,n})) \exp (\frac{t_{sk}-t_{sk,n}}{10.7})\label{eq:regulatory-sweating}
+\end{equation}
+
+% todo add unit c-sw
+Where the \ac{c-sw} is assumed to be equal to 170, the \ac{t-cr-n} is equal to 36.8~$^{\circ}$C and \ac{t-sk-n} is equal to 33.7~$^{\circ}$C\@.
+The \ac{a} is determined using:
+
+\begin{equation}
+    \alpha_{sk}=0.0418+\frac{0.745}{m_{b l}-0.585}\label{eq:alpha}
+\end{equation}
+
+Where the \ac{m-bl} is limited to a maximum of 90~L/(hm\textsuperscript{2}).
+
 % note OJ - I know this might sound crazy, but I am not sure this is correct - which might be a problem with model. Physiological evidence points to the evaporative heat loss requirement for heat balance being the regulated variable - in a sense, i.e. this is what determines the steady-state SR. The onset and thermosensitivity of the thermoeffector response determines how hot someone gets before they reach steady-state. We recently published a paper on this in J Physiol (London): Ravanelli N, Imbeault P, Jay O (2020) Steady-state sweating during exercise is determined by the evaporative requirement for heat balance independently of absolute core and skin temperature. J Physiol (London); 598(13):2607-2619. With an editorial: Mundel T (2020) Thermoregulatory sweating and evaporative heat loss during exercise: is the whole greater than the sum of its parts? J Physiol (London); 598(13):2535-2536. This is further modified by skin temperature. See our recent paper in MSSE: Hospers L, Cheuvront S, Kenefick RW, Jay O* (2020) Independent influence of skin temperature on whole-body sweat rate. Med Sci Sports Exerc; 52(11):2423-2429. ...which is why I think you can get lower core temperature with a higher sweat rate with fan use in some conditions (e.g. the 40C/50%RH condition of Morris et al 2019).
 % FT I got this information from the ASHRAE 2017 Handbook fundamentals Eq.18 page 193
 
@@ -106,8 +111,6 @@ It correlates with warm discomfort and is a good measure of thermal stress.
 While \ac{w} can theoretically range from 0 to 1 and skin wettedness can approach 1.0 while the body still maintains thermoregulatory control~\cite{ASHRA2017}.
 In most situations, the upper limit of \ac{w} is lower than 1.
 \mycite{GaggeSET} used the following equations to determine \ac{w-max} for sustained activity for healthy and acclimatized humans:
-
-% todo ED There are physiological sweat rate control equations that affect wmax, right? Do they need to be described?
 
 \begin{equation}
     w_{max}=
@@ -122,14 +125,6 @@ For young adults, they assumed \ac{w-max} to be equal to 0.65 for the `fan on' c
 % todo add references
 These values are higher than those estimated by the \mycite{GaggeSET} model.
 % note OJ I might be missing it but I am not clear where how sweating efficiency has been accommodated? As discussed on our call, at lower RH values sweat efficiency approaches 100% even with a fan so fan just add dry heat (if Ta>Tsk) without much increase in evaporation -this causes the real Ta/RH threshold curve for fan use to bend downwards to lower temperature (on the y-axis) at lower humidity values. I think this would be very important to include.
-% FT w_crit is calculated using the following equations
-%    if clo <= 0:
-%        w_crit = 0.38 * pow(air_velocity, -0.29)  # critical skin wettedness
-%        i_cl = 1.0  # permeation efficiency of water vapour through the clothing layer
-%    else:
-%        w_crit = 0.59 * pow(air_velocity, -0.08)  # critical skin wettedness
-%        i_cl = 0.45  # permeation efficiency of water vapour through the clothing layer
-
 % it is true that at lower RH values sweat efficiency approaches 100% even with a fan so fan just add dry heat (if Ta>Tsk) without much increase in evaporation and this is included in the model but the effect it is noticeable only for very high temperatures and low rh <10 see Figure 11
 
 \subsubsection{Respiratory Losses, (\acs{q-res})}

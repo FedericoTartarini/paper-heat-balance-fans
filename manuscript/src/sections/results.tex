@@ -30,11 +30,6 @@ The operative temperature at which \ac{w} equals \ac{w-max} is inversely proport
     \label{fig:comparison_models}
 \end{figure}
 
-% note OJ - An issue needed to be considered here is a maximum sweat rate. With high air speeds the required sweat rate to achieve the theoretical Emax might not be possible.
-% the Gagge's model limits the max sweat rate at 500mL/hm2
-
-% note Stefano - this figure it is too complex and you should select only the most important cases.
-
 For \ac{t-op} higher than \ac{t-sk}, the negative effect that an increase in \ac{v} has on sensible heat gain is compensated by a greater increase in the \acf{e-sk} that the body can dissipate towards the surrounding environment.
 For example, when \ac{t-op}~=~45~$^{\circ}$C and \ac{rh}~=~30~\%, a change in \ac{v} from 0.2 to 4.5~m/s increases (\acs{c-r}) by 29 W/m\textsuperscript{2} while increasing \ac{e-sk} by 45~W/m\textsuperscript{2}, which provides a net positive effect.
 
@@ -48,9 +43,7 @@ The \acf{m-sweat} is shown in Figure~\ref{fig:comparison_models}D\@.
 The difference between the results obtained with the two heat balance models can be attributed to the fact that \citeauthor{Jay2015} calculate the value of \ac{m-sweat} as a function of the required latent energy that the body should, in theory, dissipate to achieve thermal neutrality.
 On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as a function of regulatory signals and they assume that \ac{m-sweat} cannot exceed 500~mL/h.
 
-% note OJ It is good that a max sweat rate is included... The Jay model assumes steady-state
-
-% note FT In the most recent paper from Jay, they assume that the max sweat rate is 440 mL/h (in their model). However, we can sweat more than 500 mL/h, for example in a field study participants exposed to 47C and 10%  sweated 691 mL/h (when fan were on) but when fan off they sweated 328g/h. Under 40C and 50% they sweated 346 and 216 g/h, with fan and no fan, respectively. Hence, only with very low humidity, high temp and fan  on people sweated more than 500. I do not know what it the max value we can sweat, I guess it would vary from person to person. Moreover, Gagge's model estimates that the a value of 500mL/h is only reached in extreme conditions (red area Figure 7) when fans should no longer be used. I am planning to add a table at the end of the
+% FT In the most recent paper from Jay, they assume that the max sweat rate is 440 mL/h (in their model). However, we can sweat more than 500 mL/h, for example in a field study participants exposed to 47C and 10%  sweated 691 mL/h (when fan were on) but when fan off they sweated 328g/h. Under 40C and 50% they sweated 346 and 216 g/h, with fan and no fan, respectively. Hence, only with very low humidity, high temp and fan  on people sweated more than 500. I do not know what it the max value we can sweat, I guess it would vary from person to person. Moreover, Gagge's model estimates that the a value of 500mL/h is only reached in extreme conditions (red area Figure 7) when fans should no longer be used. I am planning to add a table at the end of the
 
 \begin{figure}[thb!]
     \centering
@@ -66,8 +59,6 @@ On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as 
 
 The excess heat stored in the human body (\acs{s-cr} + \acs{s-sk}), \ac{t-sk}, and \ac{t-cr} are shown in Figure~\ref{fig:results_model_2}A, \ref{fig:results_model_2}C, and \ref{fig:results_model_2}D, respectively.
 When the body cannot longer dissipate exogenous and endogenous heat gains, the excess heat gets stored in the human body causes \ac{t-sk} and \ac{t-cr} to raise.
-
-% note Federico to Stefano - The increase in the core temperature it is a concern, but as you can see from Figure 3 if the fans are on, the core body temperature is lower than when fans are off. This is true till a certain point when this trend is inverted and the core temperature with the fans on is higher than with the fan off. As you can see from Figure 3 the point in which the two lines intersect is the same point above which in Figure 7 we are no longer recommending to use electric fans. Hence, fans are still beneficial to use, even though people may be suffering, they are better than nothing. Moreover, from figure 3 it can be observed that the critical temperature above which core body temperature starts increasing is higher when fans are turned on, and this temperature is higher than 35C. Till that temperature the use of fans is actually good since it onsets the increase in the core temperature.
 
 To validate the results of our model, we examined how the predicted value of \ac{t-cr} varies as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
 The results are shown in Figure~\ref{fig:comparison_ravanelli}.
@@ -151,7 +142,6 @@ The former determined that electric fans (\ac{v}~=~2.0~m/s) are beneficial when 
 Our results are in agreement with those obtained by \mycite{Rate2015} and those obtained by \mycite{Morris2019} in which participants were exposed to \ac{t-db}~=~40~$^{\circ}$C and \ac{rh}~=~51~\%.
 However, the Gagge model also predicts that the use of electric fans should be beneficial even when \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\%.
 This result is in disagreement with the experimental results of \mycite{Morris2019}.
-% todo EA This whole validation section is inserted into a section calle 'when can electric fans be used?" This is really hard for the reader. Need to reorganize and separate these issues.
 
 As previously mentioned in the Introduction Section, the enthalpy of the air in \mycite{Morris2019} experiment was lower in the scenario with higher temperature and lower \ac{rh}.
 %The black dashed lines, in Figure~\ref{fig:use_fans_experimental}, are isoenthalpic lines passing through the conditions studied by \mycite{Morris2019}.
@@ -173,8 +163,6 @@ The use of fans (\ac{v}~=~0.8~m/s) during heatwaves would be beneficial in all t
     \label{fig:energy_storage_delta}
 \end{figure}
 
-% note OJ I think a lot of the points in the top-left area should be labeled as fans being detrimental
-
 % https://advances.sciencemag.org/content/6/19/eaaw1838
 
 To better quantify how many people would benefit from the use of electric fans we combined the city population with the weather data.
@@ -192,8 +180,6 @@ In 95 of them, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and these ci
     \label{fig:map-population-temperature}
 \end{figure}
 
-% note OJ This is a nice figure but I think we might be overestimating the efficacy of fan use in hot/dry conditions?
-
 We estimated that in all the 115 most populous cities the use of electric fans would be beneficial for healthy adults seated quietly (\ac{met}~=~1.0~met) and wearing a value of \ac{clo} equal to 0.36~clo.
 % note OJ It would be great if some kind of economic outcome could be added to this?
 The \mycite{GaggeSET} model predicted that healthy adults living in 74 cities (approximately 394 million inhabitants) should not experience heat strain even without increasing air movement.
@@ -208,8 +194,6 @@ An additional 33 million people would avoid heat strain by elevating the air spe
     These results were calculated assuming \ac{t-r}~=~\ac{t-db}, \ac{clo}~=~0.35~clo, \ac{met}~=~1.0~met.}
     \label{fig:use_fans_and_population}
 \end{figure}
-
-% note OJ Same concern about the top-left area in this figure.
 
 \subsection{Sweat Rate}\label{subsec:sweat-rate}
 
