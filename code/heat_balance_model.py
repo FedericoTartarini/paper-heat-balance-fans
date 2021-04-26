@@ -48,17 +48,14 @@ def use_fans_heatwaves(
     body_weight = 69.9  # body weight in kg
     met_factor = 58.2  # met conversion factor
     sbc = 0.000000056697  # Stefan-Boltzmann constant (W/m2K4)
-    # fixme
     c_sw = 170  # driving coefficient for regulatory sweating
-    c_dil = 200  # driving coefficient for vasodilation
-    c_str = 0.1  # driving coefficient for vasoconstriction
-    # c_sw = 170  # driving coefficient for regulatory sweating
-    # c_dil = 120  # driving coefficient for vasodilation
-    # c_str = 0.5  # driving coefficient for vasoconstriction
+    c_dil = 200  # driving coefficient for vasodilation todo ashrae says 50 see page 195
+    c_str = 0.5  # driving coefficient for vasoconstriction
 
     temp_skin_neutral = 33.7
     temp_core_neutral = 36.8
-    temp_body_neutral = 36.49
+    alfa = 0.1  # fractional skin mass
+    temp_body_neutral = alfa * temp_skin_neutral + (1 - alfa) * temp_core_neutral
     skin_blood_flow_neutral = 6.3
 
     temp_skin = temp_skin_neutral
@@ -115,6 +112,7 @@ def use_fans_heatwaves(
             CTC = c_hr + h_cc
             r_a = 1.0 / (f_a_cl * CTC)
             t_op = (c_hr * tr + h_cc * tdb) / CTC
+            # todo check this equation
             t_cl_new = (r_a * temp_skin + r_clo * t_op) / (r_a + r_clo)
             if abs(t_cl_new - t_cl) <= 0.01:
                 tc_converged = True
@@ -126,8 +124,9 @@ def use_fans_heatwaves(
 
         dry = (temp_skin - t_op) / (r_a + r_clo)
         # h_fcs rate of energy transport between core and skin, W
+        # 5.28 is the average body tissue conductance in W/(m2 C)
+        # 1.163 is the thermal capacity of blood in Wh/(L C)
         h_fcs = (temp_core - temp_skin) * (5.28 + 1.163 * skin_blood_flow)
-        # fixme check coefficient equation below 0.0173 M (5.87 − pa) ashrae
         q_res = 0.0023 * m * (44.0 - vapor_pressure)  # heat loss due to respiration
         c_res = 0.0014 * m * (34.0 - tdb)  # convective heat loss respiration
         s_core = m - h_fcs - q_res - c_res - wme  # rate of energy storage in the core
@@ -163,6 +162,12 @@ def use_fans_heatwaves(
         if skin_blood_flow < 0.5:
             skin_blood_flow = 0.5
         reg_sw = c_sw * WARMB * math.exp(warms / 10.7)  # regulatory sweating
+        # reg_sw = (
+        #     c_sw
+        #     * ((alfa * temp_skin + (1 - alfa) * temp_core) - temp_body_neutral)
+        #     * math.exp((temp_skin - 34) / 10.7)
+        # )  # regulatory sweating
+        # print(reg_sw_1, reg_sw)
         if reg_sw > 500.0:
             reg_sw = 500.0
             exc_reg_sw = True
@@ -210,6 +215,7 @@ def use_fans_heatwaves(
         "exc_reg_sw": exc_reg_sw,
         "skin_blood_flow": skin_blood_flow,
         "sweating_required": reg_sw,
+        "sweating_required_ollie_equation": (3600 * e_sk / (1 - p_wet ** 2 / 2)) / 2426,
         "skin_wettedness": p_wet,
         "energy_balance": m - hsk - q_res,
     }

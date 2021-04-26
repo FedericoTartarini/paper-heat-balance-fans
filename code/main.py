@@ -31,7 +31,7 @@ class DataAnalysis:
         self.dir_figures = os.path.join(os.getcwd(), "manuscript", "src", "figures")
         self.dir_tables = os.path.join(os.getcwd(), "manuscript", "src", "tables")
 
-        self.ta_range = np.arange(28, 50, 0.5)
+        self.ta_range = np.arange(28, 60, 0.5)
         self.v_range = [0.2, 0.8, 4.5]
         self.rh_range = np.arange(0, 105, 5)
 
@@ -385,6 +385,8 @@ class DataAnalysis:
         for x in range(0, 2):
             ax_1[x][0].grid(c="lightgray")
             ax_1[x][1].grid(c="lightgray")
+            ax_1[x][0].set(xlim=(30, 50.1))
+            ax_1[x][1].set(xlim=(30, 50.1))
             ax_1[x][0].xaxis.set_ticks_position("none")
             ax_1[x][1].xaxis.set_ticks_position("none")
             ax_1[x][0].yaxis.set_ticks_position("none")
@@ -503,6 +505,8 @@ class DataAnalysis:
         for x in range(0, 2):
             ax_1[x][0].grid(c="lightgray")
             ax_1[x][1].grid(c="lightgray")
+            ax_1[x][0].set(xlim=(30, 50.1))
+            ax_1[x][1].set(xlim=(30, 50.1))
             ax_1[x][0].xaxis.set_ticks_position("none")
             ax_1[x][1].xaxis.set_ticks_position("none")
             ax_1[x][0].yaxis.set_ticks_position("none")
@@ -1891,8 +1895,6 @@ def ollie(is_fan_on, ta, rh, is_elderly):
     w_req = e_req / e_max
 
     s_w_eff = 1 - (w_req ** 2) / 2
-    # fixme testing different sweat efficiency
-    s_w_eff = 1
 
     s_req = (e_req / s_w_eff * 3600) / s_w_lat
 
@@ -2260,7 +2262,7 @@ if __name__ == "__main__":
         # "gagge_results_physio_heat_loss",
         # "gagge_results_physiological",
         # "weather_data_world_map",
-        "heat_strain_different_v",
+        # "heat_strain_different_v",
         # "ravanelli_comp",
         # "met_clo",
         # "summary_use_fans_weather",
@@ -2302,10 +2304,41 @@ if __name__ == "__main__":
         if figure_to_plot == "compare_hospers_ashrae_weather":
             compare_hospers_ashrae_weather(save_fig=save_figure)
 
-    ta = 45
+    ta = 40
     rh = 20
-    v = 4.5
+    v = 0.2
     pprint(use_fans_heatwaves(tdb=ta, tr=ta, v=v, rh=rh, met=1.1, clo=0.5, wme=0))
+
+    pprint(
+        use_fans_heatwaves(tdb=47, tr=47, v=4.5, rh=10, met=1.1, clo=0.5, wme=0)[
+            "sweating_required"
+        ]
+        * 1.8258
+    )
+    pprint(
+        use_fans_heatwaves(tdb=47, tr=47, v=4.5, rh=10, met=1.1, clo=0.5, wme=0)[
+            "sweating_required_ollie_equation"
+        ]
+        * 1.8258
+    )
+    pprint(
+        use_fans_heatwaves(tdb=47, tr=47, v=0.2, rh=10, met=1.3, clo=0.7, wme=0)[
+            "sweating_required"
+        ]
+        * 1.8258
+    )
+    pprint(
+        use_fans_heatwaves(tdb=40, tr=40, v=4.5, rh=50, met=1.1, clo=0.5, wme=0)[
+            "sweating_required"
+        ]
+        * 1.8258
+    )
+    pprint(
+        use_fans_heatwaves(tdb=40, tr=40, v=0.2, rh=50, met=1.1, clo=0.5, wme=0)[
+            "sweating_required"
+        ]
+        * 1.8258
+    )
     #
     # for t in np.arange(33, 39, 0.1):
     #     rh = 60
