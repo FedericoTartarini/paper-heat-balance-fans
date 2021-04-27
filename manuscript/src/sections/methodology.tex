@@ -3,9 +3,9 @@
 
 \section{Methodology}\label{sec:methodology}
 
-The energy balance model estimates how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
+The energy balance model we used estimates how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
-\ac{v} is the average air speed of the flow that is used to cool the human body~\cite{Huang2014}.
+In non uniform environments \ac{t-db} and \ac{v} are the average temperature and air speed measured at 0.1, 0.6, and 1.1~m above the ground for seated occupants and at 0.1, 1.1, and 1.7~m above the ground for standing occupants.
 
 Section~\ref{subsec:energy-balance} describes the main Equations used by the model to derive the results.
 
@@ -41,7 +41,7 @@ Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of th
 
 In thermal comfort research, this value is generally assumed to be constant and equal to 1.8 m$^{2}$.
 \mycite{Jay2015} also consider this value to be constant, however, it should be noted that this is an approximation.
-Several other equations have been developed to estimate \ac{body-a} and in the function of the \verb|pythermalcomfort| tool, we allow users to specify \ac{body-a} as the input value.
+Several other equations have been developed to estimate \ac{body-a} and we allow users to specify \ac{body-a} as the input value.
 Alternative equations to the DuBois equation are available.
 A review paper concluded that most of the proposed equations in the literature were in agreement with each other to estimate \ac{body-a} for adults with a healthy weight and standard physique~\cite{Redlarski2016}.
 
@@ -51,6 +51,7 @@ Sensible heat loss from the human body mainly occurs from convection and radiati
 The total amount of \ac{c-r} can be described as a function of \ac{t-sk}, \ac{t-op}, \ac{r-cl}, \ac{f-cl}, and \ac{h}.
 The equation can be expressed as:
 
+% todo check that all the equations exactly match the equations in the SET code
 \begin{equation}
     C+R=\frac{t_{s k}-t_{o}}{R_{c l}+1 /\left(f_{c l} h\right)}\label{eq:c-r}
 \end{equation}
@@ -87,14 +88,11 @@ Despite the fact that Equation~\ref{eq:latent-skin} is expressed as a function o
 
 The value of \ac{m-sweat} can be predicted by the deviation of \ac{t-sk} and \ac{t-cr} from their set neutral value, and it is described by:
 
-% todo The equation below (ashrae fundamentals 2013 chapter 9 eq 71) is not finished I am checking with Ed and Charlie if it is correct
-
 \begin{equation}
     m_{rsw}=c_{sw}((1 - \alpha) (t_{cr} - t_{cr,n}) + \alpha (t_{sk} - t_{sk,n})) \exp (\frac{t_{sk}-t_{sk,n}}{10.7})\label{eq:regulatory-sweating}
 \end{equation}
 
-% todo add unit c-sw
-Where the \ac{c-sw} is assumed to be equal to 170, the \ac{t-cr-n} is equal to 36.8~$^{\circ}$C and \ac{t-sk-n} is equal to 33.7~$^{\circ}$C\@.
+Where the \ac{c-sw} is assumed to be equal to 170~g/(hKm\textsuperscript{2}), the \ac{t-cr-n} is equal to 36.8~$^{\circ}$C and \ac{t-sk-n} is equal to 33.7~$^{\circ}$C\@.
 The \ac{a} is determined using:
 
 \begin{equation}
@@ -139,6 +137,7 @@ The value of \ac{q-res} is can be determined using the following simplified equa
 \subsection{Data Analysis}\label{subsec:data-analysis}
 
 The heat balance model was used to estimate sensible and latent heat loss and several physiological parameters (e.g., \ac{m-sweat}, \ac{t-cr}).
+% todo check the following
 We calculated the results for \ac{t-op} ranging from 28 to 55~$^{\circ}$C at 0.5~$^{\circ}$C intervals, \ac{rh} ranging from 0 to 100~\% at 5~\% intervals and for the discrete values of \ac{v} = 0.2, 0.8 and 4.5~m/s.
 In this paper, we will be referring to `still air' condition when air velocities are below \ac{v}~=~0.2 m/s.
 This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017} and allowed us to compare our results with those obtained by \mycite{Jay2015}.
@@ -158,6 +157,17 @@ A copy of the algorithm we used to calculate the results can also be found in \r
 Lines in Figures~\ref{fig:comparison_models}, \ref{fig:results_model_2}, \ref{fig:comparison_air_speed}, \ref{fig:met_clo}, \ref{fig:energy_storage_delta}, and \ref{fig:use_fans_and_population} were smoothed using the \verb|Scipy| function \verb|ndimage.gaussian_filter1d|.
 Moreover, we developed a tool that can be used to generate interactive figures that show the environmental conditions under which the use of elevated air speeds is beneficial.
 This tool has been added and integrated into the CBE Thermal Comfort Tool~\cite{Tartarini2020}.
+
+\subsection{Predicted Heat Strain Model}\label{subsec:predicted-heat-strain-model}
+
+We also decided to compare our results with those obtained from the \ac{phs} model.
+The \ac{phs} model allows the analytical evaluation of the thermal stress experienced by a subject in a hot environment.
+It allows to predict the sweat rate and \ac{t-re} that the human body will develop in response to the working conditions.
+The \ac{phs} model as described in the ISO 7933 Standard does not predict the physiological response of individual subjects and aims to evaluate working conditions for a standard subjects in good health and fit for the work~\cite{iso7933}.
+The \ac{phs} model is validated on a database including 747 lab experiments and 366 field experiments, from 8 research institutions~\cite{iso7933}.
+The \ac{phs} it is not validated for metabolic rates lower than 1.7 met (100 W/m\textsuperscript{2}), \ac{t-db} higher than 50~$^{\circ}$C and water vapour partial pressure ($p_{a}$) higher than 4~kPa.
+In this present study we are determining when fans should be used by individuals with a \ac{met}~=~1.1~met, hence, we will be using the \ac{phs} model outside its ranges of validity.
+We calculated the \ac{phs} using the \verb|pythermalcomfort| Python package~\cite{Tartarini2020a} function \verb|phs|.
 
 \subsection{Weather Data}\label{subsec:weather-data}
 
@@ -181,17 +191,17 @@ Few data are available for Sub-Saharan Africa where approximately 40~\% of the p
 
 In order to determine the coincident value of \ac{rh} when the maximum extreme \ac{t-db} with a 20 year return period was recorded we used the following two methods:
 
-\textit{Constant humidity ratio} -- Firstly, we determined the humidity ratio for each location based on using the following temperatures the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
+\textit{Constant humidity ratio} -- Firstly, we determined the humidity ratio for each location using the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
 We then assumed that during an heatwave the humidity ratio would remain constant while only the value of \ac{t-db} would increase.
 This assumption allowed us to estimate, for each location, the value of \ac{rh} for each extreme \ac{t-db}.
-This is an approximation and it does not take into account that during heat waves the value of humidity ratio could increase.
+This is an approximation and it does not take into account that during heat waves the value of humidity ratio could also increase.
 
 \textit{Coincident extreme conditions} -- In parallel we also estimated the value of \ac{rh} using the maximum extreme \ac{t-db} and \ac{t-wb} reported in the ASHRAE climate design dataset for each location.
 This method assumes that both temperatures would occur at the same time in each location.
 This is an approximation and it is arguably overestimating the most extreme condition because the likelihood of both conditions occurring at the same time is extremely low.
 
 We compared the results, obtained using both models, to the data that \mycite{Hospers2020} reported in their manuscript.
-\mycite{Hospers2020} obtained hourly data for the 100 most populous metropolitan areas in the U.S. from January 1st, 2000 to December 31st, 2019.
+\mycite{Hospers2020} obtained hourly data for the 100 most populous metropolitan areas in the U.S.\ from January 1st, 2000 to December 31st, 2019.
 They purchased the data from fromCustomWeather (CustomWeather, Inc., 271Miller AvenueMill Valley, CA, USA 94941).
 From this dataset they determined the peak \ac{t-db} and corresponding \ac{rh} for each location.
 Results of this comparison are presented in \ref{sec:validation_rh}.
@@ -199,18 +209,17 @@ We concluded that the constant humidity ratio assumption led to more accurate re
 
 We also assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
 Conditions indoors may, however, be slightly less severe than outdoors since the thermal mass of the building may dump and shift peaks in outdoor temperature.
-% note OJ We just got pilloried for this same approach in our modeling paper for estimating the GHG reductions due to AC use by increasing the upper temperature for TC with increasing air speeds (submitted for ERL). We did not have this problem with our other recent submission to Lancet Planetary Health. In any case, it would be good include more detail supporting this rationale including some references.
-% FT - unfortunately there is not really any supporting evindence I would feel comfident in providing since any assumption including this one proposed would be incorrect and not generaliseble. The difference between t_out and t_in is a function of thermal mass of the building, solar gains, internal gains, thermal resistance wall, etc.
-% I can, however, state that this is not a very good assumption and it has all the above mentioned limitations but any assumption whould have the same flaws.
 At the same time, the opposite scenario can also occur if there is a significant amount of internal load or solar gains indoors.
+We are aware that this assumption has some limitations and may be inaccurate, however, we deemed to be an acceptable approximation since no other approach would have lead to better results.
+One possible solution to this problem is simulating several building archetypes under different climatic conditions.
+However, we would still have to make assumptions such as, internal loads, geometry, building materials.
+This would ultimately have lead to uncertainties in the estimation of \ac{t-db}.
+Moreover, we did not have access to the timeseries data for the past 20 years for those 5000 stations.
 
 The EM-DAT contains detailed information on when the heatwave occurred, the location, the number of deaths, and the maximum temperature recorded.
 However, it does not contain information about the \ac{rh} which is important for determining whether the use of electric fans would have been beneficial or not.
 
 \subsection{City Population Data}\label{subsec:population-data}
-
-% note OJ Just FYI. We have taken a similar approach in our recent Lancet PH submission. We have 110 cities from 6 continents and specifically selected some of them based on the project AC use according to Davis et al (2015) PNAS.
-% FT could you please share the population data so I can compare them with mine. Just to make sure mine are reliable.
 
 We obtained the city population data from the demographic statistics database which is compiled and maintained by the \ac{un} statistics division~\cite{UNdatare88:online}.
 The database was last updated in August 2020 and we used it to gather information about the number of people who live in the 115 most populous cities in the world.
@@ -219,5 +228,3 @@ We then combined the population with the ASHRAE weather data to determine during
 As mentioned in Section~\ref{subsec:weather-data} weather data were not available for all the major cities in the world.
 Consequently, we had to exclude the following cities from our analysis: Lagos in Nigeria, Dar es-Salaam and Mwanza in Tanzania, Dhaka in Bangladesh, Faisalabad in Pakistan, Zibo and Zhongshan in China, Addis Ababa in Ethiopia, and Bandung in Indonesia.
 A full list of the cities we included in the analysis is provided in the \ref{sec:pop_weather}.
-
-% todo remove section about the elderly and limit the scope of this paper to young adults. There are more physiological data to support it, and we can still make a strong rationale that if lots of young people make the switch to fans then this could have a substantial effect on electricity use and help avoid the risk of blackouts for example.
