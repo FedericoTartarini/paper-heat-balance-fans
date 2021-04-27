@@ -1,5 +1,5 @@
 import math
-from pythermalcomfort.psychrometrics import p_sat_torr
+from numba import njit
 
 
 def use_fans_heatwaves(
@@ -36,7 +36,62 @@ def use_fans_heatwaves(
         atmospheric pressure, default value 101325 [Pa] in [atm] if `units` = 'IP'
     """
 
-    vapor_pressure = rh * p_sat_torr(tdb) / 100
+    (
+        e_sk,
+        e_rsw,
+        e_diff,
+        e_max,
+        w_max,
+        dry,
+        temp_core,
+        temp_skin,
+        exc_blood_flow,
+        exc_p_wet,
+        exc_reg_sw,
+        skin_blood_flow,
+        reg_sw,
+        p_wet,
+        m,
+        hsk,
+        q_res,
+    ) = fans_function_optimized(
+        tdb, tr, v, rh, met, clo, wme, body_surface_area, p_atmospheric
+    )
+
+    return {
+        "hl_evaporation_required": e_sk,
+        "e_rsw": e_rsw,
+        "e_diff": e_diff,
+        "hl_evaporation_max": e_max,
+        "w_max": w_max,
+        "hl_dry": dry,
+        "temp_core": temp_core,
+        "temp_skin": temp_skin,
+        "heat_strain": any([exc_blood_flow, exc_p_wet, exc_reg_sw]),
+        "exc_blood_flow": exc_blood_flow,
+        "exc_pwet": exc_p_wet,
+        "exc_reg_sw": exc_reg_sw,
+        "skin_blood_flow": skin_blood_flow,
+        "sweating_required": reg_sw,
+        "sweating_required_ollie_equation": (3600 * e_sk / (1 - p_wet ** 2 / 2)) / 2426,
+        "skin_wettedness": p_wet,
+        "energy_balance": m - hsk - q_res,
+    }
+
+
+@njit()
+def fans_function_optimized(
+    tdb,
+    tr,
+    v,
+    rh,
+    met,
+    clo,
+    wme=0,
+    body_surface_area=1.8258,
+    p_atmospheric=101325,
+):
+    vapor_pressure = rh * math.exp(18.6686 - 4030.183 / (tdb + 235.0)) / 100
 
     # variables to check if person is experiencing heat strain
     exc_blood_flow = False  # reached max blood flow
@@ -162,12 +217,6 @@ def use_fans_heatwaves(
         if skin_blood_flow < 0.5:
             skin_blood_flow = 0.5
         reg_sw = c_sw * WARMB * math.exp(warms / 10.7)  # regulatory sweating
-        # reg_sw = (
-        #     c_sw
-        #     * ((alfa * temp_skin + (1 - alfa) * temp_core) - temp_body_neutral)
-        #     * math.exp((temp_skin - 34) / 10.7)
-        # )  # regulatory sweating
-        # print(reg_sw_1, reg_sw)
         if reg_sw > 500.0:
             reg_sw = 500.0
             exc_reg_sw = True
@@ -200,22 +249,30 @@ def use_fans_heatwaves(
 
     hsk = dry + e_sk  # total heat loss from skin, W
 
-    return {
-        "hl_evaporation_required": e_sk,
-        "e_rsw": e_rsw,
-        "e_diff": e_diff,
-        "hl_evaporation_max": e_max,
-        "w_max": w_max,
-        "hl_dry": dry,
-        "temp_core": temp_core,
-        "temp_skin": temp_skin,
-        "heat_strain": any([exc_blood_flow, exc_p_wet, exc_reg_sw]),
-        "exc_blood_flow": exc_blood_flow,
-        "exc_pwet": exc_p_wet,
-        "exc_reg_sw": exc_reg_sw,
-        "skin_blood_flow": skin_blood_flow,
-        "sweating_required": reg_sw,
-        "sweating_required_ollie_equation": (3600 * e_sk / (1 - p_wet ** 2 / 2)) / 2426,
-        "skin_wettedness": p_wet,
-        "energy_balance": m - hsk - q_res,
-    }
+    return [
+        e_sk,
+        e_rsw,
+        e_diff,
+        e_max,
+        w_max,
+        dry,
+        temp_core,
+        temp_skin,
+        exc_blood_flow,
+        exc_p_wet,
+        exc_reg_sw,
+        skin_blood_flow,
+        reg_sw,
+        p_wet,
+        m,
+        hsk,
+        q_res,
+    ]
+
+
+if __name__ == "__main__":
+    print(
+        use_fans_heatwaves(tdb=47, tr=47, v=4.5, rh=10, met=1.1, clo=0.5, wme=0)[
+            "sweating_required"
+        ]
+    )

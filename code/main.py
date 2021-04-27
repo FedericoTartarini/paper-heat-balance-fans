@@ -2,15 +2,13 @@ import matplotlib as mpl
 
 mpl.use("Qt5Agg")  # or can use 'TkAgg', whatever you have/prefer
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap, interp, maskoceans
+from mpl_toolkits.basemap import Basemap
 import numpy as np
 import pandas as pd
-from pythermalcomfort.psychrometrics import p_sat, units_converter, p_sat_torr
-from pythermalcomfort.models import set_tmp
+from pythermalcomfort.psychrometrics import p_sat
 import math
 import seaborn as sns
 import os
-import scipy
 from scipy import optimize
 from pprint import pprint
 import sqlite3
@@ -677,7 +675,7 @@ class DataAnalysis:
             heat_strain[v] = {}
             color = self.colors_f3[ix]
 
-            for rh in np.arange(0, 105, 1):
+            for rh in np.arange(0, 105, 0.5):
 
                 for ta in np.arange(28, 66, 0.25):
 
@@ -751,8 +749,8 @@ class DataAnalysis:
         combinations = [
             {"clo": 0.36, "met": 1, "ls": "dashed"},
             {"clo": 0.5, "met": 1, "ls": "dotted"},
-            {"clo": 0.36, "met": 1.2, "ls": "dashdot"},
-            {"clo": 0.5, "met": 1.2, "ls": "solid"},
+            {"clo": 0.36, "met": 1.2, "ls": "solid"},
+            # {"clo": 0.5, "met": 1.2, "ls": "dashdot"},
             # {"clo": 0, "met": 0.8, "ls": (0, (3, 1, 1, 1, 1, 1))},
         ]
 
@@ -768,7 +766,7 @@ class DataAnalysis:
 
                 color = self.colors_f3[ix]
 
-                for rh in np.arange(0, 105, 1):
+                for rh in np.arange(0, 105, 0.5):
 
                     for ta in np.arange(28, 66, 0.25):
 
@@ -884,334 +882,9 @@ class DataAnalysis:
         f.colorbar(cf)
         plt.show()
 
-    def summary_use_fans(self, save_fig):
+    def summary_use_fans_02_08(self):
         rh_arr = np.arange(34, 110, 2)
         tmp_low = []
-        tmp_high = []
-
-        for rh in rh_arr:
-
-            def function(x):
-                return (
-                    use_fans_heatwaves(x, x, v, rh, 1.1, 0.5, wme=0)["temp_core"]
-                    - use_fans_heatwaves(x, x, 0.2, rh, 1.1, 0.5, wme=0)["temp_core"]
-                )
-
-            v = 4.5
-            try:
-                tmp_high.append(optimize.brentq(function, 30, 130))
-            except ValueError:
-                tmp_high.append(np.nan)
-
-            v = 0.8
-            try:
-                tmp_low.append(optimize.brentq(function, 30, 130))
-            except ValueError:
-                tmp_low.append(np.nan)
-
-        fig, ax = plt.subplots()
-
-        # plot heat strain lines
-        for key in self.heat_strain.keys():
-            if key == 0.2:
-                (ln_2,) = ax.plot(
-                    list(self.heat_strain[key].keys()),
-                    list(self.heat_strain[key].values()),
-                    c="k",
-                    label="V = 0.2 m/s",
-                )
-                f_02_critical = np.poly1d(
-                    np.polyfit(
-                        list(self.heat_strain[key].keys()),
-                        list(self.heat_strain[key].values()),
-                        2,
-                    )
-                )
-            if key == 0.8:
-                (ln_0,) = ax.plot(
-                    list(self.heat_strain[key].keys()),
-                    list(self.heat_strain[key].values()),
-                    c="k",
-                    linestyle="-.",
-                )
-                f_08_critical = np.poly1d(
-                    np.polyfit(
-                        list(self.heat_strain[key].keys()),
-                        list(self.heat_strain[key].values()),
-                        2,
-                    )
-                )
-            if key == 4.5:
-                (ln_1,) = ax.plot(
-                    list(self.heat_strain[key].keys()),
-                    list(self.heat_strain[key].values()),
-                    c="k",
-                    linestyle=":",
-                )
-                f_45_critical = np.poly1d(
-                    np.polyfit(
-                        list(self.heat_strain[key].keys()),
-                        list(self.heat_strain[key].values()),
-                        2,
-                    )
-                )
-
-        x_new, y_new = interpolate(rh_arr, tmp_low)
-
-        # (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
-
-        fb_0 = ax.fill_between(
-            x_new,
-            y_new,
-            100,
-            color="tab:red",
-            alpha=0.2,
-            zorder=100,
-            label="No fan - V = 4.5 m/s",
-        )
-
-        df = pd.DataFrame(self.heat_strain)
-        df_fan_above = df[df[4.5] >= df[0.8]]
-        df_fan_below = df[df[4.5] <= df[0.8] + 0.073]
-
-        x_new, y_new = interpolate(
-            rh_arr, tmp_high, x_new=list(df_fan_above.index.values)
-        )
-        # (ln_1,) = ax.plot(x_new, y_new, c="k", label="V = 4.5 m/s", linestyle=":")
-
-        ax.fill_between(
-            x_new,
-            df_fan_above[4.5].values,
-            y_new,
-            facecolor="none",
-            zorder=100,
-            hatch="/",
-            edgecolor="silver",
-        )
-
-        fb_1 = ax.fill_between(
-            x_new,
-            y_new,
-            100,
-            color="tab:orange",
-            alpha=0.2,
-            label="No fan - V = 4.5 m/s",
-        )
-
-        # green part on the right
-        fb_2 = ax.fill_between(
-            [0, *x_new], 0, [60, *y_new], color="tab:green", alpha=0.2
-        )
-
-        # # green part below evaporative cooling
-        # ax.fill_between(
-        #     df_fan_below.index,
-        #     0,
-        #     df_fan_below[4.5].values,
-        #     color="tab:green",
-        #     alpha=0.2,
-        # )
-        #
-        # # blue part below evaporative cooling
-        # ax.fill_between(
-        #     df_fan_below.index,
-        #     df_fan_below[4.5].values,
-        #     100,
-        #     color="tab:blue",
-        #     alpha=0.2,
-        # )
-
-        ax.set(
-            ylim=(29, 50),
-            xlim=(0, 100),
-            xlabel=r"Relative humidity ($RH$) [%]",
-            ylabel=self.label_t_op,
-        )
-        # ax.text(
-        #     10, 37.5, "Use fans", size=12, ha="center", va="center",
-        # )
-        # ax.text(
-        #     0.85,
-        #     0.75,
-        #     "Do not\nuse fans",
-        #     size=12,
-        #     ha="center",
-        #     transform=ax.transAxes,
-        # )
-        # ax.text(
-        #     0.33,
-        #     0.8,
-        #     "Move to a\ncooler place\nif possible",
-        #     size=12,
-        #     zorder=200,
-        #     ha="center",
-        #     transform=ax.transAxes,
-        # )
-        # ax.text(
-        #     9.5,
-        #     53.5,
-        #     "Evaporative\ncooling",
-        #     size=12,
-        #     zorder=200,
-        #     ha="center",
-        #     va="center",
-        # )
-        # text_dic = [
-        #     {"txt": "Thermal strain\nv =0.2m/s", "x": 11, "y": 46.5, "r": -48},
-        #     # {"txt": "Thermal strain\nv=0.8m/s", "x": 8.3, "y": 52, "r": -47},
-        #     {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
-        #     # {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
-        #     # {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
-        # ]
-        #
-        # for obj in text_dic:
-        #     ax.text(
-        #         obj["x"],
-        #         obj["y"],
-        #         obj["txt"],
-        #         size=8,
-        #         ha="center",
-        #         va="center",
-        #         rotation=obj["r"],
-        #         zorder=200,
-        #     )
-
-        # plot extreme weather events
-        df_queried = pd.read_sql(
-            "SELECT wmo, "
-            '"n-year_return_period_values_of_extreme_DB_20_max" as db_max, '
-            '"n-year_return_period_values_of_extreme_WB_20_max" as wb_max, '
-            '"cooling_DB_MCWB_0.4_DB" as cool_db, '
-            '"cooling_DB_MCWB_0.4_MCWB" as cool_wb '
-            "FROM data",
-            con=self.conn,
-        )
-
-        arr_rh = []
-        df_queried[["wmo", "db_max", "wb_max", "cool_db", "cool_wb"]] = df_queried[
-            ["wmo", "db_max", "wb_max", "cool_db", "cool_wb"]
-        ].apply(pd.to_numeric, errors="coerce")
-        df_queried.dropna(inplace=True)
-        for ix, row in df_queried.iterrows():
-            hr = psychrolib.GetHumRatioFromTWetBulb(
-                row["cool_db"], row["cool_wb"], 101325
-            )
-            arr_rh.append(
-                psychrolib.GetRelHumFromHumRatio(row["db_max"], hr, 101325) * 100
-            )
-            # arr_rh.append(
-            #     psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
-            #     * 100
-            # )
-
-        # calculate number of stations where db_max exceeds critical temperature
-        f_08_no_fan = np.poly1d(
-            np.polyfit(
-                rh_arr,
-                tmp_low,
-                2,
-            )
-        )
-        f_45_no_fan = np.poly1d(
-            np.polyfit(
-                rh_arr,
-                tmp_high,
-                2,
-            )
-        )
-
-        df_queried["rh"] = arr_rh
-        # todo the code below is incorrect since the ploifit is not the same as the
-        #  curve shown in the figure
-        df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
-        df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
-        df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
-        df_queried["t_no_fan_08"] = [f_08_no_fan(x) for x in arr_rh]
-        df_queried["t_no_fan_45"] = [f_45_no_fan(x) for x in arr_rh]
-        df_queried["exc_t_crit_02"] = 0
-        df_queried["exc_t_crit_08"] = 0
-        df_queried["exc_t_crit_45"] = 0
-        df_queried["exc_no_fan_08"] = 0
-        df_queried["exc_no_fan_45"] = 0
-        df_queried.loc[
-            df_queried["t_crit_02"] < df_queried["db_max"], "exc_t_crit_02"
-        ] = 1
-        df_queried.loc[
-            df_queried["t_crit_08"] < df_queried["db_max"], "exc_t_crit_08"
-        ] = 1
-        df_queried.loc[
-            df_queried["t_crit_45"] < df_queried["db_max"], "exc_t_crit_45"
-        ] = 1
-        df_queried.loc[
-            df_queried["t_no_fan_08"] < df_queried["db_max"], "exc_no_fan_08"
-        ] = 1
-        df_queried.loc[
-            df_queried["t_no_fan_45"] < df_queried["db_max"], "exc_no_fan_45"
-        ] = 1
-        print(
-            (
-                100
-                - df_queried[
-                    [
-                        "exc_t_crit_02",
-                        "exc_t_crit_08",
-                        "exc_t_crit_45",
-                        "exc_no_fan_08",
-                        "exc_no_fan_45",
-                    ]
-                ].sum()
-                / df_queried.shape[0]
-                * 100
-            ).round()
-        )
-        print(
-            df_queried[
-                [
-                    "exc_t_crit_02",
-                    "exc_t_crit_08",
-                    "exc_t_crit_45",
-                    "exc_no_fan_08",
-                    "exc_no_fan_45",
-                ]
-            ].sum()
-        )
-
-        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c=self.colors_f3[0])
-
-        # horizontal line showing limit imposed by most of the standards
-        ax.plot([0, 100], [35, 35], c="tab:red")
-
-        # add legend
-        plt.legend(
-            [ln_2, ln_0, ln_1, fb_0, fb_1, fb_2],
-            [
-                "V = 0.2 m/s",
-                "V = 0.8 m/s",
-                "V = 4.5 m/s",
-                "No fans - V = 0.8 m/s",
-                "No fans - V = 4.5 m/s",
-                "Use fans",
-            ],
-            loc="lower left",
-            ncol=2,
-            facecolor="w",
-        )
-        fig.tight_layout()
-        ax.grid(c="lightgray")
-        ax.xaxis.set_ticks_position("none")
-        ax.yaxis.set_ticks_position("none")
-        sns.despine(left=True, bottom=True, right=True)
-        fig.tight_layout()
-
-        if save_fig:
-            plt.savefig(os.path.join(self.dir_figures, "use_fans.png"), dpi=300)
-        else:
-            plt.show()
-
-    def summary_use_fans_and_population(self, save_fig):
-        rh_arr = np.arange(34, 110, 2)
-        tmp_low = []
-        # tmp_high = []
 
         for rh in rh_arr:
 
@@ -1220,12 +893,6 @@ class DataAnalysis:
                     use_fans_heatwaves(x, x, v, rh, 1, 0.35, wme=0)["temp_core"]
                     - use_fans_heatwaves(x, x, 0.2, rh, 1, 0.35, wme=0)["temp_core"]
                 )
-
-            # v = 4.5
-            # try:
-            #     tmp_high.append(optimize.brentq(function, 30, 130))
-            # except ValueError:
-            #     tmp_high.append(np.nan)
 
             v = 0.8
             try:
@@ -1288,8 +955,7 @@ class DataAnalysis:
 
         x_new, y_new = interpolate(rh_arr, tmp_low)
 
-        # (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-.", label="V = 0.8 m/s")
-
+        # plotting this twice to ensure consistency colors previous chart
         fb_0 = ax.fill_between(
             x_new,
             y_new,
@@ -1297,7 +963,7 @@ class DataAnalysis:
             color="tab:red",
             alpha=0.2,
             zorder=100,
-            label="No fan - V = 4.5 m/s",
+            label="No fan - V = 0.8 m/s",
         )
         fb_0 = ax.fill_between(
             x_new,
@@ -1306,7 +972,7 @@ class DataAnalysis:
             color="tab:orange",
             alpha=0.2,
             zorder=100,
-            label="No fan - V = 4.5 m/s",
+            label="No fan - V = 0.8 m/s",
         )
 
         df = pd.DataFrame(heat_strain)
@@ -1316,7 +982,6 @@ class DataAnalysis:
         x_new, y_new = interpolate(
             rh_arr, tmp_low, x_new=list(df_fan_above.index.values)
         )
-        # (ln_1,) = ax.plot(x_new, y_new, c="k", label="V = 4.5 m/s")
 
         ax.fill_between(
             x_new,
@@ -1328,42 +993,24 @@ class DataAnalysis:
             edgecolor="silver",
         )
 
-        # fb_1 = ax.fill_between(
-        #     x_new,
-        #     y_new,
-        #     100,
-        #     color="tab:orange",
-        #     alpha=0.2,
-        #     label="No fan - v = 4.5 m/s",
-        # )
-
         # green part on the right
-        fb_2 = ax.fill_between(
-            [0, *x_new], 0, [60, *y_new], color="tab:green", alpha=0.2
-        )
+        fb_2 = ax.fill_between(x_new, 0, y_new, color="tab:green", alpha=0.2)
 
         # # green part below evaporative cooling
-        # ax.fill_between(
-        #     df_fan_below.index,
-        #     0,
-        #     df_fan_below[0.8].values,
-        #     color="tab:green",
-        #     alpha=0.2,
-        # )
-
-        # blue part below evaporative cooling
         ax.fill_between(
             df_fan_below.index,
+            0,
             df_fan_below[0.8].values,
-            100,
-            color="tab:red",
+            color="tab:green",
             alpha=0.2,
         )
-        ax.fill_between(
+
+        # blue part below evaporative cooling
+        fb_3 = ax.fill_between(
             df_fan_below.index,
             df_fan_below[0.8].values,
             100,
-            color="tab:orange",
+            color="tab:blue",
             alpha=0.2,
         )
 
@@ -1373,41 +1020,10 @@ class DataAnalysis:
             xlabel=r"Relative humidity ($RH$) [%]",
             ylabel=r"Operative temperature ($t_{o}$) [°C]",
         )
-        # ax.text(
-        #     10, 37.5, "Use fans", size=12, ha="center", va="center",
-        # )
-        # ax.text(
-        #     0.85,
-        #     0.75,
-        #     "Do not\nuse fans",
-        #     size=12,
-        #     ha="center",
-        #     transform=ax.transAxes,
-        # )
-        # ax.text(
-        #     0.33,
-        #     0.8,
-        #     "Move to a\ncooler place\nif possible",
-        #     size=12,
-        #     zorder=200,
-        #     ha="center",
-        #     transform=ax.transAxes,
-        # )
-        # ax.text(
-        #     9.5,
-        #     53.5,
-        #     "Evaporative\ncooling",
-        #     size=12,
-        #     zorder=200,
-        #     ha="center",
-        #     va="center",
-        # )
+
         text_dic = [
             {"txt": "Thermal strain\nv =0.2m/s", "x": 80, "y": 31.5, "r": -21},
             {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 33, "r": -22},
-            # {"txt": "Thermal strain\nv=4.5m/s", "x": 93, "y": 33.5, "r": -20},
-            # {"txt": "No fans, v=4.5m/s", "x": 80, "y": 39, "r": -15},
-            # {"txt": "No fans, v=0.8m/s", "x": 80, "y": 41.5, "r": -24},
         ]
 
         for obj in text_dic:
@@ -1421,6 +1037,147 @@ class DataAnalysis:
                 rotation=obj["r"],
                 zorder=200,
             )
+
+        # horizontal line showing limit imposed by most of the standards
+        ax.plot([0, 100], [35, 35], c="tab:red")
+
+        # add legend
+        plt.legend(
+            [ln_2, ln_0, fb_2, fb_0, fb_3],
+            [
+                "V = 0.2 m/s",
+                "V = 0.8 m/s",
+                "Use fans",
+                "No fans - V = 0.8 m/s",
+                "Evaporative cooling",
+            ],
+            loc="lower left",
+            ncol=2,
+            facecolor="w",
+        )
+
+        return fig, ax
+
+    def summary_use_fans(self, save_fig):
+        fig, ax = self.summary_use_fans_02_08()
+
+        # plot extreme weather events
+        df_queried = pd.read_sql(
+            "SELECT wmo, "
+            '"n-year_return_period_values_of_extreme_DB_20_max" as db_max, '
+            '"n-year_return_period_values_of_extreme_WB_20_max" as wb_max, '
+            '"cooling_DB_MCWB_0.4_DB" as cool_db, '
+            '"cooling_DB_MCWB_0.4_MCWB" as cool_wb '
+            "FROM data",
+            con=self.conn,
+        )
+
+        arr_rh = []
+        df_queried[["wmo", "db_max", "wb_max", "cool_db", "cool_wb"]] = df_queried[
+            ["wmo", "db_max", "wb_max", "cool_db", "cool_wb"]
+        ].apply(pd.to_numeric, errors="coerce")
+        df_queried.dropna(inplace=True)
+        for ix, row in df_queried.iterrows():
+            hr = psychrolib.GetHumRatioFromTWetBulb(
+                row["cool_db"], row["cool_wb"], 101325
+            )
+            arr_rh.append(
+                psychrolib.GetRelHumFromHumRatio(row["db_max"], hr, 101325) * 100
+            )
+            # arr_rh.append(
+            #     psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
+            #     * 100
+            # )
+
+        # # calculate number of stations where db_max exceeds critical temperature
+        # f_08_no_fan = np.poly1d(
+        #     np.polyfit(
+        #         rh_arr,
+        #         tmp_low,
+        #         2,
+        #     )
+        # )
+        # f_45_no_fan = np.poly1d(
+        #     np.polyfit(
+        #         rh_arr,
+        #         tmp_high,
+        #         2,
+        #     )
+        # )
+
+        df_queried["rh"] = arr_rh
+        # # todo the code below is incorrect since the ploifit is not the same as the
+        # #  curve shown in the figure
+        # df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
+        # df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
+        # df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
+        # df_queried["t_no_fan_08"] = [f_08_no_fan(x) for x in arr_rh]
+        # df_queried["t_no_fan_45"] = [f_45_no_fan(x) for x in arr_rh]
+        # df_queried["exc_t_crit_02"] = 0
+        # df_queried["exc_t_crit_08"] = 0
+        # df_queried["exc_t_crit_45"] = 0
+        # df_queried["exc_no_fan_08"] = 0
+        # df_queried["exc_no_fan_45"] = 0
+        # df_queried.loc[
+        #     df_queried["t_crit_02"] < df_queried["db_max"], "exc_t_crit_02"
+        # ] = 1
+        # df_queried.loc[
+        #     df_queried["t_crit_08"] < df_queried["db_max"], "exc_t_crit_08"
+        # ] = 1
+        # df_queried.loc[
+        #     df_queried["t_crit_45"] < df_queried["db_max"], "exc_t_crit_45"
+        # ] = 1
+        # df_queried.loc[
+        #     df_queried["t_no_fan_08"] < df_queried["db_max"], "exc_no_fan_08"
+        # ] = 1
+        # df_queried.loc[
+        #     df_queried["t_no_fan_45"] < df_queried["db_max"], "exc_no_fan_45"
+        # ] = 1
+        # print(
+        #     (
+        #         100
+        #         - df_queried[
+        #             [
+        #                 "exc_t_crit_02",
+        #                 "exc_t_crit_08",
+        #                 "exc_t_crit_45",
+        #                 "exc_no_fan_08",
+        #                 "exc_no_fan_45",
+        #             ]
+        #         ].sum()
+        #         / df_queried.shape[0]
+        #         * 100
+        #     ).round()
+        # )
+        # print(
+        #     df_queried[
+        #         [
+        #             "exc_t_crit_02",
+        #             "exc_t_crit_08",
+        #             "exc_t_crit_45",
+        #             "exc_no_fan_08",
+        #             "exc_no_fan_45",
+        #         ]
+        #     ].sum()
+        # )
+
+        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c=self.colors_f3[0])
+
+        fig.tight_layout()
+        ax.grid(c="lightgray")
+        ax.xaxis.set_ticks_position("none")
+        ax.yaxis.set_ticks_position("none")
+        sns.despine(left=True, bottom=True, right=True)
+        fig.tight_layout()
+
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "use_fans.png"), dpi=300)
+        else:
+            plt.show()
+
+    def summary_use_fans_and_population(self, save_fig):
+
+        fig, ax = self.summary_use_fans_02_08()
 
         # plot population
         df_queried = pd.read_csv(
@@ -1462,68 +1219,68 @@ class DataAnalysis:
                 psychrolib.GetRelHumFromHumRatio(row["db_max"], hr, 101325) * 100
             )
 
-        # calculate number of stations where db_max exceeds critical temperature
-        f_08_no_fan = np.poly1d(
-            np.polyfit(
-                rh_arr,
-                tmp_low,
-                2,
-            )
-        )
-        # f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
-
+        # # calculate number of stations where db_max exceeds critical temperature
+        # f_08_no_fan = np.poly1d(
+        #     np.polyfit(
+        #         rh_arr,
+        #         tmp_low,
+        #         2,
+        #     )
+        # )
+        # # f_45_no_fan = np.poly1d(np.polyfit(rh_arr, tmp_high, 2,))
+        #
         df_queried["rh"] = arr_rh
-        # todo the code below is incorrect since the ploifit is not the same as the curve shown in the figure
-        df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
-        df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
-        # df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
-        df_queried["t_no_fan_08"] = [f_08_no_fan(x) for x in arr_rh]
-        # df_queried["t_no_fan_45"] = [f_45_no_fan(x) for x in arr_rh]
-        df_queried["exc_t_crit_02"] = 0
-        df_queried["exc_t_crit_08"] = 0
-        df_queried["exc_t_crit_45"] = 0
-        df_queried["exc_no_fan_08"] = 0
-        df_queried["exc_no_fan_45"] = 0
-        df_queried.loc[
-            df_queried["t_crit_02"] < df_queried["db_max"], "exc_t_crit_02"
-        ] = 1
-        df_queried.loc[
-            df_queried["t_crit_08"] < df_queried["db_max"], "exc_t_crit_08"
-        ] = 1
+        # # todo the code below is incorrect since the ploifit is not the same as the curve shown in the figure
+        # df_queried["t_crit_02"] = [f_02_critical(x) for x in arr_rh]
+        # df_queried["t_crit_08"] = [f_08_critical(x) for x in arr_rh]
+        # # df_queried["t_crit_45"] = [f_45_critical(x) for x in arr_rh]
+        # df_queried["t_no_fan_08"] = [f_08_no_fan(x) for x in arr_rh]
+        # # df_queried["t_no_fan_45"] = [f_45_no_fan(x) for x in arr_rh]
+        # df_queried["exc_t_crit_02"] = 0
+        # df_queried["exc_t_crit_08"] = 0
+        # df_queried["exc_t_crit_45"] = 0
+        # df_queried["exc_no_fan_08"] = 0
+        # df_queried["exc_no_fan_45"] = 0
         # df_queried.loc[
-        #     df_queried["t_crit_45"] < df_queried["db_max"], "exc_t_crit_45"
+        #     df_queried["t_crit_02"] < df_queried["db_max"], "exc_t_crit_02"
         # ] = 1
-        df_queried.loc[
-            df_queried["t_no_fan_08"] < df_queried["db_max"], "exc_no_fan_08"
-        ] = 1
         # df_queried.loc[
-        #     df_queried["t_no_fan_45"] < df_queried["db_max"], "exc_no_fan_45"
+        #     df_queried["t_crit_08"] < df_queried["db_max"], "exc_t_crit_08"
         # ] = 1
-        print(
-            (
-                df_queried.shape[0]
-                - df_queried[
-                    [
-                        "exc_t_crit_02",
-                        "exc_t_crit_08",
-                        # "exc_t_crit_45",
-                        "exc_no_fan_08",
-                        # "exc_no_fan_45",
-                    ]
-                ].sum()
-            ).round()
-        )
-        # population that will be fine
-        print("no strain without fans")
-        print(df_queried[df_queried["exc_t_crit_02"] == 0]["Value"].sum() / 10 ** 6)
-        print("no strain with fans 0.8")
-        print(df_queried[df_queried["exc_t_crit_08"] == 0]["Value"].sum() / 10 ** 6)
-        # print("no strain with fans 4.5")
-        # print(df_queried[df_queried["exc_t_crit_45"] == 0]["Value"].sum() / 10 ** 6)
-        print("marginal benefit with fans 0.8")
-        print(df_queried[df_queried["exc_no_fan_08"] == 0]["Value"].sum() / 10 ** 6)
-        # print("marginal benefit with fans 4.5")
-        # print(df_queried[df_queried["exc_no_fan_45"] == 0]["Value"].sum() / 10 ** 6)
+        # # df_queried.loc[
+        # #     df_queried["t_crit_45"] < df_queried["db_max"], "exc_t_crit_45"
+        # # ] = 1
+        # df_queried.loc[
+        #     df_queried["t_no_fan_08"] < df_queried["db_max"], "exc_no_fan_08"
+        # ] = 1
+        # # df_queried.loc[
+        # #     df_queried["t_no_fan_45"] < df_queried["db_max"], "exc_no_fan_45"
+        # # ] = 1
+        # print(
+        #     (
+        #         df_queried.shape[0]
+        #         - df_queried[
+        #             [
+        #                 "exc_t_crit_02",
+        #                 "exc_t_crit_08",
+        #                 # "exc_t_crit_45",
+        #                 "exc_no_fan_08",
+        #                 # "exc_no_fan_45",
+        #             ]
+        #         ].sum()
+        #     ).round()
+        # )
+        # # population that will be fine
+        # print("no strain without fans")
+        # print(df_queried[df_queried["exc_t_crit_02"] == 0]["Value"].sum() / 10 ** 6)
+        # print("no strain with fans 0.8")
+        # print(df_queried[df_queried["exc_t_crit_08"] == 0]["Value"].sum() / 10 ** 6)
+        # # print("no strain with fans 4.5")
+        # # print(df_queried[df_queried["exc_t_crit_45"] == 0]["Value"].sum() / 10 ** 6)
+        # print("marginal benefit with fans 0.8")
+        # print(df_queried[df_queried["exc_no_fan_08"] == 0]["Value"].sum() / 10 ** 6)
+        # # print("marginal benefit with fans 4.5")
+        # # print(df_queried[df_queried["exc_no_fan_45"] == 0]["Value"].sum() / 10 ** 6)
 
         ax.scatter(
             df_queried["rh"],
@@ -1544,22 +1301,7 @@ class DataAnalysis:
             ),
         )
 
-        # horizontal line showing limit imposed by most of the standards
-        ax.plot([0, 100], [35, 35], c="tab:red")
-
-        # add legend
-        plt.legend(
-            [ln_2, ln_0, fb_0, fb_2],
-            [
-                "V = 0.2 m/s",
-                "V = 0.8 m/s",
-                "No fans - V = 0.8 m/s",
-                "Use fans",
-            ],
-            loc="lower left",
-            ncol=2,
-            facecolor="w",
-        )
+        # todo add legend with population in millions
         fig.tight_layout()
         ax.grid(c="lightgray")
         ax.xaxis.set_ticks_position("none")
@@ -1602,7 +1344,6 @@ class DataAnalysis:
         fig, ax = plt.subplots()
 
         # plot heat strain lines
-        # plot heat strain lines
         for key in self.heat_strain.keys():
             if key == 0.2:
                 (ln_2,) = ax.plot(
@@ -1611,13 +1352,6 @@ class DataAnalysis:
                     c="k",
                     label="V = 0.2 m/s",
                 )
-                f_02_critical = np.poly1d(
-                    np.polyfit(
-                        list(self.heat_strain[key].keys()),
-                        list(self.heat_strain[key].values()),
-                        2,
-                    )
-                )
             if key == 0.8:
                 (ln_0,) = ax.plot(
                     list(self.heat_strain[key].keys()),
@@ -1625,13 +1359,6 @@ class DataAnalysis:
                     c="k",
                     linestyle="-.",
                     label="V = 0.8 m/s",
-                )
-                f_08_critical = np.poly1d(
-                    np.polyfit(
-                        list(self.heat_strain[key].keys()),
-                        list(self.heat_strain[key].values()),
-                        2,
-                    )
                 )
             if key == 4.5:
                 (ln_1,) = ax.plot(
@@ -1692,27 +1419,26 @@ class DataAnalysis:
         )
 
         # green part on the right
-        fb_2 = ax.fill_between(
-            [0, *x_new], 0, [60, *y_new], color="tab:green", alpha=0.2
+        fb_2 = ax.fill_between(x_new, 0, y_new, color="tab:green", alpha=0.2)
+
+        # green part below evaporative cooling
+        ax.fill_between(
+            df_fan_below.index,
+            0,
+            df_fan_below[4.5].values,
+            color="tab:green",
+            alpha=0.2,
         )
 
-        # # green part below evaporative cooling
-        # ax.fill_between(
-        #     df_fan_below.index,
-        #     0,
-        #     df_fan_below[4.5].values,
-        #     color="tab:green",
-        #     alpha=0.2,
-        # )
-        #
-        # # blue part below evaporative cooling
-        # ax.fill_between(
-        #     df_fan_below.index,
-        #     df_fan_below[4.5].values,
-        #     100,
-        #     color="tab:blue",
-        #     alpha=0.2,
-        # )
+        # blue part below evaporative cooling
+        ax.fill_between(
+            df_fan_below.index,
+            df_fan_below[4.5].values,
+            100,
+            color="tab:blue",
+            alpha=0.2,
+            label="Evaporative Cooling",
+        )
 
         ax.set(
             ylim=(29, 50),
@@ -1786,25 +1512,28 @@ class DataAnalysis:
             label="fan beneficial; Ravanelli et al. (2015)",
         )
 
-        # # add legend
+        # add legend
         plt.legend(
             facecolor="w",
             loc="lower left",
         )
 
-        # # plot enthalpy line
-        # reference_enthalpies = [100805.98, 73007.24]
-        # for enthalpy in reference_enthalpies:
-        #     rh_const_enthalpy = []
-        #     for tmp in self.ta_range:
-        #         hr = psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(enthalpy, tmp)
-        #         rh_const_enthalpy.append(
-        #             psychrolib.GetRelHumFromHumRatio(tmp, hr, 101325) * 100
-        #         )
-        #
-        #     ax.plot(
-        #         rh_const_enthalpy, self.ta_range, c="k", linestyle=":",
-        #     )
+        # plot enthalpy line
+        reference_enthalpies = [100805.98, 73007.24]
+        for enthalpy in reference_enthalpies:
+            rh_const_enthalpy = []
+            for tmp in self.ta_range:
+                hr = psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(enthalpy, tmp)
+                rh_const_enthalpy.append(
+                    psychrolib.GetRelHumFromHumRatio(tmp, hr, 101325) * 100
+                )
+
+            ax.plot(
+                rh_const_enthalpy,
+                self.ta_range,
+                c="k",
+                linestyle=":",
+            )
 
         fig.tight_layout()
         ax.grid(c="lightgray")
@@ -2271,10 +2000,10 @@ if __name__ == "__main__":
         # "world_map_population_weather",
         # "table_list_cities",
         # "compare_hospers_ashrae_weather",
-        # "sweat_rate"
+        # "sweat_rate",
     ]
 
-    save_figure = False
+    save_figure = True
 
     for figure_to_plot in figures_to_plot:
         if figure_to_plot == "gagge_results_physio_heat_loss":
@@ -2304,41 +2033,41 @@ if __name__ == "__main__":
         if figure_to_plot == "compare_hospers_ashrae_weather":
             compare_hospers_ashrae_weather(save_fig=save_figure)
 
-    ta = 40
-    rh = 20
-    v = 0.2
-    pprint(use_fans_heatwaves(tdb=ta, tr=ta, v=v, rh=rh, met=1.1, clo=0.5, wme=0))
-
-    pprint(
-        use_fans_heatwaves(tdb=47, tr=47, v=4.5, rh=10, met=1.1, clo=0.5, wme=0)[
-            "sweating_required"
-        ]
-        * 1.8258
-    )
-    pprint(
-        use_fans_heatwaves(tdb=47, tr=47, v=4.5, rh=10, met=1.1, clo=0.5, wme=0)[
-            "sweating_required_ollie_equation"
-        ]
-        * 1.8258
-    )
-    pprint(
-        use_fans_heatwaves(tdb=47, tr=47, v=0.2, rh=10, met=1.3, clo=0.7, wme=0)[
-            "sweating_required"
-        ]
-        * 1.8258
-    )
-    pprint(
-        use_fans_heatwaves(tdb=40, tr=40, v=4.5, rh=50, met=1.1, clo=0.5, wme=0)[
-            "sweating_required"
-        ]
-        * 1.8258
-    )
-    pprint(
-        use_fans_heatwaves(tdb=40, tr=40, v=0.2, rh=50, met=1.1, clo=0.5, wme=0)[
-            "sweating_required"
-        ]
-        * 1.8258
-    )
+    # ta = 40
+    # rh = 20
+    # v = 0.2
+    # pprint(use_fans_heatwaves(tdb=ta, tr=ta, v=v, rh=rh, met=1.1, clo=0.5, wme=0))
+    #
+    # pprint(
+    #     use_fans_heatwaves(tdb=47, tr=47, v=4.5, rh=10, met=1.1, clo=0.5, wme=0)[
+    #         "sweating_required"
+    #     ]
+    #     * 1.8258
+    # )
+    # pprint(
+    #     use_fans_heatwaves(tdb=47, tr=47, v=4.5, rh=10, met=1.1, clo=0.5, wme=0)[
+    #         "sweating_required_ollie_equation"
+    #     ]
+    #     * 1.8258
+    # )
+    # pprint(
+    #     use_fans_heatwaves(tdb=47, tr=47, v=0.2, rh=10, met=1.3, clo=0.7, wme=0)[
+    #         "sweating_required"
+    #     ]
+    #     * 1.8258
+    # )
+    # pprint(
+    #     use_fans_heatwaves(tdb=40, tr=40, v=4.5, rh=50, met=1.1, clo=0.5, wme=0)[
+    #         "sweating_required"
+    #     ]
+    #     * 1.8258
+    # )
+    # pprint(
+    #     use_fans_heatwaves(tdb=40, tr=40, v=0.2, rh=50, met=1.1, clo=0.5, wme=0)[
+    #         "sweating_required"
+    #     ]
+    #     * 1.8258
+    # )
     #
     # for t in np.arange(33, 39, 0.1):
     #     rh = 60
