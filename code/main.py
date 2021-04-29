@@ -6,6 +6,7 @@ from mpl_toolkits.basemap import Basemap
 import numpy as np
 import pandas as pd
 from pythermalcomfort.psychrometrics import p_sat
+from pythermalcomfort.models import phs
 import math
 import seaborn as sns
 import os
@@ -22,6 +23,8 @@ from heat_balance_model import use_fans_heatwaves
 psychrolib.SetUnitSystem(psychrolib.SI)
 
 plt.style.use("seaborn-paper")
+
+import matplotlib.pyplot as plt
 
 
 class DataAnalysis:
@@ -585,6 +588,54 @@ class DataAnalysis:
 
         if save_fig:
             plt.savefig(os.path.join(self.dir_figures, "sweat_rate.png"), dpi=300)
+        else:
+            plt.show()
+
+        # calculate using PHS
+        results = []
+        for v in air_speeds:
+            for ta in np.arange(30, 50, 2):
+                for rh in np.arange(10, 100, 10):
+                    r = phs(ta, ta, v, rh, 1.1 * 58.2, 0.5, posture=2, duration=480)
+                    r["ta"] = ta
+                    r["rh"] = rh
+                    r["v"] = v
+                    r["water_loss"] /= 8  # dividing it by 8 hours
+                    r["water_loss"] /= 1.938  # dividing it by duBois area
+                    results.append(r)
+
+        df_sweat = pd.DataFrame(results)
+
+        fig, axn = plt.subplots(1, 2, sharey=True)
+        cbar_ax = fig.add_axes([0.88, 0.15, 0.03, 0.75])
+
+        for i, ax in enumerate(axn.flat):
+            v = air_speeds[i]
+            df = df_sweat[df_sweat["v"] == v]
+            sns.heatmap(
+                df.pivot("ta", "rh", "water_loss").astype("int"),
+                annot=True,
+                cbar=i == 0,
+                ax=ax,
+                fmt="d",
+                cbar_ax=None if i else cbar_ax,
+                cbar_kws={
+                    "label": r"Sweat rate ($m_{rsw}$) [mL/(hm$^2$)]",
+                },
+                annot_kws={"size": 8},
+            )
+            ax.set(
+                xlabel="Relative humidity ($RH$) [%]",
+                ylabel="Operative temperature ($t_{o}$) [°C]" if i == 0 else None,
+                title=r"$V$" + f" = {v} m/s",
+            )
+
+        # cbar_ax.collections[0].colorbar.set_label("Hello")
+
+        fig.tight_layout(rect=[0, 0, 0.88, 1])
+
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "sweat_rate_phs.png"), dpi=300)
         else:
             plt.show()
 
@@ -1302,7 +1353,6 @@ class DataAnalysis:
         )
 
         # todo add legend with population in millions
-        fig.tight_layout()
         ax.grid(c="lightgray")
         ax.xaxis.set_ticks_position("none")
         ax.yaxis.set_ticks_position("none")
@@ -1535,7 +1585,6 @@ class DataAnalysis:
                 linestyle=":",
             )
 
-        fig.tight_layout()
         ax.grid(c="lightgray")
         ax.xaxis.set_ticks_position("none")
         ax.yaxis.set_ticks_position("none")
@@ -1551,6 +1600,173 @@ class DataAnalysis:
             )
         else:
             plt.show()
+
+    def phs_results(self, save_fig):
+
+        rh_arr = np.arange(30, 110, 1)
+        tmp = []
+
+        for rh in rh_arr:
+
+            def function(x):
+                return phs(x, x, 0.8, rh=rh, met=1.1 * 58.2, clo=0.5, posture=2)[
+                    "d_lim_t_re"
+                ] - (
+                    phs(x, x, 0.2, rh=rh, met=1.1 * 58.2, clo=0.5, posture=2)[
+                        "d_lim_t_re"
+                    ]
+                    - 0.01
+                )
+
+            try:
+                tmp.append(optimize.brentq(function, 33, 60))
+            except ValueError:
+                tmp.append(np.nan)
+
+        x_new, y_new = interpolate(rh_arr, tmp)
+
+        fig, ax = plt.subplots()
+
+        (ln_0,) = ax.plot(x_new, y_new, c="k", linestyle="-")
+
+        fb_0 = ax.fill_between(
+            x_new,
+            y_new,
+            100,
+            color="tab:red",
+            alpha=0.2,
+            zorder=100,
+            label="No fan - V = 4.5 m/s",
+        )
+
+        fb_0 = ax.fill_between(
+            x_new,
+            y_new,
+            100,
+            color="tab:orange",
+            alpha=0.2,
+            zorder=100,
+            label="No fan - V = 4.5 m/s",
+        )
+
+        fb_0 = ax.fill_between(
+            [0, *x_new],
+            0,
+            [0, *y_new],
+            color="tab:green",
+            alpha=0.2,
+            zorder=100,
+            label="No fan - V = 4.5 m/s",
+        )
+
+        ax.set(
+            ylim=(29, 50),
+            xlim=(0, 100),
+            xlabel=r"Relative humidity ($RH$) [%]",
+            ylabel=self.label_t_op,
+        )
+
+        ax.text(
+            10,
+            41.25,
+            "Use fans",
+            size=12,
+            ha="center",
+            va="center",
+        )
+        ax.text(
+            0.85,
+            0.75,
+            "Do not\nuse fans",
+            size=12,
+            ha="center",
+            transform=ax.transAxes,
+        )
+
+        ax.grid(c="lightgray")
+        ax.xaxis.set_ticks_position("none")
+        ax.yaxis.set_ticks_position("none")
+        sns.despine(left=True, bottom=True, right=True)
+        fig.tight_layout()
+
+        if save_fig:
+            plt.savefig(
+                os.path.join(self.dir_figures, "phs_results.png"),
+                dpi=300,
+            )
+        else:
+            plt.show()
+
+        fig, ax = self.summary_use_fans_02_08()
+
+        ax.grid(c="lightgray")
+        ax.xaxis.set_ticks_position("none")
+        ax.yaxis.set_ticks_position("none")
+        sns.despine(left=True, bottom=True, right=True)
+        fig.tight_layout()
+
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "gagge.png"), dpi=300)
+        else:
+            plt.show()
+
+        df_ashrae = pd.read_sql(
+            'SELECT "n-year_return_period_values_of_extreme_WB_20_max" as wb_max_50 '
+            "FROM data",
+            con=self.conn,
+        )
+
+        df_ashrae[["wb_max_50"]] = df_ashrae[["wb_max_50"]].apply(
+            pd.to_numeric, errors="coerce"
+        )
+
+        from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+        from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+
+        fig, ax = plt.subplots()
+        sns.histplot(x=df_ashrae["wb_max_50"])
+        ax.set_ylim(0, 500)
+        axins = zoomed_inset_axes(ax, 4, loc=1)
+        sns.histplot(x=df_ashrae["wb_max_50"])
+        axins.set_xlim(35, 41)
+        axins.set_ylim(0, 10)
+        mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+        plt.draw()
+        plt.tight_layout()
+
+        if save_fig:
+            plt.savefig(os.path.join(self.dir_figures, "t_wb_extreme.png"), dpi=300)
+        else:
+            plt.show()
+
+        # ###################################
+        pivot_results = {}
+
+        for v in [0.2, 0.8]:
+
+            results = []
+            for tdb in range(30, 52, 1):
+                for rh in range(0, 100, 1):
+                    result = phs(
+                        tdb=tdb, tr=tdb, rh=rh, v=v, met=1.1 * 58.2, clo=0.5, posture=2
+                    )
+                    result["tdb"] = tdb
+                    result["rh"] = rh
+                    results.append(result)
+
+            df = pd.DataFrame.from_dict(results)
+
+            pivot = df.pivot("tdb", "rh", "d_lim_t_re")
+            pivot = pivot.sort_index(ascending=False)
+            pivot_results[v] = pivot.values
+
+        delta_t_re = pivot_results[0.8] - pivot_results[0.2]
+        df = pd.DataFrame(delta_t_re, index=pivot.index, columns=pivot.columns)
+        plt.figure()
+        ax = sns.heatmap(df, vmax=0)
+        plt.title(f"velocity {v}")
+        plt.tight_layout()
+        plt.show()
 
 
 def ollie(is_fan_on, ta, rh, is_elderly):
@@ -2000,7 +2216,8 @@ if __name__ == "__main__":
         # "world_map_population_weather",
         # "table_list_cities",
         # "compare_hospers_ashrae_weather",
-        # "sweat_rate",
+        "sweat_rate",
+        # "phs",
     ]
 
     save_figure = True
@@ -2032,6 +2249,8 @@ if __name__ == "__main__":
             self.sweat_rate_production(save_fig=save_figure)
         if figure_to_plot == "compare_hospers_ashrae_weather":
             compare_hospers_ashrae_weather(save_fig=save_figure)
+        if figure_to_plot == "phs":
+            self.phs_results(save_fig=save_figure)
 
     # ta = 40
     # rh = 20
