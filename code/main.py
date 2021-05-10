@@ -811,7 +811,7 @@ class DataAnalysis:
 
             for rh in np.arange(0, 105, 0.5):
 
-                for ta in np.arange(28, 66, 0.25):
+                for ta in np.arange(28, 66, 0.1):
 
                     r = use_fans_heatwaves(
                         ta,
@@ -2570,20 +2570,20 @@ if __name__ == "__main__":
     self = DataAnalysis()
 
     figures_to_plot = [
-        "gagge_results_physio_heat_loss",
-        "gagge_results_physiological",
-        "weather_data_world_map",
-        "heat_strain_different_v",
-        "ravanelli_comp",
-        "met_clo",
-        "summary_use_fans_weather",
-        "summary_use_fans_comparison_experimental",
-        "summary_use_fans_and_population_tdb_max",
-        "world_map_population_weather",
-        "table_list_cities",
-        "compare_hospers_ashrae_weather",
-        "sweat_rate",
-        "phs",
+        # "gagge_results_physio_heat_loss",
+        # "gagge_results_physiological",
+        # "weather_data_world_map",
+        # "heat_strain_different_v",
+        # "ravanelli_comp",
+        # "met_clo",
+        # "summary_use_fans_weather",
+        # "summary_use_fans_comparison_experimental",
+        # "summary_use_fans_and_population_tdb_max",
+        # "world_map_population_weather",
+        # "table_list_cities",
+        # "compare_hospers_ashrae_weather",
+        # "sweat_rate",
+        # "phs",
     ]
 
     save_figure = True
@@ -2688,3 +2688,16 @@ if __name__ == "__main__":
     #     / 1000
     # )
     # print(e)
+
+    # t = 46.87
+    # use_fans_heatwaves(
+    #     t,
+    #     t,
+    #     0.2,
+    #     10,
+    #     met=self.defaults["met"],
+    #     clo=self.defaults["clo"],
+    #     wme=0,
+    # )["heat_strain"]
+    #
+    # self.heat_strain[0.2][20]
