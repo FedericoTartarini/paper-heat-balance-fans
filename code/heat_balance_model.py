@@ -1,4 +1,6 @@
 import math
+
+import matplotlib.pyplot as plt
 from numba import njit
 
 
@@ -99,12 +101,12 @@ def fans_function_optimized(
     exc_p_wet = False  # reached max skin wettedness
 
     # Initial variables as defined in the ASHRAE 55-2017
-    air_velocity = max(v, 0.1)
+    air_speed = max(v, 0.1)
     body_weight = 69.9  # body weight in kg
     met_factor = 58.2  # met conversion factor
     sbc = 0.000000056697  # Stefan-Boltzmann constant (W/m2K4)
     c_sw = 170  # driving coefficient for regulatory sweating
-    c_dil = 200  # driving coefficient for vasodilation todo ashrae says 50 see page 195
+    c_dil = 200  # driving coefficient for vasodilation ashrae says 50 see page 195
     c_str = 0.5  # driving coefficient for vasoconstriction
 
     temp_skin_neutral = 33.7
@@ -134,22 +136,22 @@ def fans_function_optimized(
     m = met * met_factor  # metabolic rate
 
     if clo <= 0:
-        w_max = 0.38 * pow(air_velocity, -0.29)  # critical skin wettedness
+        w_max = 0.38 * pow(air_speed, -0.29)  # critical skin wettedness
         i_cl = 1.0  # permeation efficiency of water vapour through the clothing layer
     else:
-        w_max = 0.59 * pow(air_velocity, -0.08)  # critical skin wettedness
+        w_max = 0.59 * pow(air_speed, -0.08)  # critical skin wettedness
         i_cl = 0.45  # permeation efficiency of water vapour through the clothing layer
 
     # h_cc corrected convective heat transfer coefficient
     h_cc = 3.0 * pow(pressure_in_atmospheres, 0.53)
     # h_fc forced convective heat transfer coefficient, W/(m2 C)
-    h_fc = 8.600001 * pow((air_velocity * pressure_in_atmospheres), 0.53)
+    h_fc = 8.600001 * pow((air_speed * pressure_in_atmospheres), 0.53)
     h_cc = max(h_cc, h_fc)
 
     c_hr = 4.7  # linearized radiative heat transfer coefficient
-    CTC = c_hr + h_cc
-    r_a = 1.0 / (f_a_cl * CTC)  # resistance of air layer to dry heat
-    t_op = (c_hr * tr + h_cc * tdb) / CTC  # operative temperature
+    ctc = c_hr + h_cc
+    r_a = 1.0 / (f_a_cl * ctc)  # resistance of air layer to dry heat
+    t_op = (c_hr * tr + h_cc * tdb) / ctc  # operative temperature
 
     while i < length_time_simulation:
 
@@ -163,11 +165,12 @@ def fans_function_optimized(
 
         while not tc_converged:
 
-            c_hr = 4.0 * sbc * ((t_cl + tr) / 2.0 + 273.15) ** 3.0 * 0.72
-            CTC = c_hr + h_cc
-            r_a = 1.0 / (f_a_cl * CTC)
-            t_op = (c_hr * tr + h_cc * tdb) / CTC
-            # todo check this equation
+            # 0.7 is the ratio between the radiation area of the body and the body area
+            # 0.95 is the clothing emissivity
+            c_hr = 4.0 * 0.95 * sbc * ((t_cl + tr) / 2.0 + 273.15) ** 3.0 * 0.7
+            ctc = c_hr + h_cc
+            r_a = 1.0 / (f_a_cl * ctc)
+            t_op = (c_hr * tr + h_cc * tdb) / ctc
             t_cl_new = (r_a * temp_skin + r_clo * t_op) / (r_a + r_clo)
             if abs(t_cl_new - t_cl) <= 0.01:
                 tc_converged = True
@@ -178,14 +181,14 @@ def fans_function_optimized(
                 raise StopIteration("Max iterations heat_strain")
 
         dry = (temp_skin - t_op) / (r_a + r_clo)
-        # h_fcs rate of energy transport between core and skin, W
+        # hf_cs rate of energy transport between core and skin, W
         # 5.28 is the average body tissue conductance in W/(m2 C)
         # 1.163 is the thermal capacity of blood in Wh/(L C)
-        h_fcs = (temp_core - temp_skin) * (5.28 + 1.163 * skin_blood_flow)
+        hf_cs = (temp_core - temp_skin) * (5.28 + 1.163 * skin_blood_flow)
         q_res = 0.0023 * m * (44.0 - vapor_pressure)  # heat loss due to respiration
         c_res = 0.0014 * m * (34.0 - tdb)  # convective heat loss respiration
-        s_core = m - h_fcs - q_res - c_res - wme  # rate of energy storage in the core
-        s_skin = h_fcs - dry - e_sk  # rate of energy storage in the skin
+        s_core = m - hf_cs - q_res - c_res - wme  # rate of energy storage in the core
+        s_skin = hf_cs - dry - e_sk  # rate of energy storage in the skin
         tc_sk = 0.97 * alfa * body_weight  # thermal capacity skin
         tc_cr = 0.97 * (1 - alfa) * body_weight  # thermal capacity core
         d_t_sk = (s_skin * body_surface_area) / (
@@ -197,7 +200,7 @@ def fans_function_optimized(
         t_body = alfa * temp_skin + (1 - alfa) * temp_core  # mean body temperature, C
         # sk_sig thermoregulatory control signal from the skin
         sk_sig = temp_skin - temp_skin_neutral
-        warms = (sk_sig > 0) * sk_sig  # vasodilation signal
+        warm_sk = (sk_sig > 0) * sk_sig  # vasodilation signal
         colds = ((-1.0 * sk_sig) > 0) * (-1.0 * sk_sig)  # vasoconstriction signal
         # c_reg_sig thermoregulatory control signal from the skin, C
         c_reg_sig = temp_core - temp_core_neutral
@@ -207,7 +210,7 @@ def fans_function_optimized(
         c_cold = ((-1.0 * c_reg_sig) > 0) * (-1.0 * c_reg_sig)
         # bd_sig thermoregulatory control signal from the body
         bd_sig = t_body - temp_body_neutral
-        WARMB = (bd_sig > 0) * bd_sig
+        warm_b = (bd_sig > 0) * bd_sig
         skin_blood_flow = (skin_blood_flow_neutral + c_dil * c_warm) / (
             1 + c_str * colds
         )
@@ -216,7 +219,7 @@ def fans_function_optimized(
             exc_blood_flow = True
         if skin_blood_flow < 0.5:
             skin_blood_flow = 0.5
-        reg_sw = c_sw * WARMB * math.exp(warms / 10.7)  # regulatory sweating
+        reg_sw = c_sw * warm_b * math.exp(warm_sk / 10.7)  # regulatory sweating
         if reg_sw > 500.0:
             reg_sw = 500.0
             exc_reg_sw = True
@@ -268,11 +271,3 @@ def fans_function_optimized(
         hsk,
         q_res,
     ]
-
-
-if __name__ == "__main__":
-    print(
-        use_fans_heatwaves(tdb=47, tr=47, v=4.5, rh=10, met=1.1, clo=0.5, wme=0)[
-            "sweating_required"
-        ]
-    )
