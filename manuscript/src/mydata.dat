@@ -1,0 +1,13 @@
+increase_t_strain_v_08,1.6
+increase_t_strain_v_45,0.7
+increase_sensible_v_02_45,27.2
+increase_latent_v_02_45,43.0
+mean_abs_err_ravanelli,0.07
+per_location_fans_beneficial_08,96.0
+per_location_evaporative_cooling,4.0
+per_location_fans_beneficial_45,93.0
+cities_benefit_fan_08,103
+cities_benefit_fan_45,96
+cities_benefit_fan_02,98
+people_no_strain_still_air,543.1
+people_no_strain_v_08,588.0

@@ -5,7 +5,7 @@
 
 The energy balance model we used estimates how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
-In non uniform environments \ac{t-db} and \ac{v} are the average temperature and air speed measured at 0.1, 0.6, and 1.1~m above the ground for seated occupants and at 0.1, 1.1, and 1.7~m above the ground for standing occupants.
+In non uniform environments \ac{t-db} and \ac{v} are assumed to be equal to the average temperature and air speed measured at 0.1, 0.6, and 1.1~m above the ground for seated occupants and at 0.1, 1.1, and 1.7~m above the ground for standing occupants.
 
 Section~\ref{subsec:energy-balance} describes the main Equations used by the model to derive the results.
 
@@ -26,8 +26,6 @@ One of the main differences between our proposed model and the one used by \myci
 Calculating how \ac{t-sk} and \ac{t-cr} vary as a function of different environmental and personal factors allows us to better predict how much heat the body exchanges with its surrounding environment.
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental (\ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}), and personal factors (\ac{met}, and \ac{clo})~\cite{ASHRA2017}.
-% note OJ - Based on this text it is not clear how Tcr modifies heat exchange as stated n the previous paragraph - I don't think it should.
-
 The equations used to determine sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficients were estimated empirically~\cite{ASHRA2017}.
 
 \subsubsection{Body Surface Area}
@@ -51,17 +49,16 @@ Sensible heat loss from the human body mainly occurs from convection and radiati
 The total amount of \ac{c-r} can be described as a function of \ac{t-sk}, \ac{t-op}, \ac{r-cl}, \ac{f-cl}, and \ac{h}.
 The equation can be expressed as:
 
-% todo check that all the equations exactly match the equations in the SET code
 \begin{equation}
     C+R=\frac{t_{s k}-t_{o}}{R_{c l}+1 /\left(f_{c l} h\right)}\label{eq:c-r}
 \end{equation}
 
-\begin{equation}
-    f_{cl}=1.0 + 0.31 I_{cl} \label{eq:f-cl}
-\end{equation}
+%\begin{equation}
+%    f_{cl}=1.0 + 0.31 I_{cl} \label{eq:f-cl}
+%\end{equation}
 
 \begin{equation}
-    h=h_{c} + h_{r} = \max(3, 8.6 V^{0.53}) p_{atm}^{0.53} + 4 \varepsilon \sigma \frac{A_{\mathrm{r}}}{A_{body}}\left[273.2+\frac{\left(t_{\mathrm{cl}}+\overline{t_{r}}\right)}{2}\right]^{3}\label{eq:h}
+    h=h_{c} + h_{r} = \max(3.0, 8.6 V^{0.53}) p_{atm}^{0.53} + 4 \varepsilon \sigma \frac{A_{\mathrm{r}}}{A_{body}}\left[273.2+\frac{\left(t_{\mathrm{cl}}+\overline{t_{r}}\right)}{2}\right]^{3}\label{eq:h}
 \end{equation}
 
 Where the ratio between \ac{a-r} and \ac{body-a} is assumed to be 0.70 for a sitting person and 0.73 for a standing person~\cite{Fanger1967}.
@@ -93,6 +90,7 @@ The value of \ac{m-sweat} can be predicted by the deviation of \ac{t-sk} and \ac
 \end{equation}
 
 Where the \ac{c-sw} is assumed to be equal to 170~g/(hKm\textsuperscript{2}), the \ac{t-cr-n} is equal to 36.8~$^{\circ}$C and \ac{t-sk-n} is equal to 33.7~$^{\circ}$C\@.
+The values of \ac{t-sk} and \ac{t-cr} are calculated iteratively by solving the heat balance equation.
 The \ac{a} is determined using:
 
 \begin{equation}
@@ -120,10 +118,7 @@ In most situations, the upper limit of \ac{w} is lower than 1.
 
 On the other hand, \mycite{Jay2015} adjusted the value of \ac{w-max} based on fan use and age.
 For young adults, they assumed \ac{w-max} to be equal to 0.65 for the `fan on' condition and 0.85 for the `fan off' condition.
-% todo add references
 These values are higher than those estimated by the \mycite{GaggeSET} model.
-% note OJ I might be missing it but I am not clear where how sweating efficiency has been accommodated? As discussed on our call, at lower RH values sweat efficiency approaches 100% even with a fan so fan just add dry heat (if Ta>Tsk) without much increase in evaporation -this causes the real Ta/RH threshold curve for fan use to bend downwards to lower temperature (on the y-axis) at lower humidity values. I think this would be very important to include.
-% it is true that at lower RH values sweat efficiency approaches 100% even with a fan so fan just add dry heat (if Ta>Tsk) without much increase in evaporation and this is included in the model but the effect it is noticeable only for very high temperatures and low rh <10 see Figure 11
 
 \subsubsection{Respiratory Losses, (\acs{q-res})}
 The human body exchanges both sensible and latent heat with its environment.
@@ -137,8 +132,7 @@ The value of \ac{q-res} is can be determined using the following simplified equa
 \subsection{Data Analysis}\label{subsec:data-analysis}
 
 The heat balance model was used to estimate sensible and latent heat loss and several physiological parameters (e.g., \ac{m-sweat}, \ac{t-cr}).
-% todo check the following
-We calculated the results for \ac{t-op} ranging from 28 to 55~$^{\circ}$C at 0.5~$^{\circ}$C intervals, \ac{rh} ranging from 0 to 100~\% at 5~\% intervals and for the discrete values of \ac{v} = 0.2, 0.8 and 4.5~m/s.
+We calculated the results for three discrete values of \ac{v} = 0.2, 0.8 and 4.5~m/s.
 In this paper, we will be referring to `still air' condition when air velocities are below \ac{v}~=~0.2 m/s.
 This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017} and allowed us to compare our results with those obtained by \mycite{Jay2015}.
 We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5~clo, and \ac{met}~=~1.1~met, unless otherwise specified.
@@ -168,6 +162,7 @@ The \ac{phs} model is validated on a database including 747 lab experiments and 
 The \ac{phs} it is not validated for metabolic rates lower than 1.7 met (100 W/m\textsuperscript{2}), \ac{t-db} higher than 50~$^{\circ}$C and water vapour partial pressure ($p_{a}$) higher than 4~kPa.
 In this present study we are determining when fans should be used by individuals with a \ac{met}~=~1.1~met, hence, we will be using the \ac{phs} model outside its ranges of validity.
 We calculated the \ac{phs} using the \verb|pythermalcomfort| Python package~\cite{Tartarini2020a} function \verb|phs|.
+We assumed that elevated air speed are detrimental when the maximum allowable exposure time for heat storage estimated with a \ac{v}~=~0.8~m/s is higher than the value estimated with a \ac{v}~=~0.2~m/s.
 
 \subsection{Weather Data}\label{subsec:weather-data}
 
