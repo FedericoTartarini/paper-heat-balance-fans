@@ -5,7 +5,7 @@
 
 The energy balance model we used estimates how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
-In non uniform environments \ac{t-db} and \ac{v} are assumed to be equal to the average temperature and air speed measured at 0.1, 0.6, and 1.1~m above the ground for seated occupants and at 0.1, 1.1, and 1.7~m above the ground for standing occupants.
+In non uniform environments \ac{t-db} and \ac{v} are assumed to be equal to the average temperature and air speed measured at 0.1, 0.6, and 1.1~m height for seated occupants and at 0.1, 1.1, and 1.7~m for standing occupants.
 
 Section~\ref{subsec:energy-balance} describes the main Equations used by the model to derive the results.
 
@@ -24,6 +24,7 @@ This equation assumes that the body comprises two main thermal compartments: the
 If the exogenous and endogenous heat gains cannot be compensated by heat loss, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
 One of the main differences between our proposed model and the one used by \mycite{Jay2015} is that their model does not account for heat stored in the core or the skin compartment, hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
 Calculating how \ac{t-sk} and \ac{t-cr} vary as a function of different environmental and personal factors allows us to better predict how much heat the body exchanges with its surrounding environment.
+% todo SS add reference
 
 The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental (\ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}), and personal factors (\ac{met}, and \ac{clo})~\cite{ASHRA2017}.
 The equations used to determine sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficients were estimated empirically~\cite{ASHRA2017}.
@@ -37,6 +38,7 @@ Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of th
     A_{body} = 0.202 mass^{0.425} height^{0.725}\label{eq:dubois}
 \end{equation}
 
+% todo SS this is a good addition. Could you also add the key quartiles (2.5; 5; 25; 50; 75; 95, 97.5) for male and female? I am concern that 1.8 may be ok for some groups but not for others.
 In thermal comfort research, this value is generally assumed to be constant and equal to 1.8 m$^{2}$.
 \mycite{Jay2015} also consider this value to be constant, however, it should be noted that this is an approximation.
 Several other equations have been developed to estimate \ac{body-a} and we allow users to specify \ac{body-a} as the input value.
@@ -136,7 +138,8 @@ We calculated the results for three discrete values of \ac{v} = 0.2, 0.8 and 4.5
 In this paper, we will be referring to `still air' condition when air velocities are below \ac{v}~=~0.2 m/s.
 This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017} and allowed us to compare our results with those obtained by \mycite{Jay2015}.
 We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5~clo, and \ac{met}~=~1.1~met, unless otherwise specified.
-It could be argued that some people during heatwaves may be wearing fewer clothes than that, hence, a value of \ac{clo} equal to 0.36 clo (i.e., walking shorts, short-sleeve shirt, and sandals) would be more appropriate, however, we wanted to use a more conservative value.
+It could be argued that some people during heatwaves may be wearing much fewer clothes than that, hence, a value of \ac{clo} equal to 0.22 clo (i.e., walking shorts, short-sleeve shirt, and sandals) would be more appropriate, however, we wanted to use a more conservative value.
+% todo ss for sandals+men underwear, walking shorts and T-shirt I got 0.22 in the comfort tool. I would argue that during a heat wave I may even get rid of t-shirt. Moreover, for example for a female:  sandals,  walking shorts and bra=0.14. I would give at least two examples.
 Results for different combinations of environmental and personal conditions can be generated using our online tool.
 In this manuscript, we assumed the \ac{i-cl} to be constant and equal to 1 and 0.45, as assumed by \mycite{GaggeSET}, for naked and clothed people, respectively.
 Users can, however, change this value in the source code.
@@ -160,6 +163,7 @@ It allows to predict the sweat rate and \ac{t-re} that the human body will devel
 The \ac{phs} model as described in the ISO 7933 Standard does not predict the physiological response of individual subjects and aims to evaluate working conditions for a standard subjects in good health and fit for the work~\cite{iso7933}.
 The \ac{phs} model is validated on a database including 747 lab experiments and 366 field experiments, from 8 research institutions~\cite{iso7933}.
 The \ac{phs} it is not validated for metabolic rates lower than 1.7 met (100 W/m\textsuperscript{2}), \ac{t-db} higher than 50~$^{\circ}$C and water vapour partial pressure ($p_{a}$) higher than 4~kPa.
+% todo SS report this in absolute HR
 In this present study we are determining when fans should be used by individuals with a \ac{met}~=~1.1~met, hence, we will be using the \ac{phs} model outside its ranges of validity.
 We calculated the \ac{phs} using the \verb|pythermalcomfort| Python package~\cite{Tartarini2020a} function \verb|phs|.
 We assumed that elevated air speed are detrimental when the maximum allowable exposure time for heat storage estimated with a \ac{v}~=~0.8~m/s is higher than the value estimated with a \ac{v}~=~0.2~m/s.
@@ -184,6 +188,7 @@ We do not show data from stations with a maximum temperature lower than 26~$^\ci
 
 Few data are available for Sub-Saharan Africa where approximately 40~\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
 
+% todo SS I would report only the constant humidity ratio and mention that another method was explore and this was found to be superior. All the details are in the appendix. These two methods are moving the focus of the reader to a secondary aspect for the overall paper.
 In order to determine the coincident value of \ac{rh} when the maximum extreme \ac{t-db} with a 20 year return period was recorded we used the following two methods:
 
 \textit{Constant humidity ratio} -- Firstly, we determined the humidity ratio for each location using the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
@@ -197,16 +202,15 @@ This is an approximation and it is arguably overestimating the most extreme cond
 
 We compared the results, obtained using both models, to the data that \mycite{Hospers2020} reported in their manuscript.
 \mycite{Hospers2020} obtained hourly data for the 100 most populous metropolitan areas in the U.S.\ from January 1st, 2000 to December 31st, 2019.
-They purchased the data from fromCustomWeather (CustomWeather, Inc., 271Miller AvenueMill Valley, CA, USA 94941).
+They purchased the data from CustomWeather (CustomWeather, Inc., 271Miller Avenue, Mill Valley, CA, USA 94941).
 From this dataset they determined the peak \ac{t-db} and corresponding \ac{rh} for each location.
 Results of this comparison are presented in \ref{sec:validation_rh}.
 We concluded that the constant humidity ratio assumption led to more accurate results than the other proposed method.
 
 We also assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
-Conditions indoors may, however, be slightly less severe than outdoors since the thermal mass of the building may dump and shift peaks in outdoor temperature.
+Conditions indoors may, however, be less severe than outdoors since the thermal mass of the building may dump and shift peaks in outdoor temperature.
 At the same time, the opposite scenario can also occur if there is a significant amount of internal load or solar gains indoors.
-We are aware that this assumption has some limitations and may be inaccurate, however, we deemed to be an acceptable approximation since no other approach would have lead to better results.
-One possible solution to this problem is simulating several building archetypes under different climatic conditions.
+We are aware that this assumption has some limitations, however, we deemed to be an acceptable approximation since available alternative may have not lead to better results. One possible solution was to simulate several building archetypes under different climatic conditions.
 However, we would still have to make assumptions such as, internal loads, geometry, building materials.
 This would ultimately have lead to uncertainties in the estimation of \ac{t-db}.
 Moreover, we did not have access to the timeseries data for the past 20 years for those 5000 stations.
