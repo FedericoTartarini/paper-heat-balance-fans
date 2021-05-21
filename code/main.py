@@ -2561,11 +2561,48 @@ def compare_hospers_ashrae_weather(save_fig=True):
         plt.show()
 
 
+def calculate_t_rh_combinations_enthalpy():
+    # # calculations for the introduction section
+    e_dry = psychrolib.GetMoistAirEnthalpy(
+        47, psychrolib.GetHumRatioFromRelHum(47, 0.15, 101325)
+    )
+
+    save_var_latex("enthalpy_47_15", round(e_dry / 1000))
+
+    e_humid = np.round(
+        psychrolib.GetMoistAirEnthalpy(
+            40, psychrolib.GetHumRatioFromRelHum(40, 0.51, 101325)
+        )
+        / 1000
+    )
+
+    save_var_latex("enthalpy_40_51", e_humid)
+
+    rh_t_40_enthalpy_47_15 = np.round(
+        psychrolib.GetRelHumFromHumRatio(
+            40, psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(e_dry, 40), 101325
+        )
+        * 100
+    )
+
+    save_var_latex("rh_t_40_enthalpy_47_15", rh_t_40_enthalpy_47_15)
+
+    rh_t_30_enthalpy_47_15 = np.round(
+        psychrolib.GetRelHumFromHumRatio(
+            30, psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(e_dry, 30), 101325
+        )
+        * 100
+    )
+
+    save_var_latex("rh_t_30_enthalpy_47_15", rh_t_30_enthalpy_47_15)
+
+
 if __name__ == "__main__":
 
     plt.close("all")
 
     # analyse_em_data()
+    # calculate_t_rh_combinations_enthalpy()
 
     self = DataAnalysis()
 
@@ -2636,28 +2673,6 @@ if __name__ == "__main__":
     #     variable="energy_balance", levels_cbar=np.arange(0, 200, 10)
     # )
     # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, 0.5))
-
-    # # # calculations for the introduction section
-    # e_dry = np.round(
-    #     psychrolib.GetMoistAirEnthalpy(
-    #         47, psychrolib.GetHumRatioFromRelHum(47, 0.15, 101325)
-    #     )
-    #     / 1000
-    # )
-    #
-    # e_humid = np.round(
-    #     psychrolib.GetMoistAirEnthalpy(
-    #         40, psychrolib.GetHumRatioFromRelHum(40, 0.5, 101325)
-    #     )
-    #     / 1000
-    # )
-    #
-    # np.round(
-    #     psychrolib.GetRelHumFromHumRatio(
-    #         40, psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(73007, 40), 101325
-    #     )
-    #     * 100
-    # )
 
     # plt.close("all")
     # plt.plot()
