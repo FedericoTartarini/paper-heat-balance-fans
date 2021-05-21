@@ -11,8 +11,16 @@
 
 \section{Validation methodology to calculate relative humidity}\label{sec:validation_rh}
 
-In this section we present the results obtained with the following methods: the \textit{constant humidity ratio}, and the \textit{coincident extreme conditions}, with the weather data from 42 cities from the \mycite{Hospers2020} dataset.
-More information about each model can be found in Section\ref{subsec:weather-data}.
+In this section we present the results obtained with the following methods: the \textit{constant humidity ratio} presented in Section~\ref{subsec:weather-data}, and the \textit{coincident extreme conditions}.
+
+\textit{Coincident extreme conditions} -- We estimated the value of \ac{rh} using the maximum extreme \ac{t-db} and \ac{t-wb} reported in the ASHRAE climate design dataset for each location.
+This method assumes that both temperatures would occur at the same time in each location.
+This is an approximation and it is arguably overestimating the most extreme condition because the likelihood of both conditions occurring at the same time is extremely low.
+
+We compared the results, obtained using the aforementioned models, to the data that \mycite{Hospers2020} reported in their manuscript.
+\mycite{Hospers2020} obtained hourly data for the 100 most populous metropolitan areas in the U.S.\ from January 1st, 2000 to December 31st, 2019.
+They purchased the data from CustomWeather (CustomWeather, Inc., 271Miller Avenue, Mill Valley, CA, USA 94941).
+From this dataset they determined the peak \ac{t-db} and corresponding \ac{rh} for each location.
 
 Figure~\ref{fig:scatter_comparison_prediction} shows the \ac{rh} values estimated using both models and the experimental data.
 The vertical error 0.7 (0.3, 1.0)~$^{\circ}$C [mean, (Q1, Q3)] is caused by the fact that \mycite{Hospers2020} data were include more recent weather observations than the ASHRAE dataset.

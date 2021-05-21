@@ -6,7 +6,7 @@ from mpl_toolkits.basemap import Basemap
 import numpy as np
 import pandas as pd
 from pythermalcomfort.psychrometrics import p_sat
-from pythermalcomfort.models import phs
+from pythermalcomfort.models import phs, set_tmp
 import math
 import seaborn as sns
 import os
@@ -2596,13 +2596,33 @@ def calculate_t_rh_combinations_enthalpy():
 
     save_var_latex("rh_t_30_enthalpy_47_15", rh_t_30_enthalpy_47_15)
 
+    hr_4_kpa = psychrolib.GetHumRatioFromVapPres(4000, 101325)
+
+    save_var_latex("hr_4_kpa", round(hr_4_kpa, 3))
+
+
+def effect_bsa_on_set():
+    results = []
+    for bsa in np.arange(1.7, 2.2, 0.1):
+        for t in range(20, 50, 2):
+            t_set = set_tmp(t, t, 0.2, 50, 1.2, 1, body_surface_area=bsa, round=True)
+            results.append([bsa, t, t_set])
+
+    df = pd.DataFrame(results, columns=["bsa", "tdb", "SET"])
+
+    df_heat = df.set_index(["bsa", "tdb"]).unstack("tdb")
+
+    plt.subplots(constrained_layout=True)
+    sns.heatmap(df_heat, annot=True, fmt=".1f")
+    plt.show()
+
 
 if __name__ == "__main__":
 
     plt.close("all")
 
     # analyse_em_data()
-    # calculate_t_rh_combinations_enthalpy()
+    calculate_t_rh_combinations_enthalpy()
 
     self = DataAnalysis()
 
