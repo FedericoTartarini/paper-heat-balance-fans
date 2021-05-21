@@ -1,5 +1,5 @@
 increase_t_strain_v_08,1.6
-increase_t_strain_v_45,0.7
+increase_t_strain_v_45,0.6
 increase_sensible_v_02_45,27.2
 increase_latent_v_02_45,43.0
 mean_abs_err_ravanelli,0.07
@@ -11,3 +11,7 @@ cities_benefit_fan_45,96
 cities_benefit_fan_02,98
 people_no_strain_still_air,543.1
 people_no_strain_v_08,588.0
+enthalpy_47_15,73.0
+enthalpy_40_51,102.0
+rh_t_40_enthalpy_47_15,28.0
+rh_t_30_enthalpy_47_15,63.0
