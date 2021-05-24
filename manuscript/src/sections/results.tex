@@ -9,7 +9,7 @@ The sensible heat loss from the skin to the environment is proportional to the d
 Consequently, for values of \ac{t-op} higher than \ac{t-sk} the body gains sensible heat from its environment and the term \ac{c-r} becomes negative.
 Figure~\ref{fig:comparison_models}A shows how sensible heat loss estimated with the \mycite{GaggeSET} and the \mycite{Jay2015} models vary as a function of \ac{t-op}, \ac{rh}, and \ac{v}.
 
-\begin{figure}[thb!]
+\begin{figure*}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_models_v2}
     \caption{Results obtained with the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET}.
@@ -19,13 +19,13 @@ Figure~\ref{fig:comparison_models}A shows how sensible heat loss estimated with 
     C) \Acf{e-max} estimated using \ac{w} = \ac{w-max}.
     D) \Acf{m-sweat}.}
     \label{fig:comparison_models}
-\end{figure}
+\end{figure*}
 
 The former model iteratively determines \ac{t-sk}, while the latter assumes it to be constant and equal to 35~$^{\circ}$C\@.
 When heat gains exceed heat losses, the \mycite{GaggeSET} model estimates that some heat energy is stored in the body and consequently \ac{t-sk} increases, as shown in Figure~\ref{fig:results_model_2}A and ~\ref{fig:results_model_2}C, respectively.
 This reduces the rate at which sensible heat gain increases as \ac{t-op} increases.
 
-\begin{figure}[thb!]
+\begin{figure*}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/results_model_2}
     \caption{Results obtained with \mycite{GaggeSET} energy model.
@@ -35,12 +35,13 @@ This reduces the rate at which sensible heat gain increases as \ac{t-op} increas
     C) \Acf{t-sk}.
     D) \Acf{t-cr}.}
     \label{fig:results_model_2}
-\end{figure}
+\end{figure*}
 
 The values of \ac{w} for two air speeds are shown in Figure~\ref{fig:comparison_models}B\@.
-The skin wettedness is allowed by the model to increase until it reaches the value of \ac{w-max}, after that, it plateaus and remains constant.
+The skin wettedness is allowed by the model to increase until it reaches the value of \ac{w-max}, after that, it plateaus and remains constant and thermal stress is expected to occur.
 For young adults, \mycite{Jay2015} assumed \ac{w-max} to be equal to 0.65 for the `fan on' condition and 0.85 for the `fan off' condition.
-From Figure~\ref{fig:comparison_models}B it can be observed that the values of \ac{w-max} estimated by the \mycite{GaggeSET} for the same air speeds are lower.
+The values of \ac{w-max} estimated by the \mycite{GaggeSET} for the same air speeds are lower (Figure~\ref{fig:comparison_models}B).
+% todo SS It is always better to be direct and use the active voice. There are several situations in the paper where the readability can be improved.
 The operative temperature at which \ac{w} equals \ac{w-max} is inversely proportional to the value of \ac{rh}.
 For \ac{t-op} higher than \ac{t-sk}, the negative effect that an increase in \ac{v} has on sensible heat gain is compensated by a greater increase in the \acf{e-sk} that the body can dissipate towards the surrounding environment.
 For example, when \ac{t-op}~=~45~$^{\circ}$C and \ac{rh}~=~30~\%, a change in \ac{v} from 0.2 to 4.5~m/s increases (\acs{c-r}) by \var{increase_sensible_v_02_45}~W/m\textsuperscript{2} while increasing \ac{e-sk} by \var{increase_latent_v_02_45}~W/m\textsuperscript{2}, which provides a net positive effect.
@@ -59,35 +60,21 @@ On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as 
 The excess heat stored in the human body (\acs{s-cr} + \acs{s-sk}), \ac{t-sk}, and \ac{t-cr} are shown in Figure~\ref{fig:results_model_2}A, \ref{fig:results_model_2}C, and \ref{fig:results_model_2}D, respectively.
 When the body cannot longer dissipate exogenous and endogenous heat gains, the excess heat gets stored in the human body causes \ac{t-sk} and \ac{t-cr} to raise.
 
-To validate the results of our model, we examined how the predicted value of \ac{t-cr} varies as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
-The results are shown in Figure~\ref{fig:comparison_ravanelli}.
-It should be noted that \mycite{Rate2015} only reported the core body temperature of one participant.
-% todo compare with the full dataset
-Consequently, despite the agreement with their experimental data (mean absolute error~=~\var{mean_abs_err_ravanelli}~$^{\circ}$C), more quantitative data will be needed for validation.
-
-\begin{figure}[thb!]
-    \centering
-    \includegraphics[width=0.5\textwidth]{figures/comparison_ravanelli}
-    \caption{Change in \acf{t-cr} as a function of \acf{rh}.
-    Where \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met.
-    The figure shows the results calculated using the \mycite{GaggeSET} model and those obtained experimentally by \mycite{Rate2015}.}
-    \label{fig:comparison_ravanelli}
-\end{figure}
-
 \subsection{Heat Stress}\label{subsec:heat-stress}
 
 The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat stress would start to occur is presented in Figure~\ref{fig:comparison_air_speed}.
 
 \begin{figure}[thb!]
+% todo SS maybe merge figure 5 and 6
     \centering
-    \includegraphics[width=\textwidth]{figures/comparison_air_speed}
+    \includegraphics[width=0.5\textwidth]{figures/comparison_air_speed}
     \caption{Predicted limits above which thermal strain is estimated to occur.
     The figure shows the results calculated using the \mycite{GaggeSET} model and the \mycite{Jay2015} models.
     Each line demarcates the point above which heat strain is expected to occur.}
     \label{fig:comparison_air_speed}
 \end{figure}
 
-Each line demarcates the conditions above which not all individuals would be able to compensate for endogenous and exogenous heat gains.
+Each line demarcates the conditions above which not all adult healthy individuals would be able to compensate for endogenous and exogenous heat gains and therefore, if possible, they should move avoid to be exposed to these conditions.
 The Figure shows the results obtained with both the \mycite{GaggeSET} and the \mycite{Jay2015} models.
 For a specific value of \ac{v}, the maximum \ac{t-op} at which heat strain is estimated to occur decreases as the value of \ac{rh} increases since, as previously shown, the value of \ac{e-max} is inversely proportional to \ac{rh}.
 In addition, it can be observed that for a specific value of \ac{rh}, as the value of \ac{v} grows, the overall increase in the maximum critical temperature rapidly decreases.
@@ -98,6 +85,8 @@ This can be explained by the fact, not shown in the Figures, that for low values
 Consequently, in the region where the heat stress curve for elevated air speeds is lower than the one for `still air' electric fan should not be used, unless the hot and dry air is pre-cooled to a point below the `elevated air speed' heat stress line.
 This can be achieved using passive cooling strategies such as evaporative cooling.
 Please see Section~\ref{subsec:model-validation-experimental-data} for more information.
+% todo schiavon: In this section I was hoping to find a direct, explicit and critical comparison between Jay and Gagge model, Gagge allows for the same temperature higher Rh im general (except lower RH). Is one better than other? Should we use Jay because is more conservative?
+
 
 \subsection{Metabolic Rate and Clothing}\label{subsec:met-clo}
 
@@ -106,7 +95,7 @@ Results for people wearing light summer clothing (walking shorts, short-sleeve s
 
 \begin{figure}[thb!]
     \centering
-    \includegraphics[width=\textwidth]{figures/met_clo}
+    \includegraphics[width=0.5\textwidth]{figures/met_clo}
     \caption{Each line demarcates how different combinations of personal factors (e.g., \ac{met}, \ac{clo}) and environmental factors affect the point above which the body cannot longer dissipate all the endogenous and exogenous heat gains.}
     \label{fig:met_clo}
 \end{figure}
@@ -118,9 +107,26 @@ It should, however, be noted that these results are affected by \ac{i-cl}.
 
 \subsection{Model Validation Using Experimental Data}\label{subsec:model-validation-experimental-data}
 
-The environmental conditions above which the use of elevated air speeds would be detrimental according to or model is shown in Figure~\ref{fig:use_fans_experimental}.
+To validate the results of our model, we examined how the predicted value of \ac{t-cr} varies as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
+The results are shown in Figure~\ref{fig:comparison_ravanelli}.
+It should be noted that \mycite{Rate2015} only reported the core body temperature of one participant.
+% todo compare with the full dataset
+Consequently, despite the agreement with their experimental data (mean absolute error~=~\var{mean_abs_err_ravanelli}~$^{\circ}$C), more quantitative data will be needed for validation.
+% todo SS From this text it seems that the ONLY validation for the gagge model is this comparison with one subject that you did. Are you sure about this? I guess that there are papers out there that verified if Gagge model was accurate to predict core temperature. Given that you are not giving a real validation, maybe it is better to reference to more extensive valudations and remove this part. If this is the only validation, then consider moving it as appendix.
 
 \begin{figure}[thb!]
+    % todo check font size
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/comparison_ravanelli}
+    \caption{Change in \acf{t-cr} as a function of \acf{rh}.
+    Where \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met.
+    The figure shows the results calculated using the \mycite{GaggeSET} model and those obtained experimentally by \mycite{Rate2015}.}
+    \label{fig:comparison_ravanelli}
+\end{figure}
+
+The environmental conditions above which the use of elevated air speeds would be detrimental according to \mycite{GaggeSET} is shown in Figure~\ref{fig:use_fans_experimental}.
+
+\begin{figure*}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/summary_use_fans_comparison_experimental}
     \caption{The green area shows the environmental conditions in which the use of fans is beneficial since they provide additional cooling to the human body.
@@ -129,7 +135,7 @@ The environmental conditions above which the use of elevated air speeds would be
     The red area demarcates the region in which electric fans should not be used.
     }
     \label{fig:use_fans_experimental}
-\end{figure}
+\end{figure*}
 
 We used a red shading to highlight the region in which electric fans should not be used, while we used a green background to depict when elevated air speed can be used to cool the human body.
 
@@ -141,6 +147,7 @@ But we are emphasising on the importance of using evaporative cooling since we a
 The size of this `evaporative cooling' zone is proportional to the maximum air speed that the fan can generate.
 The `evaporative cooling' area is wider if \ac{v}~=~4.5~m/s (see Figure~\ref{fig:use_fans_experimental}) then if \ac{v}~=~0.8~m/s as shown in Figure~\ref{fig:energy_storage_delta}.
 We also plotted the lines above which thermal stress is expected to occur (see Figure~\ref{fig:comparison_air_speed} for more details).
+In the hatched area, while the use of fans is still beneficial, not all adult healthy individuals would be able to compensate for endogenous and exogenous heat gains and therefore, they may experience heat strain.
 
 % todo compare results in the above figure with the results obtained by Gagnon2017
 To validate our results we used experimental data previously published.
@@ -160,116 +167,72 @@ The \ac{phs} model fails to predict that fans should not be used for \ac{rh} val
 On the other hand \ac{phs} results are more conservative for high values of \ac{rh}, with the \ac{phs} model discouraging the use of elevated air speeds for \ac{t-db}~=~37.5~$^{\circ}$C and \ac{rh}~=~90~\%\@.
 It should be noted that these latter conditions are extremely rare and rarely occur worldwide.
 
-%\begin{figure}[thb!]
-%    \centering
-%    \begin{subfigure}[t]{0.49\textwidth}
-%        \centering
-%        \includegraphics[width=1\linewidth]{figures/gagge}
-%        \caption{
-%            Gagge
-%        }
-%        \label{fig:gagge}
-%    \end{subfigure}
-%    \hfill
-%    \begin{subfigure}[t]{0.49\textwidth}
-%        \centering
-%        \includegraphics[width=1\linewidth]{figures/phs_results}
-%        \caption{
-%            PHS - calculated using maximum allowable exposure time for heat storage
-%        }
-%        \label{fig:phs}
-%    \end{subfigure}
-%    \hfill
-%        \centering
-%    \begin{subfigure}[t]{.75\textwidth}
-%        \centering
-%        \includegraphics[width=1\linewidth]{figures/gagge_phs_overlay}
-%        \caption{
-%            overlay Gagge's and PHS results
-%        }
-%        \label{fig:gagge_phs}
-%    \end{subfigure}
-%    \hfill
-%        \centering
-%    \begin{subfigure}[t]{0.75\textwidth}
-%        \centering
-%        \includegraphics[width=1\linewidth]{figures/t_wb_extreme}
-%        \caption{
-%            Extreme wet-bulb temperatures recorded across the 5000 stations
-%        }
-%        \label{fig:t_wb_extreme}
-%    \end{subfigure}
-%\end{figure}
-
-\begin{figure}[thb!]
+\begin{figure*}[thb!]
+% todo SS I do not understand why you need the blue area and why you need to show the solid line and I would remove the solid line for v=0.2 m/s
     \centering
     \includegraphics[width=\textwidth]{figures/phs_gagge}
-    \caption{Comparison results obtained with \mycite{GaggeSET} (A) and \ac{phs} models (B).}
+    \caption{Comparison results obtained with \mycite{GaggeSET} (A) and \ac{phs} models (B).
+    For more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:use_fans_experimental}.}
     \label{fig:gagge_phs}
-\end{figure}
+\end{figure*}
 
 \subsection{Benefits of Using Electric Fans}\label{subsec:use-fans}
 
 To understand in which locations worldwide the use of electric fans would be beneficial, in Figure~\ref{fig:energy_storage_delta} we overlaid a plot showing the environmental conditions under which fans can be used with a scatter plot depicting the maximum extreme weather conditions recorded worldwide in more than 5000 stations.
 
-\begin{figure}[thb!]
+\begin{figure*}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/use_fans}
     \caption{Environmental conditions under which the use of electric fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:use_fans_experimental}.
     The dots show the maximum extreme climate conditions recorded over the last 20 years in more than 5000 locations worldwide.}
     \label{fig:energy_storage_delta}
-\end{figure}
+\end{figure*}
 
 We determined that in approximately \var{per_location_fans_beneficial_08}~\% of the locations the use of electric fans that can generate \ac{v} up to 0.8~m/s would be beneficial.
-This percentage decreases to \var{per_location_fans_beneficial_45}~\% if \ac{v} is increased to 4.5~m/s.
-This does not imply that on average increasing the \ac{v} from 0.8~m/s to 4.5~m/s has an overall negative effect.
-On the other hand, the opposite is true and increasing \ac{v} is beneficial in \var{per_location_fans_beneficial_45}~\% of the locations worldwide.
-However, in a few locations characterized by temperature above approximately 44~$^{\circ}$C and \ac{rh} lower than 35~\% increasing \ac{v} from 0.8~m/s to 4.5~m/s would be detrimental.
-The same is true for approximately \var{per_location_evaporative_cooling}~\% where electric fans should not be used unless any form of cooling (including evaporative cooling) is used to pre-cool the air to any point in the green region.
+In \var{per_location_evaporative_cooling}~\% electric fans should not be used unless any form of cooling (including evaporative cooling) is used to pre-cool the air to any point in the green region.
 
 To better quantify how many people would benefit from the use of electric fans we combined the city population with the weather data.
 The former contained data from the 115 most populous cities worldwide.
 We plotted the data in Figure~\ref{fig:map-population-temperature}.
 
-\begin{figure}[thb!]
+\begin{figure*}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/map-population-temperature}
     \caption{Most populous 115 cities worldwide}
     \label{fig:map-population-temperature}
-\end{figure}
+\end{figure*}
 
 Each marker shows where the city is located, the dot size is proportional to the number of people living in that urban area, while the color shows the extreme \ac{t-db} recorded in that city.
 In 2020, a total of approximately 650 million people (8~\% percent of the global population) lived in the urban agglomerate of the 115 largest cities.
 In 95 of these cities, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and their total population was approximately 550 million people.
 
 We estimated that \var{cities_benefit_fan_08} of the most populous cities the use of electric fans that can generate \ac{v} up to 0.8~m/s would be beneficial.
-This number decreases to \var{cities_benefit_fan_45} for \ac{v} up to 4.5~m/s
-The \mycite{GaggeSET} model predicted that healthy adults living in \var{cities_benefit_fan_02} cities (approximately \var{people_no_strain_still_air} million inhabitants) should not experience heat strain even without increasing air movement.
+The \mycite{GaggeSET} model predicted that healthy adults living in \var{cities_benefit_fan_02} cities (approximately \var{people_no_strain_still_air} million inhabitants) should not experience heat strain even without increasing air movement. 
 However, they should still be encouraged in using electric fans to improve their thermal conditions in an energy-efficient way.
 The model also predicts that \var{people_no_strain_v_08} million inhabitants would be better off using electric fans (\ac{v} up to 0.8~m/s) rather than not using them and they should not experience heat strain.
 
-\begin{figure}[thb!]
+\begin{figure*}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/use_fans_and_population}
     \caption{Environmental conditions under which the use of electric fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:energy_storage_delta}.
     Each dot shows the maximum extreme climate conditions recorded over the last 20 years in each of the 115 most populous cities worldwide.
-    These results were calculated assuming \ac{t-r}~=~\ac{t-db}, \ac{clo}~=~0.35~clo, \ac{met}~=~1.0~met.}
+    These results were calculated assuming \ac{t-r}~=~\ac{t-db}, \ac{clo}~=~0.36~clo, \ac{met}~=~1.0~met.}
     \label{fig:use_fans_and_population}
-\end{figure}
+\end{figure*}
 
-%\begin{figure}[thb!]
+%\begin{figure*}[thb!]
 %    \centering
 %    \includegraphics[width=\textwidth]{figures/use_fans_and_population_twb_max_cool_db}
 %    \caption{Scenario in which we use the extreme wet-bulb temperature together with the cooling dry-bulb temperature}
 %    \label{fig:use_fans_and_population_twb_max_cool_db}
-%\end{figure}
+%\end{figure*}
 %
-%\begin{figure}[thb!]
+%\begin{figure*}[thb!]
 %    \centering
 %    \includegraphics[width=\textwidth]{figures/use_fans_and_population_twb_max_db_max}
 %    \caption{Scenario in which we assume both the extreme wet-bulb and dry-bulb temperature to happen at the same time}
 %    \label{fig:use_fans_and_population_twb_max_db_max}
-%\end{figure}
+%\end{figure*}
 
 \subsection{Sweat Rate}\label{subsec:sweat-rate}
 
@@ -278,18 +241,18 @@ In most of the combinations of \acf{t-db} and \acf{rh} the predicted values of \
 On the other hand, \ac{m-sweat} are higher with fan use when \ac{rh} is lower than 10~\%.
 This can be explained by the fact that with very low \ac{rh} the sweat would evaporate anyway from the skin, however, more sweat is needed to compensate for the additional sensible heat gains.
 
-\begin{figure}[thb!]
+\begin{figure*}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/sweat_rate}
     \caption{Predicted \acf{m-sweat} at different combinations of \acf{t-db} and \acf{rh} for two values \acf{v}~=~0.2~m/s and 0.8~m/s.}
     \label{fig:sweat_rate}
-\end{figure}
+\end{figure*}
 
-%\begin{figure}[thb!]
+%\begin{figure*}[thb!]
 %    \centering
 %    \includegraphics[width=\textwidth]{figures/sweat_rate_phs}
 %    \caption{Predicted \acf{m-sweat} at different combinations of \acf{t-db} and \acf{rh} for two values \acf{v}~=~0.2~m/s and 0.8~m/s by the PHS model.}
 %    \label{fig:sweat_rate_phs}
-%\end{figure}
+%\end{figure*}
 
 % note OJ Did you compare these estimated data to those reported in our physiological studies? Might be helpful

@@ -37,7 +37,6 @@ Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of th
     A_{body} = 0.202 mass^{0.425} height^{0.725}\label{eq:dubois}
 \end{equation}
 
-% todo SS this is a good addition. Could you also add the key quartiles (2.5; 5; 25; 50; 75; 95, 97.5) for male and female? I am concern that 1.8 may be ok for some groups but not for others.
 In thermal comfort research, this value is generally assumed to be constant and equal to 1.8 m$^{2}$.
 \mycite{Jay2015} also consider this value to be constant, however, it should be noted that this is an approximation.
 Several other equations have been developed to estimate \ac{body-a} and we allow users to specify \ac{body-a} as the input value.
@@ -137,8 +136,7 @@ We calculated the results for three discrete values of \ac{v} = 0.2, 0.8 and 4.5
 In this paper, we will be referring to `still air' condition when air velocities are below \ac{v}~=~0.2 m/s.
 This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017} and allowed us to compare our results with those obtained by \mycite{Jay2015}.
 We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5~clo, and \ac{met}~=~1.1~met, unless otherwise specified.
-It could be argued that some people during heatwaves may be wearing much fewer clothes than that, hence, a value of \ac{clo} equal to 0.22 clo (i.e., walking shorts, short-sleeve shirt, and sandals) would be more appropriate, however, we wanted to use a more conservative value.
-% todo ss for sandals+men underwear, walking shorts and T-shirt I got 0.22 in the comfort tool. I would argue that during a heat wave I may even get rid of t-shirt. Moreover, for example for a female:  sandals,  walking shorts and bra=0.14. I would give at least two examples.
+It could be argued that some people during heatwaves may be wearing much fewer clothes than that, hence, a value of \ac{clo} equal to 0.36~clo (i.e., walking shorts, short-sleeve shirt, underwear, socks and shoes) or 0.37~clo (i.e., short-sleeve dress, underwear, bra, socks and shoes) would be more appropriate, however, we wanted to use a more conservative value.
 Results for different combinations of environmental and personal conditions can be generated using our online tool.
 In this manuscript, we assumed the \ac{i-cl} to be constant and equal to 1 and 0.45, as assumed by \mycite{GaggeSET}, for naked and clothed people, respectively.
 Users can, however, change this value in the source code.
@@ -177,12 +175,12 @@ For more information about the ASHRAE climate design dataset please refer to Cha
 The location of the stations and their respective maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}.
 We do not show data from stations with a maximum temperature lower than 26~$^\circ$C\@ since we are only interested in assessing the benefit of using fans during hot days.
 
-\begin{figure}[thb!]
+\begin{figure*}[thb!]
     \centering
     \includegraphics[width=\textwidth]{figures/world-map}
     \caption{Shows the location of each weather station that was included in the analysis and the maximum extreme dry-bulb temperature with a 20 year return period.}
     \label{fig:world-map}
-\end{figure}
+\end{figure*}
 
 Few data are available for Sub-Saharan Africa where approximately 40~\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
 
