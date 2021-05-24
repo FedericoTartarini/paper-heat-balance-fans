@@ -2503,7 +2503,7 @@ def compare_hospers_ashrae_weather(save_fig=True):
     # drop data from LA and oxnard since have some issues
     df_merged = df_merged[~df_merged["City"].isin(["los angeles", "oxnard"])]
 
-    fig, axs = plt.subplots(1, 1, sharex=True, figsize=(fig_size["2c"], 3.78))
+    fig, axs = plt.subplots(1, 1, sharex=True, figsize=(fig_size["1c"], 2.5))
     df_plot = df_merged[["Constant HR", "Concurrent extreme"]].unstack().reset_index()
     df_plot.columns = ["model", "constant", "Delta relative humidity (RH) [%]"]
     df_plot.constant = "1"
@@ -2518,11 +2518,18 @@ def compare_hospers_ashrae_weather(save_fig=True):
         cut=0,
         data=df_plot,
         inner="quartile",
-        palette=self.colors,
+        palette=self.colors[1:],
     )
     plt.xlabel("")
     plt.grid(c="lightgray")
-    plt.legend(frameon=False)
+    plt.legend(
+        bbox_to_anchor=(0, 1.02, 1, 0.2),
+        loc="lower left",
+        mode="expand",
+        borderaxespad=0,
+        frameon=False,
+        ncol=2,
+    )
     sns.despine(left=True, bottom=True, right=True, top=True)
     axs.get_xaxis().set_ticks([])
     plt.tight_layout()
@@ -2566,7 +2573,7 @@ def compare_hospers_ashrae_weather(save_fig=True):
     axs[1].scatter(
         df_merged["rh_wb_extr"],
         df_merged[temperature_ref],
-        c=self.colors[1],
+        c=self.colors[3],
         label="Concurrent extreme",
     )
     for ix, row in df_merged.iterrows():
