@@ -31,13 +31,15 @@ chart_labels = {
     "top": r"Operative temperature ($t_{o}$) [°C]",
 }
 
+fig_size = {"1c": 3.47, "2c": 7.22}
+
 
 class DataAnalysis:
     def __init__(self):
         self.dir_figures = os.path.join(os.getcwd(), "manuscript", "src", "figures")
         self.dir_tables = os.path.join(os.getcwd(), "manuscript", "src", "tables")
 
-        self.ta_range = np.arange(28, 60, 0.5)
+        self.ta_range = np.arange(30, 60, 0.5)
         self.v_range = [0.2, 0.8, 4.5]
         self.rh_range = np.arange(0, 105, 5)
         self.defaults = {
@@ -45,29 +47,8 @@ class DataAnalysis:
             "met": 1.1,
         }
 
-        self.colors = ["#3B7EA1", "#C4820E", "#003262", "#FDB515"]
-        self.colors_f3 = ["tab:gray", "#3B7EA1", "#C4820E"]
-
-        self.heat_strain_file = "heat_strain.npy"
-        try:
-            open(os.path.join("code", self.heat_strain_file))
-
-        except FileNotFoundError:
-            self.heat_strain_different_v(save_fig=True)
-
-        self.heat_strain = np.load(
-            os.path.join("code", self.heat_strain_file), allow_pickle="TRUE"
-        ).item()
-
-        # benefit of increasing air speed on heat strain temperature
-        save_var_latex(
-            "increase_t_strain_v_08",
-            round(self.heat_strain[0.8][60] - self.heat_strain[0.2][60], 1),
-        )
-        save_var_latex(
-            "increase_t_strain_v_45",
-            round(self.heat_strain[4.5][60] - self.heat_strain[0.8][60], 1),
-        )
+        self.colors = ["#00B0DA", "#003262", "#FDB515", "#D9661F"]
+        self.colors_f3 = ["#3B7EA1", "#ED4E33", "#C4820E"]
 
         self.heat_strain_ollie = {
             4.5: {
@@ -94,6 +75,26 @@ class DataAnalysis:
                 100.0980392: 29.12820513,
             },
         }
+
+        self.heat_strain_file = "heat_strain.npy"
+        try:
+            open(os.path.join("code", self.heat_strain_file))
+        except FileNotFoundError:
+            self.heat_strain_different_v(save_fig=True)
+
+        self.heat_strain = np.load(
+            os.path.join("code", self.heat_strain_file), allow_pickle="TRUE"
+        ).item()
+
+        # benefit of increasing air speed on heat strain temperature
+        save_var_latex(
+            "increase_t_strain_v_08",
+            round(self.heat_strain[0.8][60] - self.heat_strain[0.2][60], 1),
+        )
+        save_var_latex(
+            "increase_t_strain_v_45",
+            round(self.heat_strain[4.5][60] - self.heat_strain[0.8][60], 1),
+        )
 
         self.conn = sqlite3.connect(
             os.path.join(os.getcwd(), "code", "weather_ashrae.db")
@@ -159,8 +160,8 @@ class DataAnalysis:
     def weather_data_world_map(self, save_fig):
 
         # draw map contours
-        plt.figure(figsize=(7, 3.78))
-        [ax, m] = self.draw_map_contours(draw_par_mer="Yes")
+        plt.figure(figsize=(fig_size["2c"], 3.78))
+        [ax, m] = self.draw_map_contours(draw_par_mer="No")
 
         df = pd.read_sql(
             "SELECT wmo, lat, long, place, "
@@ -192,22 +193,29 @@ class DataAnalysis:
         # transform lon / lat coordinates to map projection
         proj_lon, proj_lat = m(df.long.values, df.lat.values)
 
+        cmap = plt.get_cmap("plasma")
+        new_cmap = truncate_colormap(cmap, 0.5, 1)
+
         sc = plt.scatter(
-            proj_lon, proj_lat, 10, marker="o", c=df["db_max"], cmap="plasma"
+            proj_lon, proj_lat, 10, marker="o", c=df["db_max"], cmap=new_cmap
         )
-        bounds = np.arange(
-            math.floor(df["db_max"].min()), math.ceil(df["db_max"].max()), 4
-        )
+        bounds = np.arange(36, 56, 4)
+        sc.cmap.set_under("dimgray")
+        sc.set_clim(35, 52)
         plt.colorbar(
             sc,
             fraction=0.1,
-            pad=0.1,
+            pad=0.02,
             aspect=40,
             label="Extreme dry-bulb air temperature ($t_{db}$) [°C]",
             ticks=bounds,
             orientation="horizontal",
+            extend="min",
         )
-        sns.despine(left=True, bottom=True, right=True, top=True)
+        [
+            ax.spines[x].set_color("lightgray")
+            for x in ["bottom", "top", "left", "right"]
+        ]
         plt.tight_layout()
         if save_fig:
             plt.savefig(os.path.join(self.dir_figures, "world-map.png"), dpi=300)
@@ -216,8 +224,12 @@ class DataAnalysis:
 
     def gagge_results_physio_heat_loss(self, save_fig=True):
 
-        fig_0, ax_0 = plt.subplots(4, 2, figsize=(7, 8), sharex="all", sharey="row")
-        fig_1, ax_1 = plt.subplots(2, 2, figsize=(7, 7), sharex="all")
+        fig_0, ax_0 = plt.subplots(
+            4, 2, figsize=(fig_size["2c"], 8), sharex="all", sharey="row"
+        )
+        fig_1, ax_1 = plt.subplots(
+            2, 2, figsize=(fig_size["2c"], fig_size["2c"]), sharex="all"
+        )
 
         index_color = 0
 
@@ -252,6 +264,18 @@ class DataAnalysis:
                 color = self.colors[index_color]
                 index_color += 1
 
+                if v > 1:
+                    fan_on = True
+                else:
+                    fan_on = False
+
+                if rh > 50:
+                    lw = 1
+                    alpha = 1
+                else:
+                    lw = 2.5
+                    alpha = 1
+
                 for ta in self.ta_range:
 
                     r = use_fans_heatwaves(
@@ -279,18 +303,6 @@ class DataAnalysis:
                     )
                     skin_wettedness.append(r["skin_wettedness"])
 
-                    if v > 1:
-                        fan_on = True
-                    else:
-                        fan_on = False
-
-                    if rh > 50:
-                        lw = 1
-                        alpha = 1
-                    else:
-                        lw = 3
-                        alpha = 0.75
-
                     r = ollie(fan_on, ta, rh, is_elderly=False)
 
                     dry_heat_loss_ollie.append(r["hl_dry"])
@@ -305,11 +317,14 @@ class DataAnalysis:
                     x if x > 0 else np.nan for x in sensible_skin_heat_loss_ollie
                 ]
 
-                label = f"V = {v}m/s; RH = {rh}%;"
+                label = f"V = {v} m/s; RH = {rh} %;"
 
                 ax_0[0][0].plot(self.ta_range, dry_heat_loss, color=color, label=label)
                 ax_0[0][1].plot(
-                    self.ta_range, dry_heat_loss_ollie, color=color, label=label
+                    self.ta_range,
+                    dry_heat_loss_ollie,
+                    color=color,
+                    label=label,
                 )
                 ax_0[1][0].plot(
                     self.ta_range, sensible_skin_heat_loss, color=color, label=label
@@ -341,9 +356,15 @@ class DataAnalysis:
                     linewidth=lw,
                     alpha=alpha,
                 )
+
                 ax_1[0][1].plot(
-                    self.ta_range, skin_wettedness, color=color, label=label
+                    self.ta_range,
+                    skin_wettedness,
+                    color=color,
+                    label=label,
+                    linewidth=lw,
                 )
+
                 # ax_1[0][1].plot(
                 #     [28, 55],
                 #     w_crit_ollie,
@@ -417,7 +438,7 @@ class DataAnalysis:
         ax_1[0][0].set(
             ylim=(-201, 100), ylabel="Sensible heat loss skin (C + R) [W/m$^2$]"
         )
-        ax_1[0][1].set(ylim=(-0.01, 0.9), ylabel="Skin wettendess (w)")
+        ax_1[0][1].set(ylim=(-0.01, 0.7), ylabel="Skin wettendess (w)")
         ax_1[1][1].set(
             ylim=(-1, 600),
             xlabel=chart_labels["top"],
@@ -495,7 +516,9 @@ class DataAnalysis:
 
     def gagge_results_physiological(self, save_fig=True):
 
-        fig_1, ax_1 = plt.subplots(2, 2, figsize=(7, 7), sharex="all")
+        fig_1, ax_1 = plt.subplots(
+            2, 2, figsize=(fig_size["2c"], fig_size["2c"]), sharex="all"
+        )
 
         index_color = 0
 
@@ -532,7 +555,7 @@ class DataAnalysis:
                     temp_skin.append(r["temp_skin"])
                     skin_wettedness.append(r["skin_wettedness"])
 
-                label = f"V = {v}m/s; RH = {rh}%"
+                label = f"V = {v} m/s; RH = {rh} %"
 
                 ax_1[0][0].plot(
                     self.ta_range,
@@ -726,7 +749,7 @@ class DataAnalysis:
 
     def comparison_ravanelli(self, save_fig=True):
 
-        f, ax = plt.subplots(figsize=(4, 3), sharex="all")
+        f, ax = plt.subplots(figsize=(fig_size["1c"], 3), sharex="all")
 
         ravanelli = [
             [20.834201219379903, -0.0007788904784615802],
@@ -755,28 +778,29 @@ class DataAnalysis:
 
         for rh in df_ravanelli[0]:
 
-            r = use_fans_heatwaves(ta, ta, v, rh, 1, 0.35, wme=0)
+            r = use_fans_heatwaves(ta, ta, v, rh, 1, 0.36, wme=0)
 
             tmp_core.append(r["temp_core"] - 37.204)
 
         # # the above temperature which I am subtracting was calculated using the below eq
         # np.mean([x for x in tmp_core if x < 37.24])
 
-        ax.plot(df_ravanelli[0], tmp_core, label="Gagge et al.(1986)", c="#3B7EA1")
+        ax.plot(df_ravanelli[0], tmp_core, label="Gagge et al.(1986)", c="k")
 
         ax.scatter(
             df_ravanelli[0],
             df_ravanelli[1],
             label="Ravanelli et al. (2015)",
-            c="#3B7EA1",
+            c="k",
         )
 
+        mae = round(mean_absolute_error(tmp_core, df_ravanelli[1].values), 2)
         save_var_latex(
             "mean_abs_err_ravanelli",
-            round(mean_absolute_error(tmp_core, df_ravanelli[1].values), 2),
+            mae,
         )
 
-        ax.grid(c="lightgray")
+        ax.text(20, 0.7, f"mean absolute error = {mae} °C", fontsize=9)
 
         ax.set(
             ylabel=r"Change in core temperature ($t_{cr}$) [°C]",
@@ -787,7 +811,10 @@ class DataAnalysis:
             frameon=False,
         )
 
-        sns.despine(left=True, bottom=True, right=True)
+        [
+            ax.spines[x].set_color("lightgray")
+            for x in ["bottom", "top", "left", "right"]
+        ]
         f.tight_layout()
         plt.subplots_adjust(top=0.92)
         if save_fig:
@@ -799,7 +826,7 @@ class DataAnalysis:
 
     def heat_strain_different_v(self, save_fig=False):
 
-        fig, ax = plt.subplots(figsize=(7, 6))
+        fig, ax = plt.subplots(figsize=(fig_size["1c"], 4))
         ax.grid(c="lightgray")
 
         heat_strain = {}
@@ -811,7 +838,7 @@ class DataAnalysis:
 
             for rh in np.arange(0, 105, 0.5):
 
-                for ta in np.arange(28, 66, 0.1):
+                for ta in np.arange(30, 66, 0.1):
 
                     r = use_fans_heatwaves(
                         ta,
@@ -841,8 +868,8 @@ class DataAnalysis:
                 ax.plot(
                     self.heat_strain_ollie[v].keys(),
                     self.heat_strain_ollie[v].values(),
-                    linestyle="-.",
-                    label=f"V = {v}; Jay et al. (2015)",
+                    linestyle="--",
+                    label=f"V = {v} m/s; Jay et al. (2015)",
                     c=color,
                 )
 
@@ -854,12 +881,13 @@ class DataAnalysis:
             for x_val, y_val in zip(x, y_smoothed):
                 heat_strain[v][x_val] = y_val
 
-            ax.plot(
-                x,
-                y_smoothed,
-                label=f"V = {v}m/s; Gagge et al. (1986)",
-                c=color,
-            )
+            if v != 0.8:
+                ax.plot(
+                    x,
+                    y_smoothed,
+                    label=f"V = {v} m/s; Gagge et al. (1986)",
+                    c=color,
+                )
 
         print([x[1] for x in heat_strain[0.2].items()])
 
@@ -871,12 +899,18 @@ class DataAnalysis:
         ax.set(
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
-            ylim=(29, 50),
+            ylim=(29.9, 50),
             xlim=(-1, 100),
         )
 
         sns.despine(left=True, bottom=True, right=True)
-        plt.legend(frameon=False)
+        plt.legend(
+            bbox_to_anchor=(0, 1.02, 1, 0.2),
+            loc="lower left",
+            mode="expand",
+            borderaxespad=0,
+            frameon=False,
+        )
 
         plt.tight_layout()
         if save_fig:
@@ -888,7 +922,7 @@ class DataAnalysis:
 
     def met_clo(self, save_fig):
 
-        fig, ax = plt.subplots(figsize=(7, 6))
+        fig, ax = plt.subplots(figsize=(fig_size["1c"], 4))
 
         heat_strain = {}
 
@@ -929,7 +963,7 @@ class DataAnalysis:
                 ax.plot(
                     x,
                     y_smoothed,
-                    label=f"V = {v}, clo = {clo}, met = {met}",
+                    label=f"V = {v} m/s, clo = {clo}, met = {met}",
                     c=color,
                     linestyle=ls,
                 )
@@ -943,13 +977,19 @@ class DataAnalysis:
         ax.set(
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
-            ylim=(29, 50),
+            ylim=(29.9, 50),
             xlim=(-1, 100),
         )
 
         sns.despine(left=True, bottom=True, right=True)
 
-        plt.legend(frameon=False)
+        plt.legend(
+            bbox_to_anchor=(0, 1.02, 1, 0.2),
+            loc="lower left",
+            mode="expand",
+            borderaxespad=0,
+            frameon=False,
+        )
 
         plt.tight_layout()
         if save_fig:
@@ -1171,11 +1211,11 @@ class DataAnalysis:
 
             if v == 0.2:
                 (ln_2,) = ax.plot(
-                    x, y_smoothed, label=f"V = {v}m/s", c="k", linestyle="-"
+                    x, y_smoothed, label=f"V = {v} m/s", c="k", linestyle="-"
                 )
             if v == 0.8:
                 (ln_0,) = ax.plot(
-                    x, y_smoothed, label=f"V = {v}m/s", c="k", linestyle="-."
+                    x, y_smoothed, label=f"V = {v} m/s", c="k", linestyle="-."
                 )
 
         x_new, y_new = interpolate(rh_arr, tmp_low)
@@ -1240,15 +1280,15 @@ class DataAnalysis:
         )
 
         ax.set(
-            ylim=(29, 50),
+            ylim=(29.9, 50),
             xlim=(0, 100),
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
         )
 
         text_dic = [
-            {"txt": "Thermal strain\nv =0.2m/s", "x": 80, "y": 31.5, "r": -21},
-            {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 33, "r": -22},
+            {"txt": "Thermal strain\nv =0.2 m/s", "x": 80, "y": 31.5, "r": -21},
+            {"txt": "Thermal strain\nv=0.8 m/s", "x": 93, "y": 33, "r": -22},
         ]
 
         for obj in text_dic:
@@ -1485,7 +1525,7 @@ class DataAnalysis:
 
         ax2.get_yaxis().set_visible(False)
         ax2.set(
-            ylim=(29, 50),
+            ylim=(29.9, 50),
             xlim=(0, 100),
         )
 
@@ -1616,7 +1656,7 @@ class DataAnalysis:
 
         ax2.get_yaxis().set_visible(False)
         ax2.set(
-            ylim=(29, 50),
+            ylim=(29.9, 50),
             xlim=(0, 100),
         )
 
@@ -1809,7 +1849,7 @@ class DataAnalysis:
         )
 
         ax.set(
-            ylim=(29, 50),
+            ylim=(29.9, 50),
             xlim=(0, 100),
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
@@ -1832,8 +1872,8 @@ class DataAnalysis:
             transform=ax.transAxes,
         )
         text_dic = [
-            {"txt": "Thermal strain\nv =0.2m/s", "x": 80, "y": 31.5, "r": -21},
-            # {"txt": "Thermal strain\nv=0.8m/s", "x": 93, "y": 33, "r": -22},
+            {"txt": "Thermal strain\nv =0.2 m/s", "x": 80, "y": 31.5, "r": -21},
+            # {"txt": "Thermal strain\nv=0.8 m/s", "x": 93, "y": 33, "r": -22},
         ]
 
         for obj in text_dic:
@@ -1956,7 +1996,7 @@ class DataAnalysis:
         x_new, y_new = interpolate(rh_arr, tmp)
 
         fig, ax = plt.subplots(
-            1, 2, sharey=True, constrained_layout=True, figsize=(7, 3.78)
+            1, 2, sharey=True, constrained_layout=True, figsize=(fig_size["2c"], 3.78)
         )
 
         # horizontal line showing limit imposed by most of the standards
@@ -1993,7 +2033,7 @@ class DataAnalysis:
         )
 
         ax[1].set(
-            ylim=(29, 50),
+            ylim=(29.9, 50),
             xlim=(0, 100),
             xlabel=chart_labels["rh"],
         )
@@ -2266,8 +2306,8 @@ def analyse_population_data(save_fig=False):
     print(df[df.db_max > 35]["Value"].sum() / 10 ** 6)
 
     # draw map contours
-    plt.figure(figsize=(7, 3.78))
-    [ax, m] = self.draw_map_contours(draw_par_mer="Yes")
+    plt.figure(figsize=(fig_size["2c"], 3.78))
+    [ax, m] = self.draw_map_contours(draw_par_mer="No")
 
     df = df[
         (df["lat"] > self.lllat)
@@ -2312,20 +2352,20 @@ def analyse_population_data(save_fig=False):
         frameon=False,
     )
 
-    bounds = np.arange(math.floor(df["db_max"].min()), math.ceil(df["db_max"].max()), 4)
+    bounds = np.arange(36, 56, 4)
     sc.cmap.set_under("dimgray")
-    sc.set_clim(35, df.db_max.max())
+    sc.set_clim(35, 52)
     plt.colorbar(
         sc,
         fraction=0.1,
-        pad=0.1,
+        pad=0.02,
         aspect=40,
         label="Extreme dry-bulb air temperature ($t_{db}$) [°C]",
         ticks=bounds,
         orientation="horizontal",
         extend="min",
     )
-    sns.despine(left=True, bottom=True, right=True, top=True)
+    [ax.spines[x].set_color("lightgray") for x in ["bottom", "top", "left", "right"]]
     plt.tight_layout()
     if save_fig:
         plt.savefig(
@@ -2463,7 +2503,7 @@ def compare_hospers_ashrae_weather(save_fig=True):
     # drop data from LA and oxnard since have some issues
     df_merged = df_merged[~df_merged["City"].isin(["los angeles", "oxnard"])]
 
-    fig, axs = plt.subplots(1, 1, sharex=True, figsize=(7, 3.78))
+    fig, axs = plt.subplots(1, 1, sharex=True, figsize=(fig_size["2c"], 3.78))
     df_plot = df_merged[["Constant HR", "Concurrent extreme"]].unstack().reset_index()
     df_plot.columns = ["model", "constant", "Delta relative humidity (RH) [%]"]
     df_plot.constant = "1"
@@ -2492,7 +2532,7 @@ def compare_hospers_ashrae_weather(save_fig=True):
     else:
         plt.show()
 
-    fig, axs = plt.subplots(1, 2, sharey=True, figsize=(7, 3.78))
+    fig, axs = plt.subplots(1, 2, sharey=True, figsize=(fig_size["2c"], 3.78))
     axs[0].scatter(
         df_merged["Peak RH"], df_merged["Peak T"], c="k", label="Hospers et al. (2020)"
     )
@@ -2629,14 +2669,14 @@ if __name__ == "__main__":
     figures_to_plot = [
         # "gagge_results_physio_heat_loss",
         # "gagge_results_physiological",
-        # "weather_data_world_map",
+        "weather_data_world_map",
         # "heat_strain_different_v",
         # "ravanelli_comp",
         # "met_clo",
         # "summary_use_fans_weather",
         # "summary_use_fans_comparison_experimental",
         # "summary_use_fans_and_population_tdb_max",
-        # "world_map_population_weather",
+        "world_map_population_weather",
         # "table_list_cities",
         # "compare_hospers_ashrae_weather",
         # "sweat_rate",
