@@ -38,11 +38,20 @@ Our heat balance model uses coefficients that were estimated empirically and som
 Consequently, results may not be applicable to all individuals, such as those who are under medications or have pre-existing conditions.
 
 \section{Conclusions}\label{sec:conclusions}
-% todo write conclusions
-\begin{itemize}
-    \item fans can be used at high temperatures and high enthalpies, so several current health guidelines should be revised to allow that.
-    \item we have assembled and validated an improved model of heat stress physiology that is sensitive to air-movement cooling and put it in the open domain.
-\end{itemize}
+Several health guidelines regarding electric fans use during heat waves appear to underestimate the benefit that air movement has in cooling people when \acf{t-db} exceeds \acf{t-sk}.
+This is possibly due to the fact that they underestimate the amount of heat that the human body can dissipate through evaporation of sweat.
 
+We used an heat balance model to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
+We were able to determine under which combination of environmental and personal parameters electric fans can be safely and effectively used to cool healthy adults.
+We validated our results using experimental data collected in laboratory studies by \mycite{Morris2019} and \mycite{Rate2015}.
 
+Our results show that electric fans are an effective, efficient, and sustainable solution to cool people even when \ac{t-db} exceeds \ac{t-sk}.
+Air speed of 0.8~m/s increase the critical air temperature at which both an elevated cardiovascular and thermal strain occurs for values of \ac{rh} higher than 22~\% by an average of \var{avg_increase_t_strain_v_08}~$^{\circ}$C.
+Moreover, even above these critical temperatures, electric fans are still not harmful, and may provide marginal benefits to people, as shown in Figure~\ref{fig:use_fans_experimental}.
+On the other hand, in very dry and hot environments (e.g., \ac{t-db} higher than 45~$^{\circ}$C and \ac{rh} lower than 22~\%) fan should not be used since air moment may increase the risk of cardiovascular strain.
+In these extreme conditions, which are relative rare and only occurs in a few locations worldwide, electric fans can still be used in combination with evaporative cooling or other cooling strategies, which can reduce \ac{t-db} to a value lower than 45~$^{\circ}$C.
+The public should therefore not be advised to stop using electric fans during  heat waves when temperatures outdoors or indoors are higher than 35~$^{\circ}$C\@. 
 
+We believe that as extreme heat events are becoming more frequent in some part of the world due to the negative effect of global warming, public health recommendations regarding electric fan use should be reviewed to help minimize heat wave related morbidity and mortality. 
+To help policymakers and people worldwide we incorporated the model into an open-source, free to use, web-based online tool which provides interactive plots and displays the results to the user.
+Our tool should allow users to determine when people can safely use elevated air speeds to cool themselves and can be accessed using this link: \url{https://comfort.cbe.berkeley.edu}
