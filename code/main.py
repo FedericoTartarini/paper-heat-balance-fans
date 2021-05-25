@@ -91,6 +91,25 @@ class DataAnalysis:
             "increase_t_strain_v_08",
             round(self.heat_strain[0.8][60] - self.heat_strain[0.2][60], 1),
         )
+
+        results = []
+        for rh in self.heat_strain[0.8]:
+            delta = round(self.heat_strain[0.8][rh] - self.heat_strain[0.2][rh], 1)
+            if delta > 0:
+                results.append(delta)
+            else:
+                save_var_latex(
+                    "rh_",
+                    pd.Series(results).mean().round(1),
+                )
+
+        save_var_latex(
+            "avg_increase_t_strain_v_08",
+            pd.Series(results).mean().round(1),
+        )
+
+        pd.Series(results).mean()
+
         save_var_latex(
             "increase_t_strain_v_45",
             round(self.heat_strain[4.5][60] - self.heat_strain[0.8][60], 1),
@@ -593,12 +612,12 @@ class DataAnalysis:
             ylim=(-1, 160), ylabel="Evaporative heat loss skin ($E_{sk}$) [W/m$^2$]"
         )
         ax_1[1][1].set(
-            ylim=(34.9, 40),
+            ylim=(34.99, 40),
             xlabel=chart_labels["top"],
             ylabel=r"Core mean temperature ($t_{cr}$) [°C]",
         )
         ax_1[1][0].set(
-            ylim=(34.9, 40),
+            ylim=(34.99, 40),
             xlabel=chart_labels["top"],
             ylabel="Skin mean temperature ($t_{sk}$) [°C]",
         )
@@ -963,7 +982,7 @@ class DataAnalysis:
                 ax.plot(
                     x,
                     y_smoothed,
-                    label=f"V = {v} m/s, clo = {clo}, met = {met}",
+                    label=f"V = {v} m/s, clo = {clo} clo, met = {met} met",
                     c=color,
                     linestyle=ls,
                 )
@@ -984,7 +1003,7 @@ class DataAnalysis:
         sns.despine(left=True, bottom=True, right=True)
 
         plt.legend(
-            bbox_to_anchor=(0, 1.02, 1, 0.2),
+            bbox_to_anchor=(-0.15, 1.02, 1, 0.2),
             loc="lower left",
             mode="expand",
             borderaxespad=0,
@@ -1405,12 +1424,13 @@ class DataAnalysis:
             per_locations_fans_beneficial["exc_t_crit_45"],
         )
 
-        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c=self.colors_f3[0])
+        ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c="tab:gray")
 
         fig.tight_layout()
         ax.grid(c="lightgray")
         ax.xaxis.set_ticks_position("none")
         ax.yaxis.set_ticks_position("none")
+        ax.set(ylim=(29.95, 50))
         sns.despine(left=True, bottom=True, right=True)
         fig.tight_layout()
 
@@ -1519,7 +1539,7 @@ class DataAnalysis:
             df_queried["rh"],
             df_queried["db_max"],
             s=df_queried["Value"] / 10 ** 5,
-            c=self.colors_f3[0],
+            c="tab:gray",
             edgecolors="k",
         )
 
@@ -1565,6 +1585,7 @@ class DataAnalysis:
         ax.xaxis.set_ticks_position("none")
         ax.yaxis.set_ticks_position("none")
         sns.despine(left=True, bottom=True, right=True)
+        ax.set(ylim=(29.95, 50))
         fig.tight_layout()
 
         if save_fig:
@@ -1849,7 +1870,7 @@ class DataAnalysis:
         )
 
         ax.set(
-            ylim=(29.9, 50),
+            ylim=(29.95, 50),
             xlim=(0, 100),
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
@@ -2076,7 +2097,6 @@ class DataAnalysis:
             ha="center",
         )
 
-        # ax[0].get_legend().remove()
         ax[1].get_legend().remove()
 
         ax[0].text(90, 48.75, "A", size=12, ha="center", va="center")
