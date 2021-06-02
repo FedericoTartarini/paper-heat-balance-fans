@@ -1,4 +1,4 @@
-%! Author = federico
+%! Author = Federico
 %! Date = 10/06/2020
 
 \section{Results}\label{sec:results}
@@ -65,7 +65,6 @@ When the body cannot longer dissipate exogenous and endogenous heat gains, the e
 The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat stress would start to occur is presented in Figure~\ref{fig:comparison_air_speed}.
 
 \begin{figure}[thb!]
-% todo SS maybe merge figure 5 and 6
     \centering
     \includegraphics[width=0.5\textwidth]{figures/comparison_air_speed}
     \caption{Predicted limits above which thermal strain is estimated to occur.
@@ -85,7 +84,8 @@ This can be explained by the fact, not shown in the Figures, that for low values
 Consequently, in the region where the heat stress curve for elevated air speeds is lower than the one for `still air' electric fan should not be used, unless the hot and dry air is pre-cooled to a point below the `elevated air speed' heat stress line.
 This can be achieved using passive cooling strategies such as evaporative cooling.
 Please see Section~\ref{subsec:model-validation-experimental-data} for more information.
-% todo schiavon: In this section I was hoping to find a direct, explicit and critical comparison between Jay and Gagge model, Gagge allows for the same temperature higher Rh im general (except lower RH). Is one better than other? Should we use Jay because is more conservative?
+% todo SS: In this section I was hoping to find a direct, explicit and critical comparison between Jay and Gagge model, Gagge allows for the same temperature higher Rh im general (except lower RH). Is one better than other? Should we use Jay because is more conservative?
+% todo FT we should clearly state that Gagge's model is better since better predicts heat strain at low RH
 
 
 \subsection{Metabolic Rate and Clothing}\label{subsec:met-clo}
@@ -134,18 +134,22 @@ The environmental conditions above which the use of elevated air speeds would be
     In the hatched area, while the use of fans is still beneficial, people are most likely to suffer from heat strain.
     The red area demarcates the region in which electric fans should not be used.
     }
+    % todo explain better how to read the chart
+    % todo rmove hatched areas description
+    % todo describe iso enthalpic lines
     \label{fig:use_fans_experimental}
 \end{figure*}
 
 We used a red shading to highlight the region in which electric fans should not be used, while we used a green background to depict when elevated air speed can be used to cool the human body.
 
-In the shaded blue area electric fans should not be used to cool people.
-However, as shown in Figure~\ref{fig:use_fans_experimental} the air enthalpy in the great majority of this region is equal or lower than the enthalpy of the air in the green region.
-Consequently evaporative cooling can be used to first reduce \ac{t-db} to a value within the green region and subsequently electric fans can be safely used.
-Other cooling strategies, such as active cooling, can also be used to cool the air.
-But we are emphasising on the importance of using evaporative cooling since we are assuming that people who mostly rely on electric fans for cooling may not have access to compressor-based air conditioning.
-The size of this `evaporative cooling' zone is proportional to the maximum air speed that the fan can generate.
-The `evaporative cooling' area is wider if \ac{v}~=~4.5~m/s (see Figure~\ref{fig:use_fans_experimental}) then if \ac{v}~=~0.8~m/s as shown in Figure~\ref{fig:energy_storage_delta}.
+% todo ss reword the followin commented section
+% In the shaded blue area electric fans should not be used to cool people.
+% However, as shown in Figure~\ref{fig:use_fans_experimental} the air enthalpy in the great majority of this region is equal or lower than the enthalpy of the air in the green region.
+% Consequently evaporative cooling can be used to first reduce \ac{t-db} to a value within the green region and subsequently electric fans can be safely used.
+% Other cooling strategies, such as active cooling, can also be used to cool the air.
+% But we are emphasising on the importance of using evaporative cooling since we are assuming that people who mostly rely on electric fans for cooling may not have access to compressor-based air conditioning.
+% The size of this `evaporative cooling' zone is proportional to the maximum air speed that the fan can generate.
+% The `evaporative cooling' area is wider if \ac{v}~=~4.5~m/s (see Figure~\ref{fig:use_fans_experimental}) then if \ac{v}~=~0.8~m/s as shown in Figure~\ref{fig:energy_storage_delta}.
 We also plotted the lines above which thermal stress is expected to occur (see Figure~\ref{fig:comparison_air_speed} for more details).
 In the hatched area, while the use of fans is still beneficial, not all adult healthy individuals would be able to compensate for endogenous and exogenous heat gains and therefore, they may experience heat strain.
 
@@ -168,7 +172,6 @@ On the other hand \ac{phs} results are more conservative for high values of \ac{
 It should be noted that these latter conditions are extremely rare and rarely occur worldwide.
 
 \begin{figure*}[thb!]
-% todo SS I do not understand why you need the blue area and why you need to show the solid line and I would remove the solid line for v=0.2 m/s
     \centering
     \includegraphics[width=\textwidth]{figures/phs_gagge}
     \caption{Comparison results obtained with \mycite{GaggeSET} (A) and \ac{phs} models (B).
@@ -236,6 +239,8 @@ The model also predicts that \var{people_no_strain_v_08} million inhabitants wou
 
 \subsection{Sweat Rate}\label{subsec:sweat-rate}
 
+% todo ss better discuss this section
+
 The predicted values of \ac{m-sweat} at different combinations of \ac{t-db} and \ac{rh} for two values \acf{v}~=~0.2~m/s and 0.8~m/s are shown in Figure~\ref{fig:sweat_rate}.
 In most of the combinations of \acf{t-db} and \acf{rh} the predicted values of \ac{m-sweat} are slightly higher in the `still air conditions' than when \ac{v}~=~0.8~m/s for \ac{rh} higher than 20~\%.
 On the other hand, \ac{m-sweat} are higher with fan use when \ac{rh} is lower than 10~\%.
@@ -247,6 +252,10 @@ This can be explained by the fact that with very low \ac{rh} the sweat would eva
     \caption{Predicted \acf{m-sweat} at different combinations of \acf{t-db} and \acf{rh} for two values \acf{v}~=~0.2~m/s and 0.8~m/s.}
     \label{fig:sweat_rate}
 \end{figure*}
+
+% todo ss Why not using a contour plot? Would the result more useful if you plot the difference in sear rate between 0.2 and 0.8?
+% change colormap
+% invert operative temperature
 
 %\begin{figure*}[thb!]
 %    \centering

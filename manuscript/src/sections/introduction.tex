@@ -1,4 +1,4 @@
-%! Author = federico
+%! Author = Federico
 %! Date = 10/06/2020
 
 \section{Introduction}\label{sec:introduction}
@@ -36,13 +36,13 @@ For example, they suggest keeping the body hydrated and out of the heat, and the
 However, the \ac{who} also states that if the \ac{t-db} is higher than 35~$^{\circ}$C fans can make an individual hotter and ``fans should be discouraged unless they are bringing in significantly cooler air''~\cite{WMO2015}.
 They also mention that when \ac{t-db} is higher than 35~$^{\circ}$C, fans may not prevent heat-related illness~\cite{HeatandH28:online}.
 Ready.gov, a national public service campaign of the U.S.\@ Government that aims to ``educate and empower the American people to prepare for, respond to and mitigate emergencies, including natural and man-made disasters'', states that electric fans should not be used when outside temperatures are higher than 35~$^{\circ}$C\@.
-According to Ready.gov, in these conditions electric fans could increase the risk of heat-related illness, and that they create air flow and a false sense of comfort, but do not reduce body temperature.
+According to Ready.gov, in these conditions electric fans could increase the risk of heat-related illness, and that they create airflow and a false sense of comfort, but do not reduce body temperature.
 The \ac{cdc} states that when the temperature is in the high 90's ($^{\circ}$F, i.e., above 32~$^{\circ}$C) fans will not prevent heat-related illness~\cite{ExtremeH66:online}.
 Similarly, the \ac{epa} Excessive Heat Events Guidebook discourages directing the flow of fans towards the body when \ac{t-db} is higher than 32.2~$^{\circ}$C~\cite{UnitedStatesEnvironmentalProtectionAgency2006}.
 The above recommendations underestimate the cooling effect of using electric fans, ignoring research evidence that healthy adults do in fact benefit from their use when \ac{t-db} is higher than the \ac{t-sk}~\cite{Rate2015, Jay2015, Jay2019a, Rate2015, Gagnon2017} possibly discouraging some people to use the only cooling option that they have available.
-It should also be noted that guidelines such as those provided by Ready.gov, may further worsen conditions for many, since they do not only state that fans may not help to prevent heat strain but they also encourage people to turn them off when outside temperatures are higher than 35~$^{\circ}$C\@.
+It should also be noted that guidelines such as those provided by Ready.gov, may further worsen conditions for many since they do not only state that fans may not help to prevent heat strain but they also encourage people to turn them off when outside temperatures are higher than 35~$^{\circ}$C\@.
 This would not only encourage people to turn electric fans off when their use would still be beneficial, but also fans should not be controlled as a function of the outdoor temperature, but solely on indoor environmental conditions. 
-Indoor temperature are related but not necessarily equal to outdoor conditions. 
+Indoor temperatures are related but not necessarily equal to outdoor conditions. 
 The use of electric fans is beneficial, even when \ac{t-db} exceeds \ac{t-sk}, because fan airflow increases the amount of heat that the body can dissipate to the environment via the evaporation of sweating~\cite{Jay2015}.
 This applies even at high \ac{rh}, though the evaporative heat loss decreases as the humidity in the space increases.
 The maximum \ac{t-db} at which electric fans should be used will depend on the \ac{rh}, as shown in several experimental studies listed below.
@@ -69,8 +69,8 @@ To better understand under which environmental conditions (i.e., \ac{t-db}, \ac{
 They then used their model to develop a simple chart that can be used to assist public health messaging in explaining to young and older adults when the use of electric fans is beneficial to cool the human body.
 They concluded that the use of electric fans is beneficial even when \ac{t-db} exceeds \ac{t-sk}.
 Their model could be improved because it does not: allow the user to change the value of \ac{met} or \ac{clo}, estimate iteratively \ac{t-sk} and \ac{t-cr}, consider radial asymmetry, and their results are based on a single air speed 4.5~m/s.
-\mycite{Jay2015} choose a value of 4.5~m/s based on measured values of air speed at a distance of 1.0~m of a 18" pedestal fan set at maximum speed~\cite{Jay2015}.
-Their results may be difficult to generalize since such high air speed cannot be easily achieved by most of ceiling fans~\cite{Raftery2019}, and pedestal or desk fans~\cite{Yang2015a} available on the market.
+\mycite{Jay2015} choose a value of 4.5~m/s based on measured values of air speed at a distance of 1.0~m of an 18" pedestal fan set at maximum speed~\cite{Jay2015}.
+Their results may be difficult to generalize since such high air speed cannot be easily achieved by most ceiling fans~\cite{Raftery2019}, and pedestal or desk fans~\cite{Yang2015a} available on the market.
 
 To overcome the above-mentioned limitations, we are proposing the use of the heat balance model developed by~\mycite{GaggeSET} to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
 The model originally outputs the \ac{set} that allows the combined effects of \ac{t-db}, \ac{rh}, \ac{t-r}, \ac{v}, \ac{clo}, \ac{met} to be reduced to a standard environment.
@@ -78,7 +78,7 @@ Among its attributes are modeling of the physiology of sweating and the effects 
 ASHRAE Standard 55 uses this model to determine the effects of elevated air speeds on body heat balance and thermal comfort~\cite{ashrae552017}.
 The model has also been tested for its relevance under realistic air flows and \ac{v} produced by different types of fans, such as partial immersion in the elevated flows, and flows with different turbulence intensity~\cite{Huang2014}.
 This makes the SET model appropriate for predicting the thermophysiological effects of elevated air speed during heatwaves.
-In addition, to help policymakers and people worldwide we chose to incorporate the model into an open-source, free to use, web-based online tool which provides interactive plots and displays the results to the user.
+In addition, to help policymakers and people worldwide we chose to incorporate the model into an open-source, free-to-use, web-based online tool that provides interactive plots and displays the results to the user.
 Our tool should allow users to determine when people can safely use elevated air speeds to cool themselves.
 
 We aim to determine the upper temperature and humidity thresholds for healthy adults for the use of electric fans.
