@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from pythermalcomfort.psychrometrics import p_sat
 from pythermalcomfort.models import phs, set_tmp
-import math
+from matplotlib.colors import DivergingNorm
 import seaborn as sns
 import os
 from scipy import optimize
@@ -660,8 +660,8 @@ class DataAnalysis:
 
         results = []
         for v in air_speeds:
-            for ta in np.arange(30, 50, 2):
-                for rh in np.arange(10, 100, 10):
+            for ta in np.arange(30, 51, 1):
+                for rh in np.arange(0, 101, 1):
                     r = use_fans_heatwaves(
                         ta,
                         ta,
@@ -678,33 +678,59 @@ class DataAnalysis:
 
         df_sweat = pd.DataFrame(results)
 
-        fig, axn = plt.subplots(1, 2, sharey=True)
-        cbar_ax = fig.add_axes([0.88, 0.15, 0.03, 0.75])
+        fig, axn = plt.subplots(1, 2, sharey=True, figsize=(fig_size["2c"], 4))
 
         for i, ax in enumerate(axn.flat):
             v = air_speeds[i]
             df = df_sweat[df_sweat["v"] == v]
-            sns.heatmap(
-                df.pivot("ta", "rh", "sweating_required").astype("int"),
-                annot=True,
-                cbar=i == 0,
+            df = df.pivot("ta", "rh", "sweating_required").astype("int")
+            title = r"$ m_{rsw, V = 0.2 m/s}$"
+            levels = range(0, 550, 50)
+            if i == 1:
+                df_low = df_sweat[df_sweat["v"] == air_speeds[0]]
+                df_low = df_low.pivot("ta", "rh", "sweating_required").astype("int")
+                df = df - df_low
+                title = (
+                    r"$\Delta m_{rsw} = m_{rsw, V = 0.8 m/s} - m_{rsw, V = 0.2 m/s}$"
+                )
+                levels = range(-50, 40, 10)
+
+            df = df.sort_index(ascending=False)
+
+            x, y = np.meshgrid(df.columns, df.index)
+
+            cs = ax.contourf(
+                x,
+                y,
+                df.values,
+                norm=DivergingNorm(0),
+                levels=levels,
+                cmap="RdBu_r",
+            )
+
+            fig.colorbar(
+                cs,
                 ax=ax,
-                fmt="d",
-                cbar_ax=None if i else cbar_ax,
-                cbar_kws={
-                    "label": chart_labels["sweat"],
-                },
-                annot_kws={"size": 8},
+                shrink=0.9,
             )
             ax.set(
                 xlabel=chart_labels["rh"],
+                xlim=(0, 100),
+                ylim=(30, 50),
                 ylabel=chart_labels["top"] if i == 0 else None,
-                title=r"$V$" + f" = {v} m/s",
+                title=title,
             )
+            [
+                ax.spines[x].set_color("lightgray")
+                for x in ["bottom", "top", "left", "right"]
+            ]
 
-        # cbar_ax.collections[0].colorbar.set_label("Hello")
+        plt.suptitle(chart_labels["sweat"])
 
-        fig.tight_layout(rect=[0, 0, 0.88, 1])
+        axn[0].text(90, 48.75, "A", size=12, ha="center", va="center")
+        axn[1].text(90, 48.75, "B", size=12, ha="center", va="center")
+
+        fig.tight_layout()
 
         if save_fig:
             plt.savefig(os.path.join(self.dir_figures, "sweat_rate.png"), dpi=300)
@@ -1887,15 +1913,9 @@ class DataAnalysis:
             zorder=200,
         )
 
-        # add legend
-        plt.legend(
-            facecolor="w",
-            loc="lower left",
-        )
-
         # plot enthalpy line
         reference_enthalpies = [100805.98, 73007.24]
-        for enthalpy in reference_enthalpies:
+        for ix, enthalpy in enumerate(reference_enthalpies):
             rh_const_enthalpy = []
             for tmp in self.ta_range:
                 hr = psychrolib.GetHumRatioFromEnthalpyAndTDryBulb(enthalpy, tmp)
@@ -1903,12 +1923,27 @@ class DataAnalysis:
                     psychrolib.GetRelHumFromHumRatio(tmp, hr, 101325) * 100
                 )
 
-            ax.plot(
-                rh_const_enthalpy,
-                self.ta_range,
-                c="k",
-                linestyle=":",
-            )
+            if ix == 0:
+                ax.plot(
+                    rh_const_enthalpy,
+                    self.ta_range,
+                    c="k",
+                    linestyle=":",
+                    label="isoenthalpic line",
+                )
+            else:
+                ax.plot(
+                    rh_const_enthalpy,
+                    self.ta_range,
+                    c="k",
+                    linestyle=":",
+                )
+
+        # add legend
+        plt.legend(
+            facecolor="w",
+            loc="lower left",
+        )
 
         ax.grid(c="lightgray")
         ax.xaxis.set_ticks_position("none")
@@ -2648,12 +2683,12 @@ if __name__ == "__main__":
         # "met_clo",
         # "summary_use_fans_weather",
         # "summary_use_fans_comparison_experimental",
-        "summary_use_fans_and_population_tdb_max",
+        # "summary_use_fans_and_population_tdb_max",
         # "world_map_population_weather",
         # "met_clo_v",
         # "table_list_cities",
         # "compare_hospers_ashrae_weather",
-        # "sweat_rate",
+        "sweat_rate",
         # "phs",
     ]
 
