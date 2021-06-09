@@ -450,7 +450,7 @@ class DataAnalysis:
         ax_1[0][0].set(
             ylim=(-201, 100), ylabel="Sensible heat loss skin (C + R) [W/m$^2$]"
         )
-        ax_1[0][1].set(ylim=(-0.01, 0.7), ylabel="Skin wettendess (w)")
+        ax_1[0][1].set(ylim=(-0.01, 0.7), ylabel="Skin wettedness (w)")
         ax_1[1][1].set(
             ylim=(-1, 600),
             xlabel=chart_labels["top"],
@@ -2675,7 +2675,7 @@ if __name__ == "__main__":
     self = DataAnalysis()
 
     figures_to_plot = [
-        # "gagge_results_physio_heat_loss",
+        "gagge_results_physio_heat_loss",
         # "gagge_results_physiological",
         # "weather_data_world_map",
         # "heat_strain_different_v",
@@ -2688,7 +2688,7 @@ if __name__ == "__main__":
         # "met_clo_v",
         # "table_list_cities",
         # "compare_hospers_ashrae_weather",
-        "sweat_rate",
+        # "sweat_rate",
         # "phs",
     ]
 
