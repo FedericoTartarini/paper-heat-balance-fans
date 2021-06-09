@@ -7,11 +7,11 @@ Electric fans are a cheaper and more energy-efficient alternative to compressor-
 Fans require less energy to operate, have lower operational and maintenance costs, and do not use refrigerants that potentially harm the environment. 
 If battery operated, they can be used during power outrages. 
 However, several public health guidelines discourage their use when \acf{t-db} exceed 35~$^{\circ}$C~\cite{WMO2015}.
-Our results show that this recommendation is too conservative and that the use of fans at higher ambient temperatures could yield substantial benefits.
-While sensible heat gain increases as the \ac{t-db} exceeds \acf{t-sk}, this is more than offset by the increase in latent heat loss by elevated air speed. 
+Our results show that this recommendation is too conservative and that the use of fans at higher ambient temperatures could yield substantial benefits for young healthy adults free of sweating impairments.
+While sensible heat gain increases as the \ac{t-db} exceeds \acf{t-sk}, this is more than offset by the increase in latent heat loss by elevated air speed under conditions that do not permit complete evaporation without elevated air speed. 
 This is true for more than 99~\% of recorded extreme heat events worldwide.
-For example, increasing the average air speed from 0.2 m/s to 0.8 m/s raises the temperature above which heat strain would occur by an average of 1.7 (1.4, 2.1)~$^{\circ}$C [mean, (Q1, Q3)].
-In very hot and dry conditions (e.g., \ac{t-db}~=~47~$^{\circ}$C, \ac{rh}~=~15~\%) fans should only be used in combination with evaporative cooling technologies to prevent heat stress from occurring.
+For example, increasing the average air speed from 0.2 m/s to 0.8 m/s raises the temperature above which heat strain would occur by an average of \var{avg_increase_t_strain_v_08} (1.4, 2.1)~$^{\circ}$C [mean, (Q1, Q3)].
+Only in very hot and dry conditions (e.g., \ac{t-db}~=~47~$^{\circ}$C, \ac{rh}~=~15~\%) fans have to be used in combination with evaporative cooling technologies to prevent heat stress from occurring.
 
 We also compared these data with the records available in the Emergency Events Database (EM-DAT)~\cite{EMDATThe70:online}.
 % todo CH paragraph below would be great if we could provide something a little more specific here. For example, could we do an analysis were we look at the number of deaths at each temperature bin, estimate the effective temperature decrease of 0.8 m/s air speed, and then estimate the number (or percentage_ of avoided deaths
@@ -20,7 +20,7 @@ These heatwaves were the cause of approximately 117000 deaths, out of which a to
 During heatwaves as \ac{t-db} increases \ac{rh} generally decreases, hence, it may be hypothesized that the use of electric fans would have been beneficial in most of those scenarios.
 
 Our results validate and extend the findings of \mycite{Jay2015} that elevated air movement is beneficial even when \ac{t-db} exceeds \acf{t-sk}.
-This is significant because cooling the air to avoid heat stress is both environmentally and economically disadvantageous.
+This is significant because using compressor-based cooling to avoid heat stress is both environmentally and economically disadvantageous.
 In 2017, approximately 43.6~\% of the world population lived on less than \$5.50 per day, respectively~\cite{PovertyO1:online}.
 People that cannot afford air conditioning due to limited financial means, and have limited access to electricity and water, should certainly not be discouraged from using fans when \ac{t-db} exceeds \ac{t-sk}.
 Similarly, even in upper-middle, and high-income countries, where access to electricity is less of a concern, low-income people are among those who are most at risk during heatwaves and may not be able to cool or leave their homes during heatwaves.
@@ -30,24 +30,31 @@ Moreover, our results show that the extra sweat losses caused by fans in dry and
 
 \section*{Limitations}
 The \mycite{GaggeSET} heat balance model uses coefficients that were estimated empirically and some simplified equations (e.g., to calculate the respiratory losses) were used.
-Consequently, results may not be applicable to all individuals, such as those who are under medications or have pre-existing conditions.
+Consequently, results may not be applicable to all individuals, such as those who demonstrate sweating impairments due to factors such as age, anti-cholinergic medications or other pre-existing conditions that interfere with thermoregulation.
 More research is needed to validate the applicability of this model to more vulnerable people for example the elderly.
 
 \section{Conclusions}\label{sec:conclusions}
 Several health guidelines regarding electric fans use during heat waves appear to underestimate the benefit that air movement has in cooling people when \acf{t-db} exceeds \acf{t-sk}.
 This is possibly due to the fact that they underestimate the amount of heat that the human body can dissipate through evaporation of sweat.
 
-We used an heat balance model to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
+We used a heat balance model to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
 We were able to determine under which combination of environmental and personal parameters electric fans can be safely and effectively used to cool healthy adults.
-We validated the results obtained from the \mycite{GaggeSET} model using experimental data collected in laboratory studies by \mycite{Morris2019} and \mycite{Rate2015}.
+We validated the results obtained from the \mycite{GaggeSET} model using experimental data in young healthy adults collected in laboratory studies by \mycite{Morris2019} and \mycite{Rate2015}.
 
 Our results show that electric fans are an effective, efficient, and sustainable solution to cool people even when \ac{t-db} exceeds \ac{t-sk}.
-Air speed of 0.8~m/s increase the critical air temperature at which both an elevated cardiovascular and thermal strain occurs for values of \ac{rh} higher than 22~\% by an average of \var{avg_increase_t_strain_v_08}~$^{\circ}$C\@.
+For values of \ac{rh} higher than 22~\% air speed of 0.8~m/s increases the critical air temperature at which both an elevated cardiovascular and thermal strain occurs by an average of \var{avg_increase_t_strain_v_08}~$^{\circ}$C\@.
 Moreover, even above these critical temperatures, electric fans are still not harmful, and may provide marginal benefits to people, as shown in Figure~\ref{fig:use_fans_experimental}.
 On the other hand, in very dry and hot environments (e.g., \ac{t-db} higher than 45~$^{\circ}$C and \ac{rh} lower than 22~\%) fan should not be used since air moment may increase the risk of cardiovascular strain.
-In these extreme conditions, which are relative rare and only occurs in a few locations worldwide, electric fans can still be used in combination with evaporative cooling or other cooling strategies, which can reduce \ac{t-db} to a value lower than 45~$^{\circ}$C\@.
+In these extreme conditions, which are relative rare and occur only in a few locations worldwide, electric fans can still be used in combination with evaporative cooling or other cooling strategies, to reduce \ac{t-db} to a value lower than 45~$^{\circ}$C\@.
 The public should therefore not be advised to stop using electric fans during  heat waves when temperatures outdoors or indoors are higher than 35~$^{\circ}$C\@.
 
-We believe that as extreme heat events are becoming more frequent in some part of the world due to the negative effect of global warming, public health recommendations regarding electric fan use should be reviewed to help minimize heat wave related morbidity and mortality. 
+As extreme heat events are becoming more frequent in some part of the world due to the effect of global climate change, public health recommendations regarding electric fan use should be reviewed to help minimize heat wave related morbidity and mortality. 
 To help policymakers and people worldwide we incorporated the model into an open-source, free to use, web-based online tool which provides interactive plots and displays the results to the user.
 Our tool should allow users to determine when people can safely use elevated air speeds to cool themselves and can be accessed using this link: \url{https://comfort.cbe.berkeley.edu}
+
+\section{Declaration of competing interest} 
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+\section{Acknowledgments}
+This research has been supported by the Republic of Singapore’s National Research Foundation through a grant to the Berkeley Education Alliance for Research in Singapore (BEARS) for the Singapore-Berkeley Building Efficiency and Sustainability in the Tropics (SinBerBEST) Program.
+We thank Hui Zhang for reviewing the paper.

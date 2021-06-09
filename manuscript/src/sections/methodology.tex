@@ -5,7 +5,7 @@
 
 The energy balance model we used estimates how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
-In non uniform environments \ac{t-db} and \ac{v} are assumed to be equal to the average temperature and air speed measured at 0.1, 0.6, and 1.1~m height for seated occupants and at 0.1, 1.1, and 1.7~m for standing occupants.
+In non-uniform environments \ac{t-db} and \ac{v} are assumed to be equal to the average temperature and air speed measured at 0.1, 0.6, and 1.1~m height for seated occupants and at 0.1, 1.1, and 1.7~m for standing occupants.
 
 Section~\ref{subsec:energy-balance} describes the main Equations used by the model to derive the results.
 
@@ -13,7 +13,7 @@ Section~\ref{subsec:energy-balance} describes the main Equations used by the mod
 
 The human body exchanges both sensible and latent heat with its surrounding environment.
 Sensible heat is transferred via conduction, convection and radiation (\acs{c-r} + \acs{c-res}).
-While latent heat loss occurs from the evaporation of sweat (\acs{e-rsw}), moisture diffused through the skin  (\acs{e-dif}), and respiration (\acs{e-res})
+Latent heat loss occurs from the evaporation of sweat (\acs{e-rsw}), moisture diffused through the skin  (\acs{e-dif}), and respiration (\acs{e-res}).
 The energy balance in the human body is described by:
 
 \begin{equation}
@@ -22,10 +22,10 @@ The energy balance in the human body is described by:
 
 This equation assumes that the body comprises two main thermal compartments: the skin and the core.
 If the exogenous and endogenous heat gains cannot be compensated by heat loss, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
-One of the main differences between \mycite{GaggeSET} model and the one used by \mycite{Jay2015} is that their model does not account for heat stored in the core or the skin compartment, hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
+One of the main differences between \mycite{GaggeSET} model and the one used by \mycite{Jay2015} is that \mycite{Jay2015} does not account for heat stored in the core or the skin compartment; hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
 Calculating how \ac{t-sk} and \ac{t-cr} vary as a function of different environmental and personal factors allows us to better predict how much heat the body exchanges with its surrounding environment~\cite{ASHRA2017}.
 
-The amount of sensible heat gains or losses from the human body to its environment can be expressed as a function of environmental (\ac{t-db}, \ac{t-r}, \ac{v}, and \ac{rh}), and personal factors (\ac{met}, and \ac{clo})~\cite{ASHRA2017}.
+The amount of sensible and latent heat gain or loss from the human body to its environment can be expressed as a function of environmental and personal factors~\cite{ASHRA2017}.
 The equations used to determine sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficients were estimated empirically~\cite{ASHRA2017}.
 
 \subsubsection{Body Surface Area}
@@ -41,7 +41,7 @@ In thermal comfort research, this value is generally assumed to be constant and 
 \mycite{Jay2015} also consider this value to be constant, however, it should be noted that this is an approximation.
 Several other equations have been developed to estimate \ac{body-a} and we allow users to specify \ac{body-a} as the input value.
 Alternative equations to the DuBois equation are available.
-A review paper concluded that most of the proposed equations in the literature were in agreement with each other to estimate \ac{body-a} for adults with a healthy weight and standard physique~\cite{Redlarski2016}.
+A recent detailed review paper concluded that most of the proposed equations in the literature were in agreement with each other to estimate \ac{body-a} for adults with a healthy weight and standard physique~\cite{Redlarski2016}.
 
 \subsubsection{Sensible Heat Loss from Skin}
 
@@ -104,8 +104,7 @@ Where the \ac{m-bl} is limited to a maximum of 90~L/(hm\textsuperscript{2}).
 
 Skin wettedness varies as a function of the activity of the sweat glands and the environmental conditions.
 It correlates with warm discomfort and is a good measure of thermal stress.
-While \ac{w} can theoretically range from 0 to 1 and skin wettedness can approach 1.0 while the body still maintains thermoregulatory control~\cite{ASHRA2017}.
-In most situations, the upper limit of \ac{w} is lower than 1.
+While \ac{w} can theoretically range from 0 to 1 and skin wettedness can approach 1.0 while the body still maintains thermoregulatory control~\cite{ASHRA2017}, in most situations, the upper limit of \ac{w} is lower than 1.
 \mycite{GaggeSET} used the following equations to determine \ac{w-max} for sustained activity for healthy and acclimatized humans:
 
 \begin{equation}
@@ -120,7 +119,7 @@ On the other hand, \mycite{Jay2015} adjusted the value of \ac{w-max} based on fa
 For young adults, they assumed \ac{w-max} to be equal to 0.65 for the `fan on' condition and 0.85 for the `fan off' condition.
 These values are higher than those estimated by the \mycite{GaggeSET} model.
 
-\subsubsection{Respiratory Losses, (\acs{q-res})}
+\subsubsection{Respiratory Losses, ($q_{res}$)}
 The human body exchanges both sensible and latent heat with its environment.
 The \acf{q-res} equals the sum of the \ac{c-res} and the \ac{e-res}.
 The value of \ac{q-res} is can be determined using the following simplified equation~\cite{ASHRA2017}:
@@ -136,7 +135,7 @@ We calculated the results for three discrete values of \ac{v} = 0.2, 0.8 and 4.5
 In this paper, we will be referring to `still air' condition when air velocities are below \ac{v}~=~0.2 m/s.
 This definition is in accordance with the ASHRAE 55--2017 Standard~\cite{ashrae552017} and allowed us to compare our results with those obtained by \mycite{Jay2015}.
 We assumed \ac{t-r} to be equal to \ac{t-db}, \ac{clo}~=~0.5~clo, and \ac{met}~=~1.1~met, unless otherwise specified.
-It could be argued that some people during heatwaves may be wearing much fewer clothes than that, hence, a value of \ac{clo} equal to 0.36~clo (i.e., walking shorts, short-sleeve shirt, underwear, socks and shoes) or 0.37~clo (i.e., short-sleeve dress, underwear, bra, socks and shoes) would be more appropriate, however, we wanted to use a more conservative value.
+It could be argued that some people during heatwaves may be wearing much less clothing than that, hence, a value of \ac{clo} equal to 0.36~clo (i.e., walking shorts, short-sleeve shirt, underwear, socks and shoes) or 0.37~clo (i.e., short-sleeve dress, underwear, bra, socks and shoes) would be more appropriate, however, we wanted to use a more conservative value.
 Results for different combinations of environmental and personal conditions can be generated using our online tool.
 In this manuscript, we assumed the \ac{i-cl} to be constant and equal to 1 and 0.45, as assumed by \mycite{GaggeSET}, for naked and clothed people, respectively.
 Users can, however, change this value in the source code.
@@ -154,15 +153,15 @@ This tool has been added and integrated into the CBE Thermal Comfort Tool~\cite{
 
 \subsection{Predicted Heat Strain Model}\label{subsec:predicted-heat-strain-model}
 
-We also decided to compare our results with those obtained from the \ac{phs} model.
+We also compared our results with those obtained from the \ac{phs} model.
 The \ac{phs} model allows the analytical evaluation of the thermal stress experienced by a subject in a hot environment.
 It allows to predict the sweat rate and \ac{t-re} that the human body will develop in response to the working conditions.
-The \ac{phs} model as described in the ISO 7933 Standard does not predict the physiological response of individual subjects and aims to evaluate working conditions for a standard subjects in good health and fit for the work~\cite{iso7933}.
-The \ac{phs} model is validated on a database including 747 lab experiments and 366 field experiments, from 8 research institutions~\cite{iso7933}.
-The \ac{phs} it is not validated for metabolic rates lower than 1.7 met (100 W/m\textsuperscript{2}), \ac{t-db} higher than 50~$^{\circ}$C and water vapour partial pressure ($p_{a}$) higher than 4~kPa (i.e., humidity ratio of \var{hr_4_kpa}~kg$_{water}$/kg$_{dry air}$).
+The \ac{phs} model as described in the ISO 7933 Standard does not predict the physiological response of individual subjects and aims to evaluate working conditions for a standard subject in good health and fit for the work~\cite{iso7933}.
+The \ac{phs} model has been validated based on a database including 747 lab experiments and 366 field experiments, from 8 research institutions~\cite{iso7933}.
+The \ac{phs} model has not been validated for metabolic rates lower than 1.7 met (100 W/m\textsuperscript{2}), \ac{t-db} higher than 50~$^{\circ}$C and water vapour partial pressure ($p_{a}$) higher than 4~kPa (i.e., humidity ratio of \var{hr_4_kpa}~kg$_{water}$/kg$_{dry air}$).
 In this present study we are determining when fans should be used by individuals with a \ac{met}~=~1.1~met, hence, we will be using the \ac{phs} model outside its ranges of validity.
 We calculated the \ac{phs} using the \verb|pythermalcomfort| Python package~\cite{Tartarini2020a} function \verb|phs|.
-We assumed that elevated air speed are detrimental when the maximum allowable exposure time for heat storage estimated with a \ac{v}~=~0.8~m/s is higher than the value estimated with a \ac{v}~=~0.2~m/s.
+We assumed that elevated air speed is detrimental when the maximum allowable exposure time for heat storage estimated with a \ac{v}~=~0.8~m/s is higher than the value estimated with a \ac{v}~=~0.2~m/s.
 
 \subsection{Weather Data}\label{subsec:weather-data}
 
@@ -184,7 +183,7 @@ We do not show data from stations with a maximum temperature lower than 26~$^\ci
 
 Few data are available for Sub-Saharan Africa where approximately 40~\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
 
-In order to determine the coincident value of \ac{rh} when the maximum extreme \ac{t-db} with a 20 year return period was recorded we firstly determined the humidity ratio for each location using the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
+In order to determine the coincident value of \ac{rh} when the maximum extreme \ac{t-db} with a 20 year return period was recorded we first determined the humidity ratio for each location using the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
 We then assumed that during an heatwave the humidity ratio would remain constant while only the value of \ac{t-db} would increase.
 This assumption allowed us to estimate, for each location, the value of \ac{rh} for each extreme \ac{t-db}.
 This is an approximation and it does not take into account that during heat waves the value of humidity ratio could also increase.
@@ -193,7 +192,7 @@ More information on this are presented in \ref{sec:validation_rh}.
 We also assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
 Conditions indoors may, however, be less severe than outdoors since the thermal mass of the building may dump and shift peaks in outdoor temperature.
 At the same time, the opposite scenario can also occur if there is a significant amount of internal load or solar gains indoors.
-We are aware that this assumption has some limitations, however, we deemed to be an acceptable approximation since available alternative may have not lead to better results.
+We are aware that this assumption has some limitations, however, we deemed to be an acceptable approximation.
 One possible solution was to simulate several building archetypes under different climatic conditions.
 However, we would still have to make assumptions such as, internal loads, geometry, building materials.
 This would ultimately have lead to uncertainties in the estimation of \ac{t-db}.
