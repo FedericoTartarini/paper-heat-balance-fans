@@ -57,6 +57,8 @@ The difference between the results obtained with the two heat balance models can
 The latter was estimated using ISO 7933 equation and it is estimated as a function of \ac{w} alone.
 On the other hand, \citeauthor{GaggeSET} calculate the value of \ac{m-sweat} as a function of regulatory signals and they assume that \ac{m-sweat} cannot exceed 500~mL/h.
 
+% todo Ollie Jay: I think that when the Gagge model reaches a steady-state the sweat output should be the same as that required to achieve Ereq (adjusted for differences in sweating efficiency). I am pretty sure that is the basis of the PHS as well - in fact I think the PHS' predecessor, which the PHS built upon,  was called the required sweat rate for heat balance index
+
 The excess heat stored in the human body (\acs{s-cr} + \acs{s-sk}), \ac{t-sk}, and \ac{t-cr} are shown in Figure~\ref{fig:results_model_2}A, \ref{fig:results_model_2}C, and \ref{fig:results_model_2}D, respectively.
 When the body can no longer dissipate exogenous and endogenous heat gains, the excess heat causes \ac{t-sk} and \ac{t-cr} to rise.
 
@@ -85,6 +87,8 @@ Consequently, in the region where the heat stress curve for elevated air speeds 
 This can be achieved using passive cooling strategies such as evaporative cooling.
 \mycite{Jay2015} model fails to account for this aspect and overestimates the benefits of using fans for \ac{rh} values lower than 20~\% and \ac{t-db} above 46~$^{\circ}$C, please refer to Section~\ref{subsec:model-validation-experimental-data} for more information.
 
+% todo Ollie Jay: I actually think the overestimation of the efficacy of fan use with our old model occurs at much lower temperatures.. Based on all of the physiological data I am concerned that the present model overestimates the beneifits of fan use at these very dry and hot temperatures. I think that if we assessed fan use at say 42 or 43C and 5%RH, fans would be detrimental even in healthy young people
+
 \subsection{Metabolic Rate and Clothing}\label{subsec:met-clo}
 
 To better understand how personal factors would impact the body's ability to dissipate heat, we calculated when heat stress would occur for different combinations of \ac{met} and \ac{clo}.
@@ -102,6 +106,8 @@ For values of \ac{rh} below 20~\% the model predicts that heat strain will be de
 In these conditions people can easily sweat despite the higher clo level and additional clothing will reduce sensible heat gains.
 It should, however, be noted that these results are affected by \ac{i-cl}.
 
+% todo huizenga: Do you want to mention vapor permeability of clothing here or is that too much detail?
+
 \subsection{Model Validation Using Experimental Data}\label{subsec:model-validation-experimental-data}
 
 To validate the results obtained with the \mycite{GaggeSET} model, we examined how the predicted value of \ac{t-cr} varies as a function of \ac{rh}, under a set of specific conditions as tested experimentally by \mycite{Rate2015} (e.g., \ac{t-db}~=~42~$^{\circ}$C, \ac{v}~=~4.0~m/s, \ac{clo}~=~0.35~clo, and \ac{met}~=~1.0~met).
@@ -110,6 +116,8 @@ It should be noted that \mycite{Rate2015} only reported the core body temperatur
 % todo compare with the full dataset
 Consequently, despite the agreement with their experimental data (mean absolute error~=~\var{mean_abs_err_ravanelli}~$^{\circ}$C), more experimental data is needed for validation.
 % todo SS From this text it seems that the ONLY validation for the gagge model is this comparison with one subject that you did. Are you sure about this? I guess that there are papers out there that verified if Gagge model was accurate to predict core temperature. Given that you are not giving a real validation, maybe it is better to reference to more extensive valudations and remove this part. If this is the only validation, then consider moving it as appendix.
+
+% todo Ollie Jay: I agree with this comment... This one participant was an example and we have the data for the other participants , but still, it is only small subset of individuals so probably does not constitute a validation.
 
 \begin{figure}[thb!]
     % todo check font size
@@ -127,6 +135,7 @@ The environmental conditions above which the use of elevated air speeds would be
     \centering
     \includegraphics[width=\textwidth]{figures/summary_use_fans_comparison_experimental}
     \caption{The green area shows the environmental conditions in which the use of fans is beneficial since they provide additional cooling to the human body.
+    % todo Ollie Jay: I am still uncomfortable with the notion that fans should be recommended up to 45C and 0-5%RH. I do not think this matches the physiological data.
     In the dark green region, while the use of fans is still beneficial, people are most likely to suffer from heat strain.
     The red area demarcates the region in which electric fans should not be used.
     The dotted lines show the isoenthalpic lines passing through the conditions studied by \mycite{Morris2019}.

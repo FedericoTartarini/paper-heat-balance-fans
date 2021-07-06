@@ -3,6 +3,8 @@
 
 \section{Discussion}\label{sec:discussion}
 
+% todo Ollie Jay: I was surprised to not see more of a discussion of the differences between our 2015 study and this one.  I also think that perhaps it maybe worth considering more reflection of the analysis outcomes relative tot he physiological data that are available. At one stage there was also mention of the PHS model that does not seem to be followed up on in the discussion?
+
 Electric fans are a cheaper and more energy-efficient alternative to compressor-based air conditioning.
 Fans require less energy to operate, have lower operational and maintenance costs, and do not use refrigerants that potentially harm the environment. 
 If battery operated, they can be used during power outrages. 
@@ -10,8 +12,12 @@ However, several public health guidelines discourage their use when \acf{t-db} e
 Our results show that this recommendation is too conservative and that the use of fans at higher ambient temperatures could yield substantial benefits for young healthy adults free of sweating impairments.
 While sensible heat gain increases as the \ac{t-db} exceeds \acf{t-sk}, this is more than offset by the increase in latent heat loss by elevated air speed under conditions that do not permit complete evaporation without elevated air speed. 
 This is true for more than 99~\% of recorded extreme heat events worldwide.
-For example, increasing the average air speed from 0.2 m/s to 0.8 m/s raises the temperature above which heat strain would occur by an average of \var{avg_increase_t_strain_v_08} (1.4, 2.1)~$^{\circ}$C [mean, (Q1, Q3)].
+For example, increasing the average air speed from 0.2 m/s to 0.8 m/s raises the temperature above which heat strain would occur by an average of \var{avg_increase_t_strain_v_08} (1.4, 2.1)~$^{\circ}$C [mean, (Q1, Q3)]. 
+% todo check the above results. give also an example with a real temperature, for example I could say at 50% temperature would increase from 40 to 42
+
 Only in very hot and dry conditions (e.g., \ac{t-db}~=~47~$^{\circ}$C, \ac{rh}~=~15~\%) fans have to be used in combination with evaporative cooling technologies to prevent heat stress from occurring.
+
+% todo Ollie Jay: I think this just needs a bit more explanation. We need to be clear here that under these conditions fan use alone is detrimental - we know this is true because of the physiological evidence. However, in theory if an evaporative cooler is employed in these conditions ambient temperature can be dropped to levels under which fans have been proven to be beneficial for blunting the development of physiological heat strain
 
 We also compared these data with the records available in the Emergency Events Database (EM-DAT)~\cite{EMDATThe70:online}.
 % todo CH paragraph below would be great if we could provide something a little more specific here. For example, could we do an analysis were we look at the number of deaths at each temperature bin, estimate the effective temperature decrease of 0.8 m/s air speed, and then estimate the number (or percentage_ of avoided deaths
@@ -19,19 +25,28 @@ A total of 122 heatwave events in the EM-DAT had information on the maximum air 
 These heatwaves were the cause of approximately 117000 deaths, out of which a total of 102876 and 3803 people died during heatwaves with maximum temperatures lower than 45~$^{\circ}$C and 40~$^{\circ}$C, respectively.
 During heatwaves as \ac{t-db} increases \ac{rh} generally decreases, hence, it may be hypothesized that the use of electric fans would have been beneficial in most of those scenarios.
 
+% todo Ollie Jay: Again, we have to be careful here... We know that when the conditions are particularly dry fans become detrimental - note my previously expressed reservations of our current model recommending fan use at temperatures as high as 45C with very low humidity. We shoudl re-assess why the threshold line does not come down with very low humidity conditions - I think it is because skin temperature continues to go up in the Gagge model?
+
 Our results validate and extend the findings of \mycite{Jay2015} that elevated air movement is beneficial even when \ac{t-db} exceeds \acf{t-sk}.
 This is significant because using compressor-based cooling to avoid heat stress is both environmentally and economically disadvantageous.
 In 2017, approximately 43.6~\% of the world population lived on less than \$5.50 per day, respectively~\cite{PovertyO1:online}.
 People that cannot afford air conditioning due to limited financial means, and have limited access to electricity and water, should certainly not be discouraged from using fans when \ac{t-db} exceeds \ac{t-sk}.
 Similarly, even in upper-middle, and high-income countries, where access to electricity is less of a concern, low-income people are among those who are most at risk during heatwaves and may not be able to cool or leave their homes during heatwaves.
+
+% Ollie Jay: We must be very clear that these findings related only to young healthy people. If older individuals with sweating impairments start using fans in hot/dry conditions it could be a public health disaster. Our ongoing lab dstudy shows that in older people (in 45C, 10%RH) fan massively accelerate core temperature rises, CV strain and dehydration
+
 Hence, they too should not be discouraged from using electric fans.
 Elevating air speed indoors would have the additional benefit of reducing the peak energy demand during hot days and the burden on the electric grid while reducing global greenhouse gas emission.
 Moreover, our results show that the extra sweat losses caused by fans in dry and hot conditions can be compensated with the ingestion of a glass of water every 8 hours.
 
+% todo Ollie Jay: I think we need to discuss these findings relative to the lab data that is available, some of which suggest a faster rate of dehydration
+
 \section*{Limitations}
 The \mycite{GaggeSET} heat balance model uses coefficients that were estimated empirically and some simplified equations (e.g., to calculate the respiratory losses) were used.
 Consequently, results may not be applicable to all individuals, such as those who demonstrate sweating impairments due to factors such as age, anti-cholinergic medications or other pre-existing conditions that interfere with thermoregulation.
+% todo Ollie Jay: I think it is also very much worth considering acknowledging that just like with any model, these are just estimations, and that more physiological data are needed.
 More research is needed to validate the applicability of this model to more vulnerable people for example the elderly.
+% todo Ollie Jay: I think we also need to acknowledge that it is not just hyperthermia that kills people in heatwaves - in particular the cardiovascular strain that people experience might also be exacerbated by fan use under certain conditions (as indicated by the physiological data). I am not sure if this is already captured but if Tsk is allowed to keep increasing in the Gagge model, does it do so to the point where the drive for skin blood flow will be such that the cardiovascular load to maintain central blood pressure might be too great?
 
 \section{Conclusions}\label{sec:conclusions}
 Several health guidelines regarding electric fans use during heat waves appear to underestimate the benefit that air movement has in cooling people when \acf{t-db} exceeds \acf{t-sk}.
@@ -40,6 +55,7 @@ This is possibly due to the fact that they underestimate the amount of heat that
 We used a heat balance model to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
 We were able to determine under which combination of environmental and personal parameters electric fans can be safely and effectively used to cool healthy adults.
 We validated the results obtained from the \mycite{GaggeSET} model using experimental data in young healthy adults collected in laboratory studies by \mycite{Morris2019} and \mycite{Rate2015}.
+% todo Ollie Jay: To Stefano's earlier comment, I think we need to be cautious of using the term "validate" as this would require verification of the model outputs across the full range of conditions and combinations of persona and environmental parameters. Perhaps re-word to say that the model output does seem to agree broadly with the physiological data available - note that in our response to the letter to the editor for our recent STOTEN paper, we provide some details of some other (unpublished physiological data) physiological data
 
 Our results show that electric fans are an effective, efficient, and sustainable solution to cool people even when \ac{t-db} exceeds \ac{t-sk}.
 For values of \ac{rh} higher than 22~\% air speed of 0.8~m/s increases the critical air temperature at which both an elevated cardiovascular and thermal strain occurs by an average of \var{avg_increase_t_strain_v_08}~$^{\circ}$C\@.
