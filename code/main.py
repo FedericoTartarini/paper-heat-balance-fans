@@ -1108,7 +1108,12 @@ class DataAnalysis:
 
         v_range = [0.2, 0.8]
 
-        f, ax = plt.subplots(len(v_range), 1, sharex="all", sharey="all")
+        f, ax = plt.subplots(
+            len(v_range), 1, sharex="all", sharey="all", constrained_layout=True
+        )
+
+        # self.ta_range = range(38, 48)
+        # self.rh_range = range(0, 30)
 
         df_comparison = pd.DataFrame()
 
@@ -1167,10 +1172,10 @@ class DataAnalysis:
 
         f, ax = plt.subplots(constrained_layout=True)
         origin = "lower"
-        levels = [-0.5, 0, 0.25, 0.5, 1, 2, 3]
+        levels = [-0.1, 0, 0.25, 0.5, 1, 2, 3]
         cf = ax.contourf(x, y, df_w.values, levels, extend="both", origin=origin)
-        cf.cmap.set_under("darkblue")
-        cf.cmap.set_over("maroon")
+        cf.cmap.set_under("black")
+        cf.cmap.set_over("red")
         # ax.contour(x, y, df_w.values, levels, colors=("k",), origin=origin)
 
         ax.set(
@@ -1258,7 +1263,7 @@ class DataAnalysis:
 
         alpha = 0.45
 
-        rh_arr = np.arange(36, 110, 2)
+        rh_arr = np.arange(0, 110, 2)
         tmp_low = []
 
         def function(x):
@@ -1271,7 +1276,8 @@ class DataAnalysis:
                     met=self.defaults["met"],
                     clo=self.defaults["clo"],
                     wme=0,
-                )["temp_core"]
+                )["skin_blood_flow"]
+                + 0.1
                 - use_fans_heatwaves(
                     x,
                     x,
@@ -1280,15 +1286,44 @@ class DataAnalysis:
                     met=self.defaults["met"],
                     clo=self.defaults["clo"],
                     wme=0,
-                )["temp_core"]
+                )["skin_blood_flow"]
             )
 
         for rh in rh_arr:
 
-            try:
-                tmp_low.append(optimize.brentq(function, 30, 130))
-            except ValueError:
-                tmp_low.append(np.nan)
+            t = 60
+
+            t_v_high = 90
+            t_v_low = 89
+
+            while t_v_high - t_v_low > -0.05:
+                t_v_high = use_fans_heatwaves(
+                    t,
+                    t,
+                    air_speeds[1],
+                    rh,
+                    met=self.defaults["met"],
+                    clo=self.defaults["clo"],
+                    wme=0,
+                )["skin_blood_flow"]
+                t_v_low = use_fans_heatwaves(
+                    t,
+                    t,
+                    air_speeds[0],
+                    rh,
+                    met=self.defaults["met"],
+                    clo=self.defaults["clo"],
+                    wme=0,
+                )["skin_blood_flow"]
+                t -= 0.5
+                print(t)
+
+            tmp_low.append(t)
+
+            # try:
+            #     tmp_low.append(optimize.brentq(function, 30, 130))
+            # except ValueError:
+            #     tmp_low.append(np.nan)
 
         # plot heat strain lines
         heat_strain = self.heat_strain.copy()
@@ -1335,6 +1370,7 @@ class DataAnalysis:
                     )
 
         x_new, y_new = interpolate(rh_arr, tmp_low)
+        x_new, y_new = rh_arr, tmp_low
 
         # plotting this twice to ensure consistency colors previous chart
         fb_0 = ax.fill_between(
@@ -2675,7 +2711,7 @@ if __name__ == "__main__":
     self = DataAnalysis()
 
     figures_to_plot = [
-        "gagge_results_physio_heat_loss",
+        # "gagge_results_physio_heat_loss",
         # "gagge_results_physiological",
         # "weather_data_world_map",
         # "heat_strain_different_v",
@@ -2738,6 +2774,8 @@ if __name__ == "__main__":
         if figure_to_plot == "phs":
             self.phs_results(save_fig=save_figure)
 
+    self.summary_use_fans_two_speeds()
+
     #     self.defaults["met"] = 1.8
     #     self.summary_use_fans_two_speeds()
     #     plt.show()
@@ -2753,7 +2791,12 @@ if __name__ == "__main__":
     # self.plot_other_variables(
     #     variable="energy_balance", levels_cbar=np.arange(0, 200, 10)
     # )
-    # self.plot_other_variables(variable="temp_core", levels_cbar=np.arange(36, 43, 0.5))
+    # self.plot_other_variables(
+    #     variable="skin_blood_flow", levels_cbar=np.arange(36, 43, 0.5)
+    # )
+    # self.plot_other_variables(
+    #     variable="skin_blood_flow", levels_cbar=np.arange(50, 91, 1)
+    # )
 
     # plt.close("all")
     # plt.plot()
