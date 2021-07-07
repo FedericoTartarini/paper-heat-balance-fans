@@ -938,7 +938,8 @@ class DataAnalysis:
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
             ylim=(29.9, 50),
-            xlim=(-1, 100),
+            xlim=(5, 85.5),
+            xticks=(np.arange(5, 95, 10)),
         )
 
         sns.despine(left=True, bottom=True, right=True)
@@ -968,8 +969,6 @@ class DataAnalysis:
             {"clo": 0.36, "met": 1, "ls": "dashed"},
             {"clo": 0.5, "met": 1, "ls": "dotted"},
             {"clo": 0.36, "met": 1.2, "ls": "solid"},
-            # {"clo": 0.5, "met": 1.2, "ls": "dashdot"},
-            # {"clo": 0, "met": 0.8, "ls": (0, (3, 1, 1, 1, 1, 1))},
         ]
 
         for combination in combinations:
@@ -1016,7 +1015,8 @@ class DataAnalysis:
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
             ylim=(29.9, 50),
-            xlim=(-1, 100),
+            xlim=(5, 85.5),
+            xticks=(np.arange(5, 95, 10)),
         )
 
         sns.despine(left=True, bottom=True, right=True)
@@ -1111,9 +1111,6 @@ class DataAnalysis:
         f, ax = plt.subplots(
             len(v_range), 1, sharex="all", sharey="all", constrained_layout=True
         )
-
-        # self.ta_range = range(38, 48)
-        # self.rh_range = range(0, 30)
 
         df_comparison = pd.DataFrame()
 
@@ -1263,7 +1260,7 @@ class DataAnalysis:
 
         alpha = 0.45
 
-        rh_arr = np.arange(0, 110, 2)
+        rh_arr = np.arange(36, 105, 1)
         tmp_low = []
 
         def function(x):
@@ -1276,8 +1273,7 @@ class DataAnalysis:
                     met=self.defaults["met"],
                     clo=self.defaults["clo"],
                     wme=0,
-                )["skin_blood_flow"]
-                + 0.1
+                )["temp_core"]
                 - use_fans_heatwaves(
                     x,
                     x,
@@ -1286,47 +1282,18 @@ class DataAnalysis:
                     met=self.defaults["met"],
                     clo=self.defaults["clo"],
                     wme=0,
-                )["skin_blood_flow"]
+                )["temp_core"]
             )
 
         for rh in rh_arr:
 
-            t = 60
-
-            t_v_high = 90
-            t_v_low = 89
-
-            while t_v_high - t_v_low > -0.05:
-                t_v_high = use_fans_heatwaves(
-                    t,
-                    t,
-                    air_speeds[1],
-                    rh,
-                    met=self.defaults["met"],
-                    clo=self.defaults["clo"],
-                    wme=0,
-                )["skin_blood_flow"]
-                t_v_low = use_fans_heatwaves(
-                    t,
-                    t,
-                    air_speeds[0],
-                    rh,
-                    met=self.defaults["met"],
-                    clo=self.defaults["clo"],
-                    wme=0,
-                )["skin_blood_flow"]
-                t -= 0.5
-                print(t)
-
-            tmp_low.append(t)
-
-            # try:
-            #     tmp_low.append(optimize.brentq(function, 30, 130))
-            # except ValueError:
-            #     tmp_low.append(np.nan)
+            try:
+                tmp_low.append(optimize.brentq(function, 30, 130))
+            except ValueError:
+                tmp_low.append(np.nan)
 
         # plot heat strain lines
-        heat_strain = self.heat_strain.copy()
+        heat_strain = {}
 
         for ix, v in enumerate(air_speeds):
 
@@ -1359,76 +1326,75 @@ class DataAnalysis:
             for x_val, y_val in zip(x, y_smoothed):
                 heat_strain[v][x_val] = y_val
 
-            if plot_heat_strain_lines:
-                if v == air_speeds[0]:
-                    (ln_2,) = ax.plot(
-                        x, y_smoothed, label=f"V = {v} m/s", c="k", linestyle="-"
-                    )
-                if v == air_speeds[1]:
-                    (ln_0,) = ax.plot(
-                        x, y_smoothed, label=f"V = {v} m/s", c="k", linestyle="-."
-                    )
+        if plot_heat_strain_lines:
+            ax.plot(
+                x,
+                heat_strain[air_speeds[0]].values(),
+                label=f"V = {air_speeds[0]} m/s",
+                c="k",
+                linestyle="-",
+            )
 
-        x_new, y_new = interpolate(rh_arr, tmp_low)
+            ax.plot(
+                x,
+                heat_strain[air_speeds[1]].values(),
+                label=f"V = {air_speeds[1]} m/s",
+                c="k",
+                linestyle="-.",
+            )
+
+        t_cutoff = 30
+        rh_cutoff = 10
+        for rh in heat_strain[air_speeds[0]].keys():
+            if heat_strain[air_speeds[0]][rh] + 0.1 >= heat_strain[air_speeds[1]][rh]:
+                t_cutoff = heat_strain[air_speeds[0]][rh]
+                rh_cutoff = rh
+
         x_new, y_new = rh_arr, tmp_low
 
+        y_new = [x if x < t_cutoff else t_cutoff for x in y_new]
+
         # plotting this twice to ensure consistency colors previous chart
-        fb_0 = ax.fill_between(
-            x_new,
-            y_new,
-            100,
+        ax.fill_between(
+            [0, *x_new],
+            [t_cutoff, *y_new],
+            50,
             color="coral",
             alpha=alpha,
             label=f"No fans - V = {air_speeds[1]} m/s",
             edgecolor=None,
         )
 
-        df = pd.DataFrame(heat_strain)
-        df_fan_above = df[df[air_speeds[1]] >= df[air_speeds[0]]]
-        df_fan_below = df[df.index <= df_fan_above.index.min()]
+        upper_limit_heat_strain = [
+            x if x < t_cutoff else t_cutoff for x in heat_strain[air_speeds[1]].values()
+        ][-len(x_new) :]
 
-        x_new, y_new = interpolate(
-            rh_arr, tmp_low, x_new=list(df_fan_above.index.values)
-        )
+        upper_limit_heat_strain.insert(0, t_cutoff)
 
         ax.fill_between(
-            x_new,
-            df_fan_above[air_speeds[1]].values,
-            y_new,
+            [rh_cutoff, *x_new],
+            upper_limit_heat_strain,
+            [t_cutoff, *y_new],
             color="#2dc653",
             alpha=alpha,
             label=f"Heat strain - fans beneficial",
             edgecolor=None,
         )
 
-        # green part on the right
-        fb_2 = ax.fill_between(
-            x_new, 0, y_new, color="#b7efc5", alpha=alpha, edgecolor=None
-        )
-
-        # # green part below evaporative cooling
         ax.fill_between(
-            df_fan_below.index,
-            0,
-            df_fan_below[air_speeds[1]].values,
+            [0, rh_cutoff, *x_new],
+            25,
+            [t_cutoff, *upper_limit_heat_strain],
             color="#b7efc5",
             alpha=alpha,
             label=f"No heat strain - fans beneficial",
             edgecolor=None,
         )
 
-        # blue part below evaporative cooling
-        fb_3 = ax.fill_between(
-            df_fan_below.index,
-            df_fan_below[air_speeds[1]].values,
-            100,
-            color="coral",
-            alpha=alpha,
-        )
-
         ax.set(
-            ylim=(29.9, 50),
-            xlim=(0, 100),
+            ylim=(29.95, 50),
+            xlim=(5, 85.05),
+            xticks=(np.arange(5, 95, 10)),
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
         )
@@ -1463,21 +1429,6 @@ class DataAnalysis:
 
         # horizontal line showing limit imposed by most of the standards
         ax.plot([0, 100], [35, 35], c="tab:red")
-
-        # # add legend
-        # plt.legend(
-        #     [ln_2, ln_0, fb_2, fb_0, fb_3],
-        #     [
-        #         f"V = {air_speeds[0]} m/s",
-        #         f"V = {air_speeds[1]} m/s",
-        #         "Use fans",
-        #         f"No fans - V = {air_speeds[1]} m/s",
-        #         "Evaporative cooling",
-        #     ],
-        #     loc="lower left",
-        #     ncol=2,
-        #     facecolor="w",
-        # )
 
         # add legend
         if legend:
@@ -2718,7 +2669,7 @@ if __name__ == "__main__":
         # "ravanelli_comp",
         # "met_clo",
         # "summary_use_fans_weather",
-        # "summary_use_fans_comparison_experimental",
+        "summary_use_fans_comparison_experimental",
         # "summary_use_fans_and_population_tdb_max",
         # "world_map_population_weather",
         # "met_clo_v",
@@ -2774,7 +2725,7 @@ if __name__ == "__main__":
         if figure_to_plot == "phs":
             self.phs_results(save_fig=save_figure)
 
-    self.summary_use_fans_two_speeds()
+    # self.summary_use_fans_two_speeds()
 
     #     self.defaults["met"] = 1.8
     #     self.summary_use_fans_two_speeds()
