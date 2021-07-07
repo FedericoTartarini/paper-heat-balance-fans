@@ -3,7 +3,7 @@
 
 \section{Methodology}\label{sec:methodology}
 
-The energy balance model we used estimates how environmental (i.e., \ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (i.e., \ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
+The energy balance model we used estimates how environmental (\ac{t-db}, \ac{t-r}, \ac{v}, \ac{rh}) and personal factors (\ac{clo}, \ac{met}) influence both latent and sensible components of the \ac{q-sk}, and the \ac{q-res}.
 Moreover, it can be used to estimate the value of some physiological variables such as \ac{t-sk}, and \ac{t-cr}.
 In non-uniform environments \ac{t-db} and \ac{v} are assumed to be equal to the average temperature and air speed measured at 0.1, 0.6, and 1.1~m height for seated occupants and at 0.1, 1.1, and 1.7~m for standing occupants.
 
@@ -12,6 +12,7 @@ Section~\ref{subsec:energy-balance} describes the main Equations used by the mod
 \subsection{Energy Balance}\label{subsec:energy-balance}
 
 The human body exchanges both sensible and latent heat with its surrounding environment.
+Heat gain or loss from the human body to its environment can be expressed as a function of environmental and personal factors~\cite{ASHRA2017}.
 Sensible heat is transferred via conduction, convection and radiation (\acs{c-r} + \acs{c-res}).
 Latent heat loss occurs from the evaporation of sweat (\acs{e-rsw}), moisture diffused through the skin  (\acs{e-dif}), and respiration (\acs{e-res}).
 The energy balance in the human body is described by:
@@ -22,14 +23,10 @@ The energy balance in the human body is described by:
 
 This equation assumes that the body comprises two main thermal compartments: the skin and the core.
 If the exogenous and endogenous heat gains cannot be compensated by heat loss, then both the \ac{s-sk}, and the \ac{s-cr} increase and in turn the \ac{t-sk}, and \ac{t-cr} rise, respectively.
-One of the main differences between \mycite{GaggeSET} model and the one used by \mycite{Jay2015} is that \mycite{Jay2015} does not account for heat stored in the core or the skin compartment; hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
+One of the main differences between \mycite{GaggeSET} model and the one used by \mycite{Jay2015} is that \mycite{Jay2015} does not account for heat stored in the core or the skin compartment;
+hence, they assume the values of \ac{t-sk} and \ac{t-cr} to be constant.
 Calculating how \ac{t-sk} and \ac{t-cr} vary as a function of different environmental and personal factors allows us to better predict how much heat the body exchanges with its surrounding environment~\cite{ASHRA2017}.
-
-% todo Ollie Jay: I think it is fair to say that a) this model assumes a steady-state, and b) the assumed Tsk values were set to represent worst-case scenario from the literature.
-
-% todo Ollie Jay: If anything this will underestimate net heat loss from the body to surrounding environment, which is not ideal from a public health perspective. There is quite a lot of push-back on fan use due to concerns that they aggravate heat stress, so setting conservative parameters (i.e. in favour of the current viewpoint that fan worsen heat stress) is probably advisable. The other role of changing Tsk is that it serves as a forcing function for sweating, but as we previously discussed heating of the skin seems to quite dramatically alter the relationship between core temperature and sudomotor output, so that it is possible to sweat more with a fan (which elicits a higher skin temperature) despite a lower core temperature
-
-The amount of sensible and latent heat gain or loss from the human body to its environment can be expressed as a function of environmental and personal factors~\cite{ASHRA2017}.
+It should be noted that the steady-state model proposed by \mycite{Jay2015} is more conservative since it assumes a constant value for \ac{t-sk}, overestimating the sensible heat gains when \ac{t-db} exceeds \ac{t-sk}.
 The equations used to determine sensible and latent heat loss are based on fundamental heat transfer theory, while the coefficients were estimated empirically~\cite{ASHRA2017}.
 
 \subsubsection{Body Surface Area}
@@ -41,7 +38,7 @@ Equation~\ref{eq:dubois} can be used to estimate \ac{body-a} as a function of th
     A_{body} = 0.202 mass^{0.425} height^{0.725}\label{eq:dubois}
 \end{equation}
 
-In thermal comfort research, this value is generally assumed to be constant and equal to 1.8 m$^{2}$.
+In thermal comfort research, this value is generally assumed to be constant and equal to 1.8~m$^{2}$.
 Several other equations have been developed to estimate \ac{body-a} and we allow users to specify \ac{body-a} as the input value.
 Alternative equations to the DuBois equation are available.
 A recent detailed review paper concluded that most of the proposed equations in the literature were in agreement with each other to estimate \ac{body-a} for adults with a healthy weight and standard physique~\cite{Redlarski2016}.
@@ -56,9 +53,9 @@ The equation can be expressed as:
     C+R=\frac{t_{s k}-t_{o}}{R_{c l}+1 /\left(f_{c l} h\right)}\label{eq:c-r}
 \end{equation}
 
-%\begin{equation}
-%    f_{cl}=1.0 + 0.31 I_{cl} \label{eq:f-cl}
-%\end{equation}
+\begin{equation}
+    f_{cl}=1.0 + 0.31 I_{cl} \label{eq:f-cl}
+\end{equation}
 
 \begin{equation}
     h=h_{c} + h_{r} = \max(3.0, 8.6 V^{0.53}) p_{atm}^{0.53} + 4 \varepsilon \sigma \frac{A_{\mathrm{r}}}{A_{body}}\left[273.2+\frac{\left(t_{\mathrm{cl}}+\overline{t_{r}}\right)}{2}\right]^{3}\label{eq:h}
@@ -74,8 +71,7 @@ The value of \ac{t-op} varies as a function of the \ac{h-c}, \ac{h-r}, \ac{t-r} 
 
 In \mycite{GaggeSET} model, the value of \ac{t-sk} is calculated iteratively since it varies as a function of the heat loss from the human body towards its environment and the heat transferred from the core to the skin node, as shown in Source Code~\ref{lst:pythonCode}.
 \Ac{t-cl} can be calculated as a function of \ac{t-op}, \ac{t-sk}, \ac{r-cl} and the resistance of the air layer.
-
-% todo Ollie Jay: I think we should acknowledge here that this does not represent the most conservative approach in terms of dry heat gain with fan use
+As previously stated, it should be noted that this is not a conservative approach and in some circumstances it may underestimate the value of \ac{c-r}.
 
 \subsubsection{Latent Heat Loss from Skin, (\acs{e-sk})}
 
@@ -86,10 +82,7 @@ The \acf{e-sk} comprises two terms: the \ac{e-rsw} and the \ac{e-dif}.
     E_{s k}=E_{rsw}+E_{dif}=\frac{w\left(p_{s k, s}-p_{a}\right)}{R_{e, c l}+1 /\left(f_{c l} h_{e}\right)}\label{eq:latent-skin}
 \end{equation}
 
-Although Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}, the human body does not regulate \ac{w} directly but, rather, it regulates the sweat rate.
-
-% todo Ollie Jay: Emerging evidence since the time of Gagge suggests otherwise. That is given evaporative rate is the goal, not sweat rate per se
-
+Although Equation~\ref{eq:latent-skin} is expressed as a function of \ac{w}, the human body does not regulate \ac{w} directly but, rather, it regulates the \ac{m-sweat}.
 The value of \ac{m-sweat} can be predicted by the deviation of \ac{t-sk} and \ac{t-cr} from their set neutral value, and it is described by:
 
 \begin{equation}
@@ -105,9 +98,6 @@ The \ac{a} is determined using:
 \end{equation}
 
 Where the \ac{m-bl} is limited to a maximum of 90~L/(hm\textsuperscript{2}).
-
-% note OJ - I know this might sound crazy, but I am not sure this is correct - which might be a problem with model. Physiological evidence points to the evaporative heat loss requirement for heat balance being the regulated variable - in a sense, i.e. this is what determines the steady-state SR. The onset and thermosensitivity of the thermoeffector response determines how hot someone gets before they reach steady-state. We recently published a paper on this in J Physiol (London): Ravanelli N, Imbeault P, Jay O (2020) Steady-state sweating during exercise is determined by the evaporative requirement for heat balance independently of absolute core and skin temperature. J Physiol (London); 598(13):2607-2619. With an editorial: Mundel T (2020) Thermoregulatory sweating and evaporative heat loss during exercise: is the whole greater than the sum of its parts? J Physiol (London); 598(13):2535-2536. This is further modified by skin temperature. See our recent paper in MSSE: Hospers L, Cheuvront S, Kenefick RW, Jay O* (2020) Independent influence of skin temperature on whole-body sweat rate. Med Sci Sports Exerc; 52(11):2423-2429. ...which is why I think you can get lower core temperature with a higher sweat rate with fan use in some conditions (e.g. the 40C/50%RH condition of Morris et al 2019).
-% FT I got this information from the ASHRAE 2017 Handbook fundamentals Eq.18 page 193
 
 Skin wettedness varies as a function of the activity of the sweat glands and the environmental conditions.
 It correlates with warm discomfort and is a good measure of thermal stress.
@@ -152,32 +142,32 @@ The former assumption is based on the fact that there is a \ac{w-max} for health
 The other two assumptions are based on the fact that \mycite{GaggeSET} state that serious danger of fatality exists when blood flow from the core to the skin is maximal or sweating reaches its maximum.
 We assumed that the use of electric fans is detrimental when the value of \ac{t-cr} calculated for values of \ac{v} higher than 0.2~m/s exceeds the value determined for the `still air' condition.
 
-Results were calculated using the  \verb|pythermalcomfort| Python package~\cite{Tartarini2020a} function \verb|use_fans_heatwaves|.
+Results were calculated using the  \verb|pythermalcomfort| Python package~\cite{Tartarini2020a}.
 A copy of the algorithm we used to calculate the results can also be found in \ref{sec:python_code}.
 Lines in Figures~\ref{fig:comparison_models}, \ref{fig:results_model_2}, \ref{fig:comparison_air_speed}, \ref{fig:met_clo}, \ref{fig:energy_storage_delta}, and \ref{fig:use_fans_and_population} were smoothed using the \verb|Scipy| function \verb|ndimage.gaussian_filter1d|.
-Moreover, we developed a tool that can be used to generate interactive figures that show the environmental conditions under which the use of elevated air speeds is beneficial.
+We developed a tool that can be used to generate interactive figures that show the environmental conditions under which the use of elevated air speeds is beneficial.
 This tool has been added and integrated into the CBE Thermal Comfort Tool~\cite{Tartarini2020}.
 
 \subsection{Predicted Heat Strain Model}\label{subsec:predicted-heat-strain-model}
 
 We also compared our results with those obtained from the \ac{phs} model.
 The \ac{phs} model allows the analytical evaluation of the thermal stress experienced by a subject in a hot environment.
-It allows to predict the sweat rate and \ac{t-re} that the human body will develop in response to the working conditions.
-The \ac{phs} model as described in the ISO 7933 Standard does not predict the physiological response of individual subjects and aims to evaluate working conditions for a standard subject in good health and fit for the work~\cite{iso7933}.
+It allows to predict the \ac{m-sweat} and \ac{t-re} that the human body will develop in response to the working conditions~\cite{iso7933}.
 The \ac{phs} model has been validated based on a database including 747 lab experiments and 366 field experiments, from 8 research institutions~\cite{iso7933}.
-The \ac{phs} model has not been validated for metabolic rates lower than 1.7 met (100 W/m\textsuperscript{2}), \ac{t-db} higher than 50~$^{\circ}$C and water vapour partial pressure ($p_{a}$) higher than 4~kPa (i.e., humidity ratio of \var{hr_4_kpa}~kg$_{water}$/kg$_{dry air}$).
-In this present study we are determining when fans should be used by individuals with a \ac{met}~=~1.1~met, hence, we will be using the \ac{phs} model outside its ranges of validity.
+It has not been validated for metabolic rates lower than 1.7 met (100 W/m\textsuperscript{2}), \ac{t-db} higher than 50~$^{\circ}$C and water vapour partial pressure ($p_{a}$) higher than 4~kPa (i.e., humidity ratio of \var{hr_4_kpa}~kg$_{water}$/kg$_{dry air}$).
+In this present study we are determining when fans should be used by individuals with a \ac{met}~=~1.1~met, hence, we used the \ac{phs} model outside its ranges of validity.
 We calculated the \ac{phs} using the \verb|pythermalcomfort| Python package~\cite{Tartarini2020a} function \verb|phs|.
 We assumed that elevated air speed is detrimental when the maximum allowable exposure time for heat storage estimated with a \ac{v}~=~0.8~m/s is higher than the value estimated with a \ac{v}~=~0.2~m/s.
 
 \subsection{Weather Data}\label{subsec:weather-data}
 
-To better understand in which locations worldwide the use of electric fans would be beneficial we compared the results obtained from the heat balance model with the climatic data provided in the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017} and the records from the Emergency Events Database (EM-DAT) which contains a list of the deadliest heatwaves recorded from 1936 to the present date~\cite{EMDATThe70:online}.
+To better understand in which locations worldwide the use of electric fans would be beneficial we compared the results obtained from the heat balance model with the climatic data provided in the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
+We also used the records from the Emergency Events Database (EM-DAT) which contains a list of the deadliest heatwaves recorded from 1936 to the present date~\cite{EMDATThe70:online}.
 
 From the ASHRAE climatic design dataset, we extracted weather data from more than 5000 stations worldwide.
-For each station we collected the: maximum extreme \ac{t-db} with a 20 year return period;
+For each station we collected the maximum extreme \ac{t-db} with a 20 year return period
 and the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
-For more information about the ASHRAE climate design dataset please refer to Chapter 14 of the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
+For more information about the ASHRAE climate design dataset please refer to Chapter~14 of the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
 The location of the stations and their respective maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}.
 We do not show data from stations with a maximum temperature lower than 26~$^\circ$C\@ since we are only interested in assessing the benefit of using fans during hot days.
 
@@ -193,11 +183,11 @@ Few data are available for Sub-Saharan Africa where approximately 40~\% of the p
 To determine the coincident value of \ac{rh} when the maximum extreme \ac{t-db} with a 20 year return period was recorded we first determined the humidity ratio for each location using the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
 We then assumed that during a heatwave the humidity ratio would remain constant while only the value of \ac{t-db} would increase.
 This assumption allowed us to estimate, for each location, the value of \ac{rh} for each extreme \ac{t-db}.
-This is an approximation and it does not take into account that during heat waves the value of humidity ratio could also increase.
+This is an approximation and it does not take into account that during heat waves the value of humidity ratio may also increase.
 More information on this is presented in \ref{sec:validation_rh}.
 
 We also assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
-However, conditions indoors may be less severe than outdoors since the thermal mass of the building may dump and shift peaks in outdoor temperature.
+Conditions indoors may be less severe than outdoors since the thermal mass of buildings may dump and shift peaks in outdoor temperature.
 At the same time, the opposite scenario can also occur if there is a significant amount of internal load or solar gains indoors.
 We are aware that this assumption has some limitations, however, we deemed it to be an acceptable approximation.
 One possible solution was to simulate several building archetypes under different climatic conditions.
