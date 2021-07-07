@@ -9,8 +9,7 @@ The sensible heat loss from the skin to the environment is proportional to the d
 Consequently, for values of \ac{t-op} higher than \ac{t-sk} the body gains sensible heat from its environment and the term \ac{c-r} becomes negative.
 Figure~\ref{fig:comparison_models}A shows how sensible heat loss estimated with the \mycite{GaggeSET} and the \mycite{Jay2015} models vary as a function of \ac{t-op}, \ac{rh}, and \ac{v}.
 
-% todo FT fix y label Fig 2B
-\begin{figure*}[thb!]
+\begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/comparison_models_v2}
     \caption{Results obtained with the energy models proposed by \mycite{Jay2015} and \mycite{GaggeSET}.
@@ -26,7 +25,7 @@ The former model iteratively determines \ac{t-sk}, while the latter assumes it t
 When heat gains exceed heat losses, the \mycite{GaggeSET} model estimates that some heat energy is stored in the body and consequently \ac{t-sk} increases, as shown in Figure~\ref{fig:results_model_2}A and ~\ref{fig:results_model_2}C, respectively.
 This reduces the rate at which sensible heat gain increases as \ac{t-op} increases.
 
-\begin{figure*}[thb!]
+\begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/results_model_2}
     \caption{Results obtained with \mycite{GaggeSET} energy model.
@@ -42,7 +41,6 @@ The values of \ac{w} for two air speeds are shown in Figure~\ref{fig:comparison_
 The skin wettedness is allowed by the model to increase until it reaches the value of \ac{w-max}, after that, it plateaus and remains constant and thermal stress is expected to occur.
 For young adults, \mycite{Jay2015} assumed \ac{w-max} to be equal to 0.65 for the `fan on' condition and 0.85 for the `fan off' condition.
 The values of \ac{w-max} estimated by the \mycite{GaggeSET} for the same air speeds are lower (Figure~\ref{fig:comparison_models}B).
-% todo SS It is always better to be direct and use the active voice. There are several situations in the paper where the readability can be improved.
 The operative temperature at which \ac{w} equals \ac{w-max} is inversely proportional to the value of \ac{rh}.
 For \ac{t-op} higher than \ac{t-sk}, the negative effect that an increase in \ac{v} has on sensible heat gain is compensated by a greater increase in the \acf{e-sk} that the body can dissipate towards the surrounding environment.
 For example, when \ac{t-op}~=~45~$^{\circ}$C and \ac{rh}~=~30~\%, a change in \ac{v} from 0.2 to 4.5~m/s increases (\acs{c-r}) by \var{increase_sensible_v_02_45}~W/m\textsuperscript{2} while increasing \ac{e-sk} by \var{increase_latent_v_02_45}~W/m\textsuperscript{2}, which provides a net positive effect.
@@ -66,7 +64,7 @@ When the body can no longer dissipate exogenous and endogenous heat gains, the e
 
 The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat stress is predicted to occur is presented in Figure~\ref{fig:comparison_air_speed}.
 
-\begin{figure}[thb!]
+\begin{figure}[hbt!]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/comparison_air_speed}
     \caption{Predicted limits above which thermal strain is estimated to occur.
@@ -94,7 +92,7 @@ This can be achieved using passive cooling strategies such as evaporative coolin
 To better understand how personal factors would impact the body's ability to dissipate heat, we calculated when heat stress would occur for different combinations of \ac{met} and \ac{clo}.
 Results for people wearing light summer clothing (walking shorts, short-sleeve shirt and sandals, \acs{clo}~=~0.36~clo), and office summer clothing (trousers, short-sleeve shirt, and closed shoes \acs{clo}~=~0.5~clo) who are either seated reading or writing (\ac{met}~=~1.0 met) or standing relaxed (\ac{met}~=~1.2~met) are shown in Figure~\ref{fig:met_clo}.
 
-\begin{figure}[thb!]
+\begin{figure}[hbt!]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/met_clo}
     \caption{Each line demarcates how different combinations of personal factors (e.g., \ac{met}, \ac{clo}) and environmental factors affect the point above which the body cannot longer dissipate all the endogenous and exogenous heat gains.}
@@ -119,7 +117,7 @@ Consequently, despite the agreement with their experimental data (mean absolute 
 
 % todo Ollie Jay: I agree with this comment... This one participant was an example and we have the data for the other participants , but still, it is only small subset of individuals so probably does not constitute a validation.
 
-\begin{figure}[thb!]
+\begin{figure}[hbt!]
     % todo check font size
     \centering
     \includegraphics[width=0.5\textwidth]{figures/comparison_ravanelli}
@@ -131,7 +129,7 @@ Consequently, despite the agreement with their experimental data (mean absolute 
 
 The environmental conditions above which the use of elevated air speeds would be detrimental according to \mycite{GaggeSET} model are shown in Figure~\ref{fig:use_fans_experimental}.
 
-\begin{figure*}[thb!]
+\begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/summary_use_fans_comparison_experimental}
     \caption{The green area shows the environmental conditions in which the use of fans is beneficial since they provide additional cooling to the human body.
@@ -170,7 +168,7 @@ The \ac{phs} model fails to predict that fans should not be used for \ac{rh} val
 On the other hand \ac{phs} results are more conservative for high values of \ac{rh}, with the \ac{phs} model discouraging the use of elevated air speeds for \ac{t-db}~=~37.5~$^{\circ}$C and \ac{rh}~=~90~\%\@.
 It should be noted that these latter conditions are extremely rare worldwide.
 
-\begin{figure*}[thb!]
+\begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/phs_gagge}
     \caption{Comparison results obtained with \mycite{GaggeSET} (A) and \ac{phs} models (B).
@@ -182,7 +180,7 @@ It should be noted that these latter conditions are extremely rare worldwide.
 
 To understand in which locations worldwide the use of electric fans would be beneficial, in Figure~\ref{fig:energy_storage_delta} we overlaid a plot showing the environmental conditions under which fans can be used with a scatter plot depicting the maximum extreme weather conditions recorded worldwide in more than 5,000 stations.
 
-\begin{figure*}[thb!]
+\begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/use_fans}
     \caption{Environmental conditions under which the use of electric fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:use_fans_experimental}.
@@ -197,7 +195,7 @@ To better quantify how many people would benefit from the use of electric fans w
 The former contained data from the 115 most populous cities worldwide.
 We plotted the data in Figure~\ref{fig:map-population-temperature}.
 
-\begin{figure*}[thb!]
+\begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/map-population-temperature}
     \caption{Most populous 115 cities worldwide}
@@ -213,7 +211,7 @@ The \mycite{GaggeSET} model predicted that healthy adults living in \var{cities_
 However, they should still be encouraged in using electric fans to improve their thermal conditions in an energy-efficient way.
 The model also predicts that \var{people_no_strain_v_08} million inhabitants would be better off using electric fans (\ac{v} up to 0.8~m/s) rather than not using them and they should not experience heat strain.
 
-\begin{figure*}[thb!]
+\begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/use_fans_and_population}
     \caption{Environmental conditions under which the use of electric fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:use_fans_experimental}.
@@ -230,7 +228,7 @@ This can be explained by the fact that with low \ac{rh} and high \ac{t-db} almos
 With elevated air speeds more sweat is needed to compensate for the additional sensible heat gains.
 It should be noted, that in these conditions the maximum predicted difference in sweat losses due to fan use is always lower than 30 mL/h, a difference that could be compensated by the ingestion of approximately 1 glass (i.e., 250 mL) of water every 8 hours.
 
-\begin{figure*}[thb!]
+\begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/sweat_rate}
     \caption{Predicted \acf{m-sweat} at different combinations of \acf{t-db} and \acf{rh} for two values \acf{v}~=~0.2~m/s and 0.8~m/s.}
