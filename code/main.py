@@ -1260,7 +1260,7 @@ class DataAnalysis:
 
         alpha = 0.45
 
-        rh_arr = np.arange(36, 105, 1)
+        rh_arr = np.arange(32, 105, 1)
         tmp_low = []
 
         def function(x):
@@ -1288,7 +1288,7 @@ class DataAnalysis:
         for rh in rh_arr:
 
             try:
-                tmp_low.append(optimize.brentq(function, 30, 130))
+                tmp_low.append(optimize.brentq(function, 32.5, 55))
             except ValueError:
                 tmp_low.append(np.nan)
 
@@ -1349,6 +1349,11 @@ class DataAnalysis:
             if heat_strain[air_speeds[0]][rh] + 0.1 >= heat_strain[air_speeds[1]][rh]:
                 t_cutoff = heat_strain[air_speeds[0]][rh]
                 rh_cutoff = rh
+
+        save_var_latex(
+            f"t_cutoff_v_{air_speeds[1]}".replace(".", ""),
+            round(t_cutoff, 1),
+        )
 
         x_new, y_new = rh_arr, tmp_low
 
@@ -1466,20 +1471,28 @@ class DataAnalysis:
             arr_rh.append(
                 psychrolib.GetRelHumFromHumRatio(row["db_max"], hr, 101325) * 100
             )
-            # arr_rh.append(
-            #     psychrolib.GetRelHumFromTWetBulb(row["db_max"], row["wb_max"], 101325)
-            #     * 100
-            # )
         df_queried["rh"] = [round(x * 2) / 2 for x in arr_rh]
+
+        t_cut_off = {}
 
         for ix, v in enumerate([0.2, 0.8, 4.5]):
 
-            heat_strain_v = self.heat_strain[v]
+            heat_strain_v = self.heat_strain[v].copy()
 
             df_queried[f"exc_t_crit_{str(v).replace('.', '')}"] = [
                 1 if x[1] > heat_strain_v[x[0]] else 0
                 for x in df_queried[["rh", "db_max"]].values
             ]
+
+            if v != 0.2:
+                for rh in self.heat_strain[v].keys():
+                    if self.heat_strain[0.2][rh] >= self.heat_strain[v][rh]:
+                        t_cut_off[v] = self.heat_strain[0.2][rh]
+
+                df_queried.loc[
+                    df_queried["db_max"] > t_cut_off[v],
+                    f"exc_t_crit_{str(v).replace('.', '')}",
+                ] = 1
 
         per_locations_fans_beneficial = (
             100
@@ -1574,6 +1587,8 @@ class DataAnalysis:
             )
         df_queried["rh"] = [round(x * 2) / 2 for x in arr_rh]
 
+        t_cut_off = {}
+
         for ix, v in enumerate([0.2, 0.8, 4.5]):
 
             heat_strain_v = self.heat_strain[v]
@@ -1582,9 +1597,22 @@ class DataAnalysis:
                 1 if x[1] > heat_strain_v[x[0]] else 0
                 for x in df_queried[["rh", "db_max"]].values
             ]
+
+            if v != 0.2:
+                for rh in self.heat_strain[v].keys():
+                    if self.heat_strain[0.2][rh] >= self.heat_strain[v][rh]:
+                        t_cut_off[v] = self.heat_strain[0.2][rh]
+
+                df_queried.loc[
+                    df_queried["db_max"] > t_cut_off[v],
+                    f"exc_t_crit_{str(v).replace('.', '')}",
+                ] = 1
+
             df_queried[f"t_crit_{str(v).replace('.', '')}"] = [
                 heat_strain_v[x] for x in df_queried["rh"]
             ]
+
+        # df_queried[df_queried["db_max"] < 45.2].count()
 
         print("cities would benefit from use fans")
         cities_benefit_use_fans = (
@@ -2022,8 +2050,8 @@ class DataAnalysis:
         )
 
         ax[1].set(
-            ylim=(29.9, 50),
-            xlim=(0, 100),
+            xlim=(5, 85.5),
+            xticks=(np.arange(5, 95, 10)),
             xlabel=chart_labels["rh"],
         )
 
@@ -2036,8 +2064,8 @@ class DataAnalysis:
             va="center",
         )
         ax[1].text(
-            80,
-            45,
+            70,
+            46,
             "Do not\nuse fans",
             size=12,
             ha="center",
@@ -2058,17 +2086,15 @@ class DataAnalysis:
             va="center",
         )
         ax[0].text(
-            80,
-            45,
+            70,
+            46,
             "Do not\nuse fans",
             size=12,
             ha="center",
         )
 
-        # ax[1].get_legend().remove()
-
-        ax[0].text(90, 48.75, "A", size=12, ha="center", va="center")
-        ax[1].text(90, 48.75, "B", size=12, ha="center", va="center")
+        ax[0].text(80, 48.75, "A", size=12, ha="center", va="center")
+        ax[1].text(80, 48.75, "B", size=12, ha="center", va="center")
 
         ax[0].grid(c="lightgray")
         ax[0].xaxis.set_ticks_position("none")
@@ -2079,64 +2105,6 @@ class DataAnalysis:
             plt.savefig(os.path.join(self.dir_figures, "phs_gagge.png"), dpi=300)
         else:
             plt.show()
-
-        # df_ashrae = pd.read_sql(
-        #     'SELECT "n-year_return_period_values_of_extreme_WB_20_max" as wb_max_50 '
-        #     "FROM data",
-        #     con=self.conn,
-        # )
-        #
-        # df_ashrae[["wb_max_50"]] = df_ashrae[["wb_max_50"]].apply(
-        #     pd.to_numeric, errors="coerce"
-        # )
-        #
-        # from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
-        # from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-        #
-        # fig, ax = plt.subplots()
-        # sns.histplot(x=df_ashrae["wb_max_50"])
-        # ax.set_ylim(0, 500)
-        # axins = zoomed_inset_axes(ax, 4, loc=1)
-        # sns.histplot(x=df_ashrae["wb_max_50"])
-        # axins.set_xlim(35, 41)
-        # axins.set_ylim(0, 10)
-        # mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
-        # plt.draw()
-        # plt.tight_layout()
-        #
-        # if save_fig:
-        #     plt.savefig(os.path.join(self.dir_figures, "t_wb_extreme.png"), dpi=300)
-        # else:
-        #     plt.show()
-        #
-        # ###################################
-        # pivot_results = {}
-        #
-        # for v in [0.2, 0.8]:
-        #
-        #     results = []
-        #     for tdb in range(30, 52, 1):
-        #         for rh in range(0, 100, 1):
-        #             result = phs(
-        #                 tdb=tdb, tr=tdb, rh=rh, v=v, met=1.1 * 58.2, clo=0.5, posture=2
-        #             )
-        #             result["tdb"] = tdb
-        #             result["rh"] = rh
-        #             results.append(result)
-        #
-        #     df = pd.DataFrame.from_dict(results)
-        #
-        #     pivot = df.pivot("tdb", "rh", "d_lim_t_re")
-        #     pivot = pivot.sort_index(ascending=False)
-        #     pivot_results[v] = pivot.values
-        #
-        # delta_t_re = pivot_results[0.8] - pivot_results[0.2]
-        # df = pd.DataFrame(delta_t_re, index=pivot.index, columns=pivot.columns)
-        # plt.figure()
-        # ax = sns.heatmap(df, vmax=0)
-        # plt.title(f"velocity {v}")
-        # plt.tight_layout()
-        # plt.show()
 
 
 def save_var_latex(key, value):

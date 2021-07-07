@@ -3,11 +3,11 @@ increase_t_strain_v_45,0.6
 increase_sensible_v_02_45,27.2
 increase_latent_v_02_45,43.0
 mean_abs_err_ravanelli,0.07
-per_location_fans_beneficial_08,96.0
-per_location_evaporative_cooling,4.0
-per_location_fans_beneficial_45,93.0
+per_location_fans_beneficial_08,95.0
+per_location_evaporative_cooling,5.0
+per_location_fans_beneficial_45,91.0
 cities_benefit_fan_08,103
-cities_benefit_fan_45,96
+cities_benefit_fan_45,93
 cities_benefit_fan_02,98
 people_no_strain_still_air,543.1
 people_no_strain_v_08,588.0
@@ -17,3 +17,4 @@ rh_t_40_enthalpy_47_15,28.0
 rh_t_30_enthalpy_47_15,63.0
 hr_4_kpa,0.026
 avg_increase_t_strain_v_08,1.5
+t_cutoff_v_08,45.2

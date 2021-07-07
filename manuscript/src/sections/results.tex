@@ -118,27 +118,26 @@ The environmental conditions above which the use of elevated air speeds would be
 
 We used a red shading to highlight the region in which electric fans should not be used, while we used a green background to depict when elevated air speed can be used to cool the human body.
 We also plotted the lines above which thermal stress is expected to occur (see Figure~\ref{fig:comparison_air_speed} for more details).
-As previously mentioned in Section~\ref{subsec:heat-stress} where the heat stress curve for elevated air speeds is lower than the one for `still air' electric fan should not be used.
- However, as shown in Figure~\ref{fig:use_fans_experimental} the enthalpy in the great majority of this region is equal or lower than the enthalpy of the air in the green region.
- Consequently evaporative cooling can be used to first reduce \ac{t-db} to a value within the green region and subsequently electric fans can be safely used.
- Other cooling strategies, such as active cooling, can also be used to cool the air.
- However, we are emphasising the importance of using evaporative cooling since we are assuming that people who mostly rely on electric fans for cooling may not have access to compressor-based air conditioning.
+Electric fan should not be used, for \ac{t-db} higher than the one at which the heat stress curve for elevated air speeds intersect the one for `still air' conditions.
 In the dark green area, while the use of fans is still beneficial, not all adult healthy individuals would be able to compensate for endogenous and exogenous heat gains and may experience heat strain.
 
-To validate \mycite{GaggeSET} model results we used experimental data previously published.
+We also compared \mycite{GaggeSET} model results with those from laboratory-based physiological studies.
 In Figure~\ref{fig:use_fans_experimental} we present the results obtained by \mycite{Morris2019} and \mycite{Rate2015}.
 The former determined that electric fans (\ac{v}~=~2.0~m/s) are beneficial when \ac{t-db}~=~40~$^{\circ}$C and \ac{rh}~=~51~\%, but should not be used when \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\%.
 \mycite{Rate2015} concluded that electric fans (\ac{v}~=~4.0~m/s) help in preventing heat-related elevation in heart rate and \ac{t-cr} in both of the following conditions \ac{t-db}~=~42~$^{\circ}$C and \ac{rh}~=~50~\%, and \ac{t-db}~=~36~$^{\circ}$C and \ac{rh}~=~80~\%.
 Results obtained with the \mycite{GaggeSET} model are in agreement with those obtained by both field experiments.
 
-As previously mentioned before, the enthalpy of the air in \mycite{Morris2019} experiment was lower in the scenario with higher temperature and lower \ac{rh}.
+As previously mentioned, the enthalpy of the air in \mycite{Morris2019} experiment was lower in the scenario with higher temperature and lower \ac{rh}.
 The black dashed lines, in Figure~\ref{fig:use_fans_experimental}, are isoenthalpic lines passing through the conditions studied by \mycite{Morris2019}.
-Evaporative cooling technologies could, therefore, be used to reduce the value of \ac{t-db} and avoid heat strain.
+As shown in Figure~\ref{fig:use_fans_experimental} the enthalpy of hot and dry air (\ac{rh}~$<$~35~\%) is equal or lower than the enthalpy of the air in the green region.
+Consequently evaporative cooling can be used to first reduce \ac{t-db} to a value within the green region and subsequently electric fans can be safely used.
 Evaporative cooling can be achieved by spraying water in the air or even by placing wet towels near the electric fan.
+Other cooling strategies, such as active cooling, can also be used to cool the air.
+However, we are emphasising the importance of using evaporative cooling since we are assuming that people who mostly rely on electric fans for cooling may not have access to compressor-based air conditioning.
 
 Finally, we compared the results obtained using the \mycite{GaggeSET} with those obtained using the \ac{phs}~\cite{iso7933} and we present the results in Figure~\ref{fig:gagge_phs}.
 Results were obtained by comparing the `still air condition' with \ac{v}~=~0.8~m/s, and the predictions of both models overall are similar.
-The \ac{phs} model fails to predict that fans should not be used for \ac{rh} values lower than 20~\% and \ac{t-db} above 46~$^{\circ}$C\@.
+The \ac{phs} model fails to predict that fans should not be used in dry climates when the \ac{t-db} exceeds \var{t_cutoff_v_08}~$^{\circ}$C\@.
 On the other hand \ac{phs} results are more conservative for high values of \ac{rh}, with the \ac{phs} model discouraging the use of elevated air speeds for \ac{t-db}~=~37.5~$^{\circ}$C and \ac{rh}~=~90~\%\@.
 It should be noted that these latter conditions are extremely rare worldwide.
 
@@ -180,10 +179,9 @@ Each marker shows where the city is located, the dot size is proportional to the
 In 2020, a total of approximately 650 million people (8~\% percent of the global population) lived in the urban agglomerate of the 115 largest cities.
 In 95 of these cities, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and their total population was approximately 550 million people.
 
-We estimated that \var{cities_benefit_fan_08} of the most populous cities the use of electric fans that can generate \ac{v} up to 0.8~m/s would be beneficial.
-The \mycite{GaggeSET} model predicted that healthy adults living in \var{cities_benefit_fan_02} cities (approximately \var{people_no_strain_still_air} million inhabitants) should not experience heat strain even without increasing air movement. 
+The model predicts that \var{people_no_strain_v_08} million inhabitants, living in \var{cities_benefit_fan_08} of the most populous cities, would be better off using electric fans (\ac{v} up to 0.8~m/s) rather than not using them and they should not experience heat strain.
+The \mycite{GaggeSET} model predicted that healthy adults living in \var{cities_benefit_fan_02} cities (approximately \var{people_no_strain_still_air} million inhabitants) should not experience heat strain even without increasing air movement.
 However, they should still be encouraged in using electric fans to improve their thermal conditions in an energy-efficient way.
-The model also predicts that \var{people_no_strain_v_08} million inhabitants would be better off using electric fans (\ac{v} up to 0.8~m/s) rather than not using them and they should not experience heat strain.
 
 \begin{figure*}[hbt!]
     \centering
@@ -208,5 +206,3 @@ It should be noted, that in these conditions the maximum predicted difference in
     \caption{Predicted \acf{m-sweat} at different combinations of \acf{t-db} and \acf{rh} for two values \acf{v}~=~0.2~m/s and 0.8~m/s.}
     \label{fig:sweat_rate}
 \end{figure*}
-
-% note OJ Did you compare these estimated data to those reported in our physiological studies? Might be helpful
