@@ -3,7 +3,7 @@
 
 \section{Discussion}\label{sec:discussion}
 
-We used a heat balance model developed by \mycite{GaggeSET} to determine under which environmental and personal conditions the use of electric fans for cooling become detrimental for healthy adults.
+We used a heat balance model developed by \mycite{GaggeSET} to determine under which environmental and personal conditions the use of electric fans for cooling becomes detrimental for healthy adults.
 We compared our results with those obtained from other physiological models~\cite{Jay2015, iso7933} and empirical results from laboratory-based physiological studies~\cite{Rate2015, Morris2019}.
 Our results show that public health guidelines that discourage fan usage when \ac{t-db} exceeds 35~$^{\circ}$C are too conservative.
 This can be explained by the fact that while sensible heat gain increases as \ac{t-db} exceeds \ac{t-sk}, this is more than offset by the increase in latent heat loss under conditions that do not permit complete evaporation without elevated air speed.
@@ -12,9 +12,9 @@ This is true for approximately \var{per_location_fans_beneficial_08}~\% of recor
 For example, at \ac{rh}~=~60~\% increasing the average air speed from 0.2~m/s to 0.8~m/s raises the temperature threshold above which heat strain would occur by \var{increase_t_strain_v_08_rh_60}~$^{\circ}$C.\@
 \mycite{GaggeSET} model also predicts that in hot and dry conditions fans should only be used in combination with other cooling technologies to prevent heat stress from occurring.
 This is supported by empirical evidence from a laboratory study, comprising 12 healthy men, that showed that for \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\% fan use is not advisable.
-In these conditions fan use accelerates the development of hyperthermia since sweat can easily evaporate even without elevated air movement, but they increase convective heat gain~\cite{Morris2021a}.
+In these conditions, fan use accelerates the development of hyperthermia since sweat can easily evaporate even without elevated air movement, but they increase convective heat gain~\cite{Morris2021a}.
 We determined that for \ac{t-db} above \var{t_cutoff_v_08}~$^{\circ}$C elevating air speed beyond 0.8~m/s would be detrimental.
-This threshold temperature is inversely proportional to the value of \ac{v}, and it decreases to \var{t_cutoff_v_40}~$^{\circ}$C if air speed of 4.0~m/s are used to cool the human body.
+This threshold temperature is inversely proportional to the value of \ac{v}, and it decreases to \var{t_cutoff_v_40}~$^{\circ}$C if an air speed of 4.0~m/s is used to cool the human body.
 Both the \mycite{Jay2015} and the \ac{phs}~\cite{iso7933} models fail to account for this.
 However, as previously noted in Section~\ref{subsec:energy-balance}, the estimation of sensible heat gains using the \mycite{Jay2015} is more conservative since they assume \ac{t-sk} to be constant.
 This explains why for \ac{rh} values higher than 25~\% \mycite{GaggeSET} model predicts that thermal strain occurs at higher \ac{t-db} than \mycite{Jay2015} model as detailed in Section~\ref{subsec:heat-stress}.
@@ -25,7 +25,7 @@ Consequently, we concluded that the \mycite{GaggeSET} model is more accurate in 
 
 Electric fans are a cheaper and more energy-efficient alternative to compressor-based air conditioning.
 Fans require less energy to operate, have lower operational and maintenance costs, and do not use refrigerants that potentially harm the environment. 
-If battery operated, they can also be used during power outages.
+If battery-operated, they can also be used during power outages.
 This is significant because using compressor-based cooling to avoid heat stress is both environmentally and economically disadvantageous.
 In 2017, approximately 43.6~\% of the world population lived on less than \$5.50 per day, respectively~\cite{PovertyO1:online}.
 People that cannot afford air conditioning due to limited financial means, and have limited access to electricity, should certainly not be discouraged from using fans when \ac{t-db} exceeds \ac{t-sk}.
@@ -35,38 +35,38 @@ Elevating air speed indoors has the additional benefit of reducing peak energy d
 While extra sweat losses caused by fans in dry and hot conditions can be compensated with the ingestion of water.
 
 To help people worldwide to determine under which environmental and personal conditions the use of fans becomes detrimental we developed a free, open-source, and easy-to-use online tool.
-The tool can be access by any device that has a web browser at this URL: \url{https://comfort.cbe.berkeley.edu}.
+The tool can be accessed by any device that has a web browser at this URL: \url{https://comfort.cbe.berkeley.edu}.
 In addition, we also included the source code we used in this manuscript in \verb|pythermalcomfort| so anyone can reproduce our results.
-These tools allow users to perform complex calculations and visualize the data without the need of re-writing the programming code.
+These tools allow users to perform complex calculations and visualize the data without the need to re-writing the programming code.
 
 \section*{Limitations}
 The \mycite{GaggeSET} heat balance model uses coefficients that were estimated empirically, and some simplified equations (e.g., to calculate the respiratory losses).
 Results obtained with \mycite{GaggeSET} model are estimations for standard subjects in good health and fit.
 The model does not predict the physiological response of a single individual subject, and the recommendations provided in this manuscript are not intended to substitute professional medical advice.
-Consequently, results may not be applicable to all individuals, such as those who demonstrate sweating impairments due to factors such as age, anticholinergic medications or other pre-existing conditions that interfere with thermoregulation.
+Consequently, results may not apply to all individuals, such as those who demonstrate sweating impairments due to factors such as age, anticholinergic medications, or other pre-existing conditions that interfere with thermoregulation.
 More empirical evidence is needed to validate the applicability of this model under different environmental conditions and to more vulnerable people for example the elderly.
-In particular, more evidence it is needed to estimate the applicability of the \mycite{GaggeSET} model in hot and dry conditions, i.e., \ac{rh} lower than 20~\% and \ac{t-db} higher than 40~$^{\circ}$C.
+In particular, more evidence is needed to estimate the applicability of the \mycite{GaggeSET} model in hot and dry conditions, i.e., \ac{rh} lower than 20~\% and \ac{t-db} higher than 40~$^{\circ}$C.
 Since hyperthermia is not the only cause of death during extreme weather events, hot and dry environments can exacerbate cardiovascular strain due to rising skin blood flow~\cite{Morris2021a}.
-While the \mycite{GaggeSET} accounts for this more laboratory-based research is needed to ensure that fan use does not exacerbate cardiovascular strain in healthy adults in the above mentioned conditions.
+While the \mycite{GaggeSET} accounts for this more laboratory-based research is needed to ensure that fan use does not exacerbate cardiovascular strain in healthy adults in the above-mentioned conditions.
 
 \section{Conclusions}\label{sec:conclusions}
-Several health guidelines regarding electric fans use during heat waves appear to underestimate the benefit that air movement has in cooling people when \acf{t-db} exceeds \acf{t-sk}.
-This is possibly due to the fact that they underestimate the amount of heat that the human body can dissipate through evaporation of sweat.
+Several health guidelines regarding electric fan use during heat waves appear to underestimate the benefit that air movement has in cooling people when \acf{t-db} exceeds \acf{t-sk}.
+Possibly beacuse they underestimate the amount of heat that the human body can dissipate through the evaporation of sweat.
 
 We used a heat balance model to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
 We were able to determine under which combination of environmental and personal parameters electric fans can be safely and effectively used to cool healthy adults.
 
 Our results show that electric fans are an effective, efficient, and sustainable solution to cool people even when \ac{t-db} exceeds \ac{t-sk}.
 For values of \ac{rh} higher than 22~\% air speed of 0.8~m/s increases the critical air temperature at which both an elevated cardiovascular and thermal strain occurs by an average of \var{avg_increase_t_strain_v_08}~$^{\circ}$C\@.
-Moreover, even above these critical temperatures, electric fans are still not harmful, and may provide marginal benefits to people, as shown in Figure~\ref{fig:use_fans_experimental}.
+Moreover, even above these critical temperatures, electric fans are still not harmful and may provide marginal benefits to people, as shown in Figure~\ref{fig:use_fans_experimental}.
 In very hot environments with \ac{t-db} exceeding \var{t_cutoff_v_08}~$^{\circ}$C fans (\acf{v}~=~0.8~m/s) should not be used since air moment may increase the risk of cardiovascular strain.
 It should be noted that this threshold temperature is inversely proportional to the value of \ac{v} surrounding the occupant.
-In these extreme conditions, which are relative rare and occur only in a few locations worldwide, electric fans can only be used in combination with evaporative cooling or other cooling technologies.
+In these extreme conditions, which are relatively rare and occur only in a few locations worldwide, electric fans can only be used in combination with evaporative cooling or other cooling technologies.
 
 We conclude that the public should therefore not be advised to stop using electric fans during heat waves when temperatures outdoors or indoors are higher than 35~$^{\circ}$C\@.
-As extreme heat events are becoming more frequent in some part of the world due to the effect of global climate change, public health recommendations regarding electric fan use should be reviewed to help minimize heat wave related morbidity and mortality.
+As extreme heat events are becoming more frequent in some parts of the world due to the effect of global climate change, public health recommendations regarding electric fan use should be reviewed to help minimize heat wave-related morbidity and mortality.
 
-To help policymakers and people worldwide we incorporated the model into an open-source, free to use, web-based online tool.
+To help policymakers and people worldwide we incorporated the model into an open-source, free-to-use web-based online tool.
 Our tool allows users to determine when people can safely use elevated air speeds to cool themselves by providing interactive plots and interactively displaying the results to the user
 The tool can be accessed using this link: \url{https://comfort.cbe.berkeley.edu}.
 We also included the source code we used in this manuscript in the Python package \verb|pythermalcomfort|.

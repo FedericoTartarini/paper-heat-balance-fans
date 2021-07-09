@@ -73,12 +73,12 @@ The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat stress is predic
 Each line demarcates the conditions above which not all adult healthy individuals would be able to compensate for endogenous and exogenous heat gains and therefore, if possible, they should avoid being exposed to these conditions.
 The Figure shows the results obtained with both the \mycite{GaggeSET} and the \mycite{Jay2015} models.
 For a specific value of \ac{v}, the maximum \ac{t-op} at which heat strain is estimated to occur decreases as the value of \ac{rh} increases since, as previously shown, the value of \ac{e-max} is inversely proportional to \ac{rh}.
-In addition, for a specific value of \ac{rh}, as the value of \ac{v} grows, the overall increase in the maximum critical temperature rapidly decreases, this is not show in the Figure.
+In addition, for a specific value of \ac{rh}, as the value of \ac{v} grows, the overall increase in the maximum critical temperature rapidly decreases, this is not shown in the Figure.
 For example, in an environment with \ac{rh}~=~60~\%, increasing \ac{v} from 0.2~m/s to 0.8~m/s and then to 4.5~m/s leads to an increase of the critical temperature of approximately \var{increase_t_strain_v_08_rh_60}~$^{\circ}$C and \var{increase_t_strain_v_45}~$^{\circ}$C, respectively.
 The slope of the heat stress curve flattens at low values of \ac{rh}.
 The \ac{rh} value at which the curve flattens is proportional to \ac{v}.
 This can be explained by the fact (not shown in the Figures) that for low values of \ac{rh} skin blood flow reaches its upper limit causing thermal strain.
-As previously stated in Section~\ref{subsec:data-analysis}, for temperatures higher that the one at which the two heat strain curves intersects electric fans should not be used.
+As previously stated in Section~\ref{subsec:data-analysis}, for temperatures higher than the one at which the two heat strain curves intersects electric fans should not be used.
 In the region where the heat stress curve for elevated air speeds is lower than the one for `still air' electric fans can only be used if the hot and dry air is pre-cooled to a point below the `elevated air speed' heat stress line.
 This can be achieved using passive cooling strategies such as evaporative cooling.
 \mycite{Jay2015} model fails to account for this aspect and overestimates the benefits of using fans for \ac{rh} values lower than 20~\% and \ac{t-db} above 46~$^{\circ}$C, please refer to Section~\ref{subsec:model-validation-experimental-data} for more information.
@@ -91,7 +91,7 @@ Results for people wearing light summer clothing (walking shorts, short-sleeve s
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/met_clo}
-    \caption{Each line demarcates how different combinations of personal factors (e.g., \ac{met}, \ac{clo}) and environmental factors affect the point above which the body cannot longer dissipate all the endogenous and exogenous heat gains.}
+    \caption{Each line demarcates how different combinations of personal factors (e.g., \ac{met}, \ac{clo}) and environmental factors affect the point above which the body can no longer dissipate all the endogenous and exogenous heat gains.}
     \label{fig:met_clo}
 \end{figure}
 
@@ -111,14 +111,15 @@ The environmental conditions above which the use of elevated air speeds would be
     In the dark green region, while the use of fans is still beneficial, people are most likely to suffer from heat strain.
     The red area demarcates the region in which electric fans should not be used.
     The dotted lines show the isoenthalpic lines passing through the conditions studied by \mycite{Morris2019}.
-    We plotted these lines to show that some points in the `do not use fans` region have a lower enthalpy than points in the green area, consequently passive cooling strategies, such as evaporative cooling, may be used to reduce \ac{t-db} to a value within the green region.
+    We plotted these lines to show that some points in the `do not use fans` region have a lower enthalpy than points in the green area. 
+    Consequently, passive cooling strategies, such as evaporative cooling, may be used to reduce \ac{t-db} to a value within the green region.
     }
     \label{fig:use_fans_experimental}
 \end{figure*}
 
 We used a red shading to highlight the region in which electric fans should not be used, while we used a green background to depict when elevated air speed can be used to cool the human body.
 We also plotted the lines above which thermal stress is expected to occur (see Figure~\ref{fig:comparison_air_speed} for more details).
-Electric fan should not be used, for \ac{t-db} higher than the one at which the heat stress curve for elevated air speeds intersect the one for `still air' conditions.
+Electric fans should not be used, for \ac{t-db} higher than the one at which the heat stress curve for elevated air speeds intersect the one for `still air' conditions.
 In the dark green area, while the use of fans is still beneficial, not all adult healthy individuals would be able to compensate for endogenous and exogenous heat gains and may experience heat strain.
 
 We also compared \mycite{GaggeSET} model results with those from laboratory-based physiological studies.
@@ -130,7 +131,7 @@ Results obtained with the \mycite{GaggeSET} model are in agreement with those ob
 As previously mentioned, the enthalpy of the air in \mycite{Morris2019} experiment was lower in the scenario with higher temperature and lower \ac{rh}.
 The black dashed lines, in Figure~\ref{fig:use_fans_experimental}, are isoenthalpic lines passing through the conditions studied by \mycite{Morris2019}.
 As shown in Figure~\ref{fig:use_fans_experimental} the enthalpy of hot and dry air (\ac{rh}~$<$~35~\%) is equal or lower than the enthalpy of the air in the green region.
-Consequently evaporative cooling can be used to first reduce \ac{t-db} to a value within the green region and subsequently electric fans can be safely used.
+Consequently, evaporative cooling can be used to first reduce \ac{t-db} to a value within the green region, and subsequently electric fans can be safely used.
 Evaporative cooling can be achieved by spraying water in the air or even by placing wet towels near the electric fan.
 Other cooling strategies, such as active cooling, can also be used to cool the air.
 However, we are emphasising the importance of using evaporative cooling since we are assuming that people who mostly rely on electric fans for cooling may not have access to compressor-based air conditioning.
@@ -202,7 +203,7 @@ The predicted values of \ac{m-sweat} for \ac{v}~=~0.2~m/s at different combinati
 In most of the combinations of \ac{t-db} and \ac{rh} the predicted values of \ac{m-sweat} are slightly higher in the `still air conditions' than when \ac{v}~=~0.8~m/s.
 On the other hand, \ac{m-sweat} are higher with fan use when \ac{rh} is lower than 40~\% and \ac{t-db} higher than 40~$^{\circ}$C\@.
 This can be explained by the fact that with low \ac{rh} and high \ac{t-db} almost all the sweat secreted on the skin surface would evaporate even without a fan, due to the high gradient in water vapour pressure between the skin and the air.
-With elevated air speeds more sweat is needed to compensate for the additional sensible heat gains.
+With elevated air speeds, more sweat is needed to compensate for the additional sensible heat gains.
 It should be noted, that in these conditions the maximum predicted difference in sweat losses due to fan use is always lower than 30 mL/h, a difference that could be compensated by the ingestion of approximately 1 glass (i.e., 250 mL) of water every 8 hours.
 
 \begin{figure*}[hbt!]
