@@ -74,7 +74,7 @@ Each line demarcates the conditions above which not all adult healthy individual
 The Figure shows the results obtained with both the \mycite{GaggeSET} and the \mycite{Jay2015} models.
 For a specific value of \ac{v}, the maximum \ac{t-op} at which heat strain is estimated to occur decreases as the value of \ac{rh} increases since, as previously shown, the value of \ac{e-max} is inversely proportional to \ac{rh}.
 In addition, for a specific value of \ac{rh}, as the value of \ac{v} grows, the overall increase in the maximum critical temperature rapidly decreases, this is not show in the Figure.
-For example, in an environment with \ac{rh}~=~60~\%, increasing \ac{v} from 0.2~m/s to 0.8~m/s and then to 4.5~m/s leads to an increase of the critical temperature of approximately \var{increase_t_strain_v_08}~$^{\circ}$C and \var{increase_t_strain_v_45}~$^{\circ}$C, respectively.
+For example, in an environment with \ac{rh}~=~60~\%, increasing \ac{v} from 0.2~m/s to 0.8~m/s and then to 4.5~m/s leads to an increase of the critical temperature of approximately \var{increase_t_strain_v_08_rh_60}~$^{\circ}$C and \var{increase_t_strain_v_45}~$^{\circ}$C, respectively.
 The slope of the heat stress curve flattens at low values of \ac{rh}.
 The \ac{rh} value at which the curve flattens is proportional to \ac{v}.
 This can be explained by the fact (not shown in the Figures) that for low values of \ac{rh} skin blood flow reaches its upper limit causing thermal strain.
@@ -138,7 +138,7 @@ However, we are emphasising the importance of using evaporative cooling since we
 Finally, we compared the results obtained using the \mycite{GaggeSET} with those obtained using the \ac{phs}~\cite{iso7933} and we present the results in Figure~\ref{fig:gagge_phs}.
 Results were obtained by comparing the `still air condition' with \ac{v}~=~0.8~m/s, and the predictions of both models overall are similar.
 The \ac{phs} model fails to predict that fans should not be used in dry climates when the \ac{t-db} exceeds \var{t_cutoff_v_08}~$^{\circ}$C\@.
-On the other hand \ac{phs} results are more conservative for high values of \ac{rh}, with the \ac{phs} model discouraging the use of elevated air speeds for \ac{t-db}~=~37.5~$^{\circ}$C and \ac{rh}~=~90~\%\@.
+On the other hand \ac{phs} results are more conservative for high values of \ac{rh}, with the \ac{phs} model discouraging the use of elevated air speeds for \ac{t-db}~=~37.5~$^{\circ}$C and \ac{rh}~=~85~\%\@.
 It should be noted that these latter conditions are extremely rare worldwide.
 
 \begin{figure*}[hbt!]
@@ -190,6 +190,11 @@ However, they should still be encouraged in using electric fans to improve their
     Each dot shows the maximum extreme climate conditions recorded over the last 20 years in each of the 115 most populous cities worldwide.}
     \label{fig:use_fans_and_population}
 \end{figure*}
+
+We also compared these data with the records available in the Emergency Events Database (EM-DAT)~\cite{EMDATThe70:online}.
+A total of 122 heatwave events in the EM-DAT had information on the maximum air temperature recorded.
+These heatwaves were the cause of approximately 117,000 deaths, out of which a total of 102,876 and 3,803 people died during heatwaves with maximum temperatures lower than 45~$^{\circ}$C and 40~$^{\circ}$C, respectively.
+During heatwaves as \ac{t-db} increases \ac{rh} generally decreases, hence, it may be hypothesized that the use of electric fans would have been beneficial in most of those scenarios.
 
 \subsection{Sweat Rate}\label{subsec:sweat-rate}
 

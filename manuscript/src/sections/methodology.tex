@@ -166,8 +166,8 @@ To better understand in which locations worldwide the use of electric fans would
 We also used the records from the Emergency Events Database (EM-DAT) which contains a list of the deadliest heatwaves recorded from 1936 to the present date~\cite{EMDATThe70:online}.
 
 From the ASHRAE climatic design dataset, we extracted weather data from more than 5000 stations worldwide.
-For each station we collected the maximum extreme \ac{t-db} with a 20 year return period
-and the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
+For each station we collected the maximum extreme \ac{t-db} with a 20-year return period
+and the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence, and the mean coincident \ac{t-wb}.
 For more information about the ASHRAE climate design dataset please refer to Chapter~14 of the 2017 ASHRAE Handbook--Fundamentals~\cite{ASHRA2017}.
 The location of the stations and their respective maximum extreme dry-bulb temperatures are shown in Figure~\ref{fig:world-map}.
 We do not show data from stations with a maximum temperature lower than 26~$^\circ$C\@ since we are only interested in assessing the benefit of using fans during hot days.
@@ -181,10 +181,10 @@ We do not show data from stations with a maximum temperature lower than 26~$^\ci
 
 Few data are available for Sub-Saharan Africa where approximately 40~\% of the poorest people in the world reside and where climate change may be an acute threat~\cite{PovertyO1:online}.
 
-To determine the coincident value of \ac{rh} when the maximum extreme \ac{t-db} with a 20 year return period was recorded we first determined the humidity ratio for each location using the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
+To determine the coincident value of \ac{rh} when the maximum extreme \ac{t-db} with a 20-year return period was recorded we first determined the humidity ratio for each location using the \ac{t-db} corresponding to the hottest 0.4~\% of annual cumulative frequency of occurrence and the mean coincident \ac{t-wb}.
 We then assumed that during a heatwave the humidity ratio would remain constant while only the value of \ac{t-db} would increase.
 This assumption allowed us to estimate, for each location, the value of \ac{rh} for each extreme \ac{t-db}.
-This is an approximation and it does not take into account that during heat waves the value of humidity ratio may also increase.
+This is an approximation, and it does not take into account that during heat waves the value of humidity ratio may also increase.
 More information on this is presented in \ref{sec:validation_rh}.
 
 We also assumed that during heatwaves \ac{t-db} and \ac{rh} indoors would be equal to \ac{t-db} and \ac{rh} outdoors.
@@ -202,7 +202,8 @@ However, it does not contain information about the \ac{rh} which is important fo
 \subsection{City Population Data}\label{subsec:population-data}
 
 We obtained the city population data from the demographic statistics database which is compiled and maintained by the \ac{un} statistics division~\cite{UNdatare88:online}.
-The database was last updated in August 2020 and we used it to gather information about the number of people who live in the 115 most populous cities in the world.
+The database contains data up to August 2020.
+We used it to gather information about the number of people who live in the 115 most populous cities in the world.
 When available we used the population of the urban agglomerate rather than of the city administrative boundary.
 We then combined the population with the ASHRAE weather data to determine during extreme heat events: i) how many people were at high risk of experiencing \ac{t-db} higher than 35~$^{\circ}$C\@, and ii) how many people would benefit from the use of electric fans.
 As mentioned in Section~\ref{subsec:weather-data} weather data were not available for all the major cities in the world.

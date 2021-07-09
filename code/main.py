@@ -88,7 +88,7 @@ class DataAnalysis:
 
         # benefit of increasing air speed on heat strain temperature
         save_var_latex(
-            "increase_t_strain_v_08",
+            "increase_t_strain_v_08_rh_60",
             round(self.heat_strain[0.8][60] - self.heat_strain[0.2][60], 1),
         )
 
@@ -2463,8 +2463,6 @@ def compare_hospers_ashrae_weather(save_fig=True):
     df_plot = df_merged[["Constant HR", "Concurrent extreme"]].unstack().reset_index()
     df_plot.columns = ["model", "constant", "Delta relative humidity (RH) [%]"]
     df_plot.constant = "1"
-    # sns.violinplot(df_merged["Constant HR"], ax=axs[0], cut=0)
-    # sns.violinplot(df_merged["Concurrent extreme"], ax=axs[1], cut=0)
     sns.violinplot(
         x="constant",
         y="Delta relative humidity (RH) [%]",
@@ -2515,8 +2513,6 @@ def compare_hospers_ashrae_weather(save_fig=True):
             color="gray",
             length_includes_head=True,
             zorder=0,
-            # head_length=3.0,
-            # head_width=1.5,
         )
     axs[0].set_ylim(30, 50)
     axs[0].set_xlim(0, 60)
@@ -2542,13 +2538,10 @@ def compare_hospers_ashrae_weather(save_fig=True):
             color="gray",
             length_includes_head=True,
             zorder=0,
-            # head_length=3.0,
-            # head_width=1.5,
         )
     axs[1].set_ylim(30, 50)
     axs[1].set_xlim(0, 60)
     axs[1].set_xlabel(chart_labels["rh"])
-    # axs[1].set_ylabel("Dry-bulb air temperature ($t_{db}$) [°C]")
 
     axs[1].legend()
     axs[1].grid(c="lightgray")

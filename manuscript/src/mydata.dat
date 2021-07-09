@@ -1,4 +1,3 @@
-increase_t_strain_v_08,1.6
 increase_t_strain_v_45,0.6
 increase_sensible_v_02_45,27.2
 increase_latent_v_02_45,43.0
@@ -18,3 +17,5 @@ rh_t_30_enthalpy_47_15,63.0
 hr_4_kpa,0.026
 avg_increase_t_strain_v_08,1.5
 t_cutoff_v_08,45.2
+t_cutoff_v_40,43.6
+increase_t_strain_v_08_rh_60,1.6
