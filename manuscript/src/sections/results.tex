@@ -21,8 +21,6 @@ Figure~\ref{fig:comparison_models}A shows how sensible heat loss estimated with 
     \label{fig:comparison_models}
 \end{figure*}
 
-% todo review ollie's results
-
 The former model iteratively determines \ac{t-sk}, while the latter assumes it to be constant and equal to 35~$^{\circ}$C\@, which is equivalent to a fully vasodilated state.
 When heat gains exceed heat losses, the \mycite{GaggeSET} model estimates that some heat energy is stored in the body and consequently \ac{t-sk} increases, as shown in Figure~\ref{fig:results_model_2}A and ~\ref{fig:results_model_2}C, respectively.
 This reduces the rate at which sensible heat gain increases as \ac{t-op} increases.
@@ -62,16 +60,6 @@ When the body can no longer dissipate exogenous and endogenous heat gains, the e
 \subsection{Heat Stress}\label{subsec:heat-stress}
 
 The combination of \ac{t-op}, \ac{rh}, and \ac{v} at which heat stress is predicted to occur is presented in Figure~\ref{fig:comparison_air_speed}.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=0.5\textwidth]{figures/comparison_air_speed}
-    \caption{Predicted limits above which thermal strain is estimated to occur.
-    The figure shows the results calculated using the \mycite{GaggeSET} model and the \mycite{Jay2015} models.
-    Each line demarcates the point above which heat strain is expected to occur.}
-    \label{fig:comparison_air_speed}
-\end{figure}
-
 Each line demarcates the conditions above which not all adult healthy individuals would be able to compensate for endogenous and exogenous heat gains and therefore, if possible, they should avoid being exposed to these conditions.
 The Figure shows the results obtained with both the \mycite{GaggeSET} and the \mycite{Jay2015} models.
 For a specific value of \ac{v}, the maximum \ac{t-op} at which heat strain is estimated to occur decreases as the value of \ac{rh} increases since, as previously shown, the value of \ac{e-max} is inversely proportional to \ac{rh}.
@@ -92,9 +80,26 @@ Results for people wearing light summer clothing (walking shorts, short-sleeve s
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/met_clo}
+    \hfill
+    \begin{subfigure}[t]{0.47\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/comparison_air_speed}
+    \caption{Predicted limits above which thermal strain is estimated to occur.
+    The figure shows the results calculated using the \mycite{GaggeSET} model and the \mycite{Jay2015} models.
+    Each line demarcates the point above which heat strain is expected to occur.}
+    \label{fig:comparison_air_speed}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.47\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/met_clo}
     \caption{Each line demarcates how different combinations of personal factors (e.g., \ac{met}, \ac{clo}) and environmental factors affect the point above which the body can no longer dissipate all the endogenous and exogenous heat gains.}
     \label{fig:met_clo}
+    \end{subfigure}
+
+    \caption{Heat strain limits}
+    \label{fig:heat_strain_limits}
+
 \end{figure}
 
 As expected, decreasing both \ac{met} and \ac{clo} has a net positive effect since it reduces both heat gain and thermal resistance, respectively.
@@ -104,12 +109,12 @@ It should, however, be noted that these results are affected by \ac{i-cl}, hence
 
 \subsection{Humidity-dependent temperature thresholds for fan usage}\label{subsec:model-validation-experimental-data}
 
-The environmental conditions above which the use of elevated air speeds would be detrimental according to \mycite{GaggeSET} model are shown in Figure~\ref{fig:use_fans_experimental}.
+The environmental conditions above which the use of elevated air speeds would be detrimental according to \mycite{GaggeSET} for \ac{v}~=~4.0~m/s are shown in Figure~\ref{fig:use_fans_experimental}.
 
 \begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/summary_use_fans_comparison_experimental}
-    \caption{The green areas show the environmental conditions in which the use of fans is beneficial since they provide additional cooling to the human body.
+    \caption{The green areas show the environmental conditions in which the use of fans (\ac{v}~=~4.0~m/s) is beneficial since they provide additional cooling to the human body.
     In the dark green region, while the use of fans is still beneficial, people are most likely to suffer from heat strain.
     The red area demarcates the region in which electric fans should not be used.
     The dotted lines show the isoenthalpic lines passing through the conditions studied by \mycite{Morris2019}.
@@ -147,7 +152,7 @@ It should be noted that these latter conditions are extremely rare worldwide.
 \begin{figure*}[hbt!]
     \centering
     \includegraphics[width=\textwidth]{figures/phs_gagge}
-    \caption{Comparison results obtained with \mycite{GaggeSET} (A) and \ac{phs} models (B).
+    \caption{Comparison results obtained with \mycite{GaggeSET} (A) and \ac{phs} models (B) for \ac{v}~=~0.8~m/s.
     For more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:use_fans_experimental}.}
     \label{fig:gagge_phs}
 \end{figure*}
@@ -165,7 +170,7 @@ To understand in which locations worldwide the use of electric fans would be ben
 \end{figure*}
 
 We determined that in approximately \var{per_location_fans_beneficial_08}~\% of the locations the use of electric fans that can generate \ac{v} up to 0.8~m/s would be beneficial.
-In \var{per_location_evaporative_cooling}~\% electric fans should not be used unless any form of cooling (including evaporative cooling) is used to pre-cool the air to any point in the green region.
+In the remaining locations electric fans should not be used unless any form of cooling (including evaporative cooling) is used to pre-cool the air to any point in the green region.
 
 To better quantify how many people would benefit from the use of electric fans we combined the city with the weather data.
 The former contained data from the 115 most populous cities worldwide.

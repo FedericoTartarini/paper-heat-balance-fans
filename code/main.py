@@ -1287,8 +1287,12 @@ class DataAnalysis:
 
         for rh in rh_arr:
 
+            t_min = 37
+            if rh < 55:
+                t_min = 32.5
+
             try:
-                tmp_low.append(optimize.brentq(function, 32.5, 55))
+                tmp_low.append(optimize.brentq(function, t_min, 55))
             except ValueError:
                 tmp_low.append(np.nan)
 
@@ -1535,6 +1539,15 @@ class DataAnalysis:
 
         ax.scatter(df_queried["rh"], df_queried["db_max"], s=3, c="tab:gray")
 
+        ax.text(
+            0.85,
+            0.75,
+            "Do not\nuse fans\n$V=0.8$m/s",
+            size=12,
+            ha="center",
+            transform=ax.transAxes,
+        )
+
         ax.grid(c="lightgray")
         ax.xaxis.set_ticks_position("none")
         ax.yaxis.set_ticks_position("none")
@@ -1702,6 +1715,15 @@ class DataAnalysis:
             ),
         )
 
+        ax.text(
+            0.85,
+            0.65,
+            "Do not\nuse fans\n$V=0.8$m/s",
+            size=12,
+            ha="center",
+            transform=ax.transAxes,
+        )
+
         ax.set_zorder(ax2.get_zorder() + 1)
         ax.patch.set_visible(False)
 
@@ -1859,18 +1881,18 @@ class DataAnalysis:
             air_speeds=[0.2, 4.0], plot_heat_strain_lines=True
         )
 
-        ax.text(
-            10,
-            41.25,
-            "Use fans",
-            size=12,
-            ha="center",
-            va="center",
-        )
+        # ax.text(
+        #     10,
+        #     41.25,
+        #     r"Use fans $V=4.0$m/s",
+        #     size=12,
+        #     ha="center",
+        #     va="center",
+        # )
         ax.text(
             0.85,
             0.75,
-            "Do not\nuse fans",
+            "Do not\nuse fans\n$V=4.0$m/s",
             size=12,
             ha="center",
             transform=ax.transAxes,
@@ -2026,7 +2048,6 @@ class DataAnalysis:
             color="tab:red",
             alpha=0.2,
             zorder=100,
-            label="No fan - V = 4.5 m/s",
         )
 
         ax[1].fill_between(
@@ -2036,7 +2057,6 @@ class DataAnalysis:
             color="tab:orange",
             alpha=0.2,
             zorder=100,
-            label="No fan - V = 4.5 m/s",
         )
 
         ax[1].fill_between(
@@ -2046,7 +2066,6 @@ class DataAnalysis:
             color="tab:green",
             alpha=0.2,
             zorder=100,
-            label="No fan - V = 4.5 m/s",
         )
 
         ax[1].set(
@@ -2056,9 +2075,9 @@ class DataAnalysis:
         )
 
         ax[1].text(
-            25,
-            37.5,
-            "Use fans",
+            35,
+            38.75,
+            r"Use fans $V=0.8$m/s",
             size=12,
             ha="center",
             va="center",
@@ -2066,7 +2085,7 @@ class DataAnalysis:
         ax[1].text(
             70,
             46,
-            "Do not\nuse fans",
+            "Do not\nuse fans\n$V=0.8$m/s",
             size=12,
             ha="center",
         )
@@ -2075,12 +2094,14 @@ class DataAnalysis:
         ax[1].xaxis.set_ticks_position("none")
         ax[1].yaxis.set_ticks_position("none")
 
-        fig, ax[0] = self.summary_use_fans_two_speeds(fig=fig, ax=ax[0])
+        fig, ax[0] = self.summary_use_fans_two_speeds(
+            fig=fig, ax=ax[0], air_speeds=[0.2, 0.8]
+        )
 
         ax[0].text(
-            25,
-            37.5,
-            "Use fans",
+            35,
+            38.75,
+            r"Use fans $V=0.8$m/s",
             size=12,
             ha="center",
             va="center",
@@ -2088,7 +2109,7 @@ class DataAnalysis:
         ax[0].text(
             70,
             46,
-            "Do not\nuse fans",
+            "Do not\nuse fans\n$V=0.8$m/s",
             size=12,
             ha="center",
         )
@@ -2141,11 +2162,7 @@ def ollie(is_fan_on, ta, rh, is_elderly):
     s_w_lat = 2426
 
     if is_fan_on:
-        r_cl_f = 0.0497
-        r_cl_r = 0.0844
-
-        # todo this is not correct need to use Kerslake 1972
-        r_cl_mean = (r_cl_f + r_cl_r) / 2
+        r_cl_mean = (0.0497 + 0.0844) / 2
 
         v = 4.5
 
@@ -2154,11 +2171,8 @@ def ollie(is_fan_on, ta, rh, is_elderly):
         else:
             w = 0.65
 
-        # todo choose r_cl based on fan on or off
         r_e_cl_f = 0.0112
         r_e_cl_r = 0.0161
-
-        # todo this is not correct
         r_e_cl_mean = (r_e_cl_f + r_e_cl_r) / 2
 
     else:

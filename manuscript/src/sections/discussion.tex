@@ -3,8 +3,6 @@
 
 \section{Discussion}\label{sec:discussion}
 
-% todo Ollie Jay: Given that it has just come out, it may be worth contrasting the present findings to the Morris et al 2021 findings, which are more conservative
-
 We used a heat balance model developed by \mycite{GaggeSET} to determine under which environmental and personal conditions the use of electric fans for cooling becomes detrimental for healthy adults.
 We compared our results with those obtained from other physiological models~\cite{Jay2015, iso7933} and empirical results from laboratory-based physiological studies~\cite{Rate2015, Morris2019}.
 Our results show that public health guidelines that discourage fan usage when \ac{t-db} exceeds 35~$^{\circ}$C are too conservative.
@@ -18,12 +16,18 @@ In these conditions, fan use accelerates the development of hyperthermia since s
 We determined that for \ac{t-db} above \var{t_cutoff_v_08}~$^{\circ}$C elevating air speed beyond 0.8~m/s would be detrimental.
 This threshold temperature is inversely proportional to the value of \ac{v}, and it decreases to \var{t_cutoff_v_40}~$^{\circ}$C if an air speed of 4.0~m/s is used to cool the human body.
 Both the \mycite{Jay2015} and the \ac{phs}~\cite{iso7933} models fail to account for this.
-However, as previously noted in Section~\ref{subsec:energy-balance}, the estimation of sensible heat gains using the \mycite{Jay2015} is more conservative since they assume \ac{t-sk} to be constant.
+As previously noted in Section~\ref{subsec:energy-balance}, the estimation of sensible heat gains using the \mycite{Jay2015} is more conservative since they assume \ac{t-sk} to be constant.
 This explains why for \ac{rh} values higher than 25~\% \mycite{GaggeSET} model predicts that thermal strain occurs at higher \ac{t-db} than \mycite{Jay2015} model as detailed in Section~\ref{subsec:heat-stress}.
 We obtained similar results when comparing \mycite{GaggeSET} and PHS models.
 Their results slightly differ in very hot and humid conditions with the latter model discouraging the use of fans for \ac{t-db}~=~37.5~$^{\circ}$C and \ac{rh}~=~85~\%\@.
 However, as shown in Figure~\ref{fig:energy_storage_delta} these conditions are extremely rare worldwide.
 Consequently, we concluded that the \mycite{GaggeSET} model is more appropriate in estimating humidity-dependent temperature thresholds at which electric fans would become detrimental compared with previously proposed models.
+At the time of writing our manuscript~\mycite{Morris2021a} published an article in which they improved on the \mycite{Jay2015} model.
+Despite the fact that \mycite{Morris2021a} used slightly different equations they obtained similar conclusions to those we are presenting.
+However, we believe that readers will benefit from reading our manuscript since we:\
+generated our results using a `more realistic' value for \ac{v} (0.8~m/s instead of 3.5~m/s);\
+have released a web-based tool that allows users to determine how environmental and personal factors affect the humidity-dependent temperature thresholds;\
+and, have published our source code on a public repository.
 
 Electric fans are a cheaper and more energy-efficient alternative to compressor-based air conditioning.
 Fans require less energy to operate, have lower operational and maintenance costs, and do not use refrigerants that potentially harm the environment. 
@@ -47,13 +51,13 @@ Results obtained with \mycite{GaggeSET} model are estimations for standard subje
 The model does not predict the physiological response of a single individual subject, and the recommendations provided in this manuscript are not intended to substitute professional medical advice.
 Consequently, results may not apply to all individuals, such as those who demonstrate sweating impairments due to factors such as age, anticholinergic medications, or other pre-existing conditions that interfere with thermoregulation.
 More empirical evidence is needed to validate the applicability of this model under different environmental conditions and to more vulnerable people for example the elderly.
-In particular, more evidence is needed to estimate the applicability of the \mycite{GaggeSET} model in hot and dry conditions, i.e., \ac{rh} lower than 20~\% and \ac{t-db} higher than 40~$^{\circ}$C.
+In particular, more evidence is needed to estimate the applicability of the \mycite{GaggeSET} model in hot and dry conditions, i.e., \ac{rh} lower than 20~\% and \ac{t-db} higher than 40~$^{\circ}$C.\@
 Since hyperthermia is not the only cause of death during extreme weather events, hot and dry environments can exacerbate cardiovascular strain due to rising skin blood flow~\cite{Morris2021a}.
 While the \mycite{GaggeSET} accounts for this more laboratory-based research is needed to ensure that fan use does not exacerbate cardiovascular strain in healthy adults in the above-mentioned conditions.
 
 \section{Conclusions}\label{sec:conclusions}
 Several health guidelines regarding electric fan use during heat waves appear to underestimate the benefit that air movement has in cooling people when \acf{t-db} exceeds \acf{t-sk}.
-Possibly beacuse they underestimate the amount of heat that the human body can dissipate through the evaporation of sweat.
+Possibly because they underestimate the amount of heat that the human body can dissipate through the evaporation of sweat.
 
 We used a heat balance model to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
 We were able to determine under which combination of environmental and personal parameters electric fans can be safely and effectively used to cool healthy adults.
@@ -69,9 +73,8 @@ We conclude that the public should therefore not be advised to stop using electr
 As extreme heat events are becoming more frequent in some parts of the world due to the effect of global climate change, public health recommendations regarding electric fan use should be reviewed to help minimize heat wave-related morbidity and mortality.
 
 To help policymakers and people worldwide we incorporated the model into an open-source, free-to-use web-based online tool.
-% todo add also Morris tool
 Our tool allows users to determine when people can safely use elevated air speeds to cool themselves by providing interactive plots and interactively displaying the results to the user
-The tool can be accessed using this link: \url{https://comfort.cbe.berkeley.edu}.
+The link to our online tool is: \url{https://comfort.cbe.berkeley.edu}.
 We also included the source code we used in this manuscript in the Python package \verb|pythermalcomfort|.
 
 \section{Declaration of competing interest}\label{sec:declaration-of-competing-interest}
