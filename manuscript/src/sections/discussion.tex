@@ -3,6 +3,8 @@
 
 \section{Discussion}\label{sec:discussion}
 
+% todo Ollie Jay: Given that it has just come out, it may be worth contrasting the present findings to the Morris et al 2021 findings, which are more conservative
+
 We used a heat balance model developed by \mycite{GaggeSET} to determine under which environmental and personal conditions the use of electric fans for cooling becomes detrimental for healthy adults.
 We compared our results with those obtained from other physiological models~\cite{Jay2015, iso7933} and empirical results from laboratory-based physiological studies~\cite{Rate2015, Morris2019}.
 Our results show that public health guidelines that discourage fan usage when \ac{t-db} exceeds 35~$^{\circ}$C are too conservative.
@@ -10,7 +12,7 @@ This can be explained by the fact that while sensible heat gain increases as \ac
 Consequently, the use of fans at \ac{t-db} higher than 35~$^{\circ}$C could yield substantial benefits for young healthy adults free of sweating impairments.
 This is true for approximately \var{per_location_fans_beneficial_08}~\% of recorded extreme heat events worldwide.
 For example, at \ac{rh}~=~60~\% increasing the average air speed from 0.2~m/s to 0.8~m/s raises the temperature threshold above which heat strain would occur by \var{increase_t_strain_v_08_rh_60}~$^{\circ}$C.\@
-\mycite{GaggeSET} model also predicts that in hot and dry conditions fans should only be used in combination with other cooling technologies to prevent heat stress from occurring.
+
 This is supported by empirical evidence from a laboratory study, comprising 12 healthy men, that showed that for \ac{t-db}~=~47~$^{\circ}$C and \ac{rh}~=~15~\% fan use is not advisable.
 In these conditions, fan use accelerates the development of hyperthermia since sweat can easily evaporate even without elevated air movement, but they increase convective heat gain~\cite{Morris2021a}.
 We determined that for \ac{t-db} above \var{t_cutoff_v_08}~$^{\circ}$C elevating air speed beyond 0.8~m/s would be detrimental.
@@ -21,7 +23,7 @@ This explains why for \ac{rh} values higher than 25~\% \mycite{GaggeSET} model p
 We obtained similar results when comparing \mycite{GaggeSET} and PHS models.
 Their results slightly differ in very hot and humid conditions with the latter model discouraging the use of fans for \ac{t-db}~=~37.5~$^{\circ}$C and \ac{rh}~=~85~\%\@.
 However, as shown in Figure~\ref{fig:energy_storage_delta} these conditions are extremely rare worldwide.
-Consequently, we concluded that the \mycite{GaggeSET} model is more accurate in estimating humidity-dependent temperature thresholds at which electric fans would become detrimental compared with previously proposed models.
+Consequently, we concluded that the \mycite{GaggeSET} model is more appropriate in estimating humidity-dependent temperature thresholds at which electric fans would become detrimental compared with previously proposed models.
 
 Electric fans are a cheaper and more energy-efficient alternative to compressor-based air conditioning.
 Fans require less energy to operate, have lower operational and maintenance costs, and do not use refrigerants that potentially harm the environment. 
@@ -59,14 +61,15 @@ We were able to determine under which combination of environmental and personal 
 Our results show that electric fans are an effective, efficient, and sustainable solution to cool people even when \ac{t-db} exceeds \ac{t-sk}.
 For values of \ac{rh} higher than 22~\% air speed of 0.8~m/s increases the critical air temperature at which both an elevated cardiovascular and thermal strain occurs by an average of \var{avg_increase_t_strain_v_08}~$^{\circ}$C\@.
 Moreover, even above these critical temperatures, electric fans are still not harmful and may provide marginal benefits to people, as shown in Figure~\ref{fig:use_fans_experimental}.
-In very hot environments with \ac{t-db} exceeding \var{t_cutoff_v_08}~$^{\circ}$C fans (\acf{v}~=~0.8~m/s) should not be used since air moment may increase the risk of cardiovascular strain.
+In very hot environments with \ac{t-db} exceeding \var{t_cutoff_v_08}~$^{\circ}$C fans (\acf{v}~=~0.8~m/s) should not be used since air movement may increase the risk of cardiovascular strain.
 It should be noted that this threshold temperature is inversely proportional to the value of \ac{v} surrounding the occupant.
-In these extreme conditions, which are relatively rare and occur only in a few locations worldwide, electric fans can only be used in combination with evaporative cooling or other cooling technologies.
+In these extreme conditions, which are relatively rare and occur only in a few locations worldwide, electric fans can only be used after other cooling technologies (including evaporative cooling) are used to reduce the temperature below \var{t_cutoff_v_08}~$^{\circ}$C for \ac{v}~=~0.8~m/s.
 
 We conclude that the public should therefore not be advised to stop using electric fans during heat waves when temperatures outdoors or indoors are higher than 35~$^{\circ}$C\@.
 As extreme heat events are becoming more frequent in some parts of the world due to the effect of global climate change, public health recommendations regarding electric fan use should be reviewed to help minimize heat wave-related morbidity and mortality.
 
 To help policymakers and people worldwide we incorporated the model into an open-source, free-to-use web-based online tool.
+% todo add also Morris tool
 Our tool allows users to determine when people can safely use elevated air speeds to cool themselves by providing interactive plots and interactively displaying the results to the user
 The tool can be accessed using this link: \url{https://comfort.cbe.berkeley.edu}.
 We also included the source code we used in this manuscript in the Python package \verb|pythermalcomfort|.
