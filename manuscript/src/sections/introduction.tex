@@ -23,7 +23,7 @@ Electric fans are relatively inexpensive (for example, a basic model can be purc
 The relatively low electricity consumption and cost of fans could help mitigating additional negative compounding health factors such as socioeconomic inequality or poor access to air conditioning~\cite{Morris2021a}.
 Electric fans can be used either as an alternative cooling technology or in combination with a reduced level of compressor-based air conditioning~\cite{Jay2019a, Hoyt2015, Schiavon2008}.
 They are also effective at increasing the thermal satisfaction of occupants even in tropical hot and humid climates~\cite{Lipczynska2018a}.
-Elevating indoor air speeds while simultaneously increasing temperature set-points of air conditioning has the potential of reducing the peak energy demand during hot days, reducing the burden on the electric grid and power outages (which may hinder emergency services), and lowering global greenhouse gas emissions.
+% Elevating indoor air speeds while simultaneously increasing temperature set-points of air conditioning has the potential of reducing the peak energy demand during hot days, reducing the burden on the electric grid and power outages (which may hinder emergency services), and lowering global greenhouse gas emissions.
 
 In 2016, an estimated 2.3 billion electric fans were in use worldwide and they remain the most common form of cooling in households~\cite{IEA2018}.
 It is estimated that one in two households own at least one fan and there are twice as many fans as air conditioners in use worldwide, although this ratio is declining rapidly~\cite{IEA2018}.
@@ -73,17 +73,19 @@ Based on this evidence, advising healthy adults not to use fans when \ac{t-db} e
 To better understand under which environmental conditions (i.e., \ac{t-db}, \ac{rh}) the use of fans would be beneficial, both \mycite{Jay2015} and \mycite{Morris2021a} developed a simplified heat balance model.
 They then used their model to develop a chart that can be used to assist public health messaging in explaining to young and older adults when the use of electric fans is beneficial to cool the human body.
 They concluded that the use of electric fans is beneficial even when \ac{t-db} exceeds \ac{t-sk}.
-Their model could be improved because it does not: allow the user to change the value of \ac{met} or \ac{clo}, estimate iteratively \ac{t-sk} and \ac{t-cr}, consider radial asymmetry, and their results are based on a single air speed.
+Their model can be further improved allowing the user to change the value of \ac{met} or \ac{clo}, estimate iteratively \ac{t-sk} and \ac{t-cr}, consider radial asymmetry, and adjust air speed.
 \mycite{Jay2015} chose a value of 4.5~m/s based on measured values of air speed at a distance of 1.0~m of an 18" pedestal fan set at maximum speed~\cite{Jay2015}.
 \mycite{Morris2021a} chose instead a value of 3.5~m/s.
 Their results may be difficult to generalize since such high air speeds cannot be easily achieved by most ceiling fans~\cite{Raftery2019}, pedestal, or desk fans~\cite{Yang2015a} available on the market.
 
-To overcome the above-mentioned limitations, we are proposing the use of the heat balance model developed by~\mycite{GaggeSET} to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
+To this end, we used the human thermoregulatory model developed by \mycite{GaggeSET} to estimate heat losses and physiological variables as a function of environmental and personal factors~\cite{Gagge1986}.
 The model originally outputs the \ac{set} that allows the combined effects of \ac{t-db}, \ac{rh}, \ac{t-r}, \ac{v}, \ac{clo}, \ac{met} to be reduced to a standard environment.
 Among its attributes are modeling of the physiology of sweating and the effects of air movement on sensible and evaporative heat transfer.
 ASHRAE Standard 55 uses this model to determine the effects of elevated air speeds on body heat balance and thermal comfort~\cite{ashrae552017}.
 The model has also been tested for its relevance under realistic air flows and \ac{v} produced by different types of fans, such as partial immersion in the elevated flows, and flows with different turbulence intensity~\cite{Huang2014}.
 This makes the SET model appropriate for predicting the thermophysiological effects of elevated air speed during heatwaves and to determine humidity-dependent temperature thresholds at which electric fans would become detrimental.
+We compared our results with those obtained from the \ac{phs} model.
+Which allows the analytical evaluation of the thermal stress experienced by a subject working in a hot environment.
 We contextualized our results by comparing them to the most extreme weather events recorded in the 115 most populous cities worldwide.
 Finally, to help policymakers and people worldwide we chose to incorporate the model into the CBE Thermal Comfort Tool~\cite{Tartarini2020} and the Python package \verb|pythermalcomfort|~\cite{Tartarini2020a}.
 The former is an open-source, free-to-use, web-based online tool that provides interactive plots and displays the results to the user (\url{https://comfort.cbe.berkeley.edu}).
