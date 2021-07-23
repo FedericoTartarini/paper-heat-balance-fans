@@ -114,6 +114,7 @@ def fans_function_optimized(
     alfa = 0.1  # fractional skin mass
     temp_body_neutral = alfa * temp_skin_neutral + (1 - alfa) * temp_core_neutral
     skin_blood_flow_neutral = 6.3
+    max_skin_blood_flow = 80
 
     temp_skin = temp_skin_neutral
     temp_core = temp_core_neutral
@@ -214,8 +215,8 @@ def fans_function_optimized(
         skin_blood_flow = (skin_blood_flow_neutral + c_dil * c_warm) / (
             1 + c_str * colds
         )
-        if skin_blood_flow > 90.0:
-            skin_blood_flow = 90.0
+        if skin_blood_flow > max_skin_blood_flow:
+            skin_blood_flow = max_skin_blood_flow
             exc_blood_flow = True
         if skin_blood_flow < 0.5:
             skin_blood_flow = 0.5
