@@ -125,7 +125,7 @@ The environmental conditions above which the use of elevated air speeds would be
     \label{fig:use_fans_experimental}
 \end{figure*}
 
-We used a red shading to highlight the region in which electric fans should not be used, while we used a green background to depict when elevated air speed can be used to cool the human body.
+We use a red shading to highlight the region in which electric fans should not be used, while we use a green background to depict when elevated air speed can be used to cool the human body.
 We also plotted the lines above which thermal stress is expected to occur (see Figure~\ref{fig:comparison_air_speed} for more details).
 Electric fans should not be used, for \ac{t-db} higher than the one at which the heat stress curve for elevated air speeds intersect the one for `still air' conditions.
 In the dark green area, while the use of fans is still beneficial, not all adult healthy individuals would be able to compensate for endogenous and exogenous heat gains and may experience heat strain.
@@ -144,7 +144,7 @@ Evaporative cooling can be achieved by spraying water in the air or even by plac
 Other cooling strategies, such as active cooling, can also be used to cool the air.
 However, we are emphasising the importance of using evaporative cooling since we are assuming that people who mostly rely on electric fans for cooling may not have access to compressor-based air conditioning.
 
-Finally, we compared the results obtained using the \mycite{GaggeSET} with those obtained using the \ac{phs}~\cite{iso7933} and we present the results in Figure~\ref{fig:gagge_phs}.
+Finally, Figure~\ref{fig:gagge_phs} compares the results obtained using the \mycite{GaggeSET} with those obtained using the \ac{phs}~\cite{iso7933}.
 Results were obtained by comparing the `still air condition' with \ac{v}~=~0.8~m/s, and the predictions of both models overall are similar.
 The \ac{phs} model fails to predict that fans should not be used in dry climates when the \ac{t-db} exceeds \var{t_cutoff_v_08}~$^{\circ}$C\@.
 On the other hand \ac{phs} results are more conservative for high values of \ac{rh}, with the \ac{phs} model discouraging the use of elevated air speeds for \ac{t-db}~=~37.5~$^{\circ}$C and \ac{rh}~=~85~\%\@.
@@ -175,30 +175,16 @@ In the remaining locations electric fans should not be used unless any form of c
 
 To better quantify how many people would benefit from the use of electric fans we combined the city with the weather data.
 The former contained data from the 115 most populous cities worldwide.
-We plotted the data in Figure~\ref{fig:map-population-temperature}.
-
-\begin{figure*}[hbt!]
-    \centering
-    \includegraphics[width=\textwidth]{figures/map-population-temperature}
-    \caption{Most populous 115 cities worldwide}
-    \label{fig:map-population-temperature}
-\end{figure*}
+We plotted the data in Figure~\ref{fig:map-population-temperature} in \ref{sec:pop_weather}.
 
 Each marker shows where the city is located, the dot size is proportional to the number of people living in that urban area, while the color shows the extreme \ac{t-db} recorded in that city.
 In 2020, a total of approximately 650 million people (8~\% percent of the global population) lived in the urban agglomerate of the 115 largest cities.
 In 95 of these cities, \ac{t-db} higher than 35~$^{\circ}$C\@ were recorded and their total population was approximately 550 million people.
 
 The model predicts that \var{people_no_strain_v_08} million inhabitants, living in \var{cities_benefit_fan_08} of the most populous cities, would be better off using electric fans (\ac{v} up to 0.8~m/s) rather than not using them and they should not experience heat strain.
+We plotted the results in Figure~\ref{fig:use_fans_and_population} in \ref{sec:pop_weather}.
 The \mycite{GaggeSET} model predicted that healthy adults living in \var{cities_benefit_fan_02} cities (approximately \var{people_no_strain_still_air} million inhabitants) should not experience heat strain even without increasing air movement.
 However, they should still be encouraged in using electric fans to improve their thermal conditions in an energy-efficient way.
-
-\begin{figure*}[hbt!]
-    \centering
-    \includegraphics[width=\textwidth]{figures/use_fans_and_population}
-    \caption{Environmental conditions under which the use of electric fans is beneficial, for more information on how to interpret the Figure please refer to the caption of Figure~\ref{fig:use_fans_experimental}.
-    Each dot shows the maximum extreme climate conditions recorded over the last 20 years in each of the 115 most populous cities worldwide.}
-    \label{fig:use_fans_and_population}
-\end{figure*}
 
 We also compared these data with the records available in the Emergency Events Database (EM-DAT)~\cite{EMDATThe70:online}.
 A total of 122 heatwave events in the EM-DAT had information on the maximum air temperature recorded.
