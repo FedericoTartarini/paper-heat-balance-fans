@@ -148,6 +148,8 @@ def fans_function_optimized(
     # h_fc forced convective heat transfer coefficient, W/(m2 C)
     h_fc = 8.600001 * pow((air_speed * pressure_in_atmospheres), 0.53)
     h_cc = max(h_cc, h_fc)
+    h_c_met = 5.66 * (met - 0.85) ** 0.39
+    h_cc = max(h_cc, h_c_met)
 
     c_hr = 4.7  # linearized radiative heat transfer coefficient
     ctc = c_hr + h_cc

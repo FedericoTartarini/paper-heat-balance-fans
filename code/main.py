@@ -1085,7 +1085,7 @@ class DataAnalysis:
             xlabel=chart_labels["rh"],
             ylabel=chart_labels["top"],
             ylim=(29.9, 50),
-            xlim=(-1, 100),
+            xlim=(5, 85),
         )
 
         sns.despine(left=True, bottom=True, right=True)
@@ -2086,7 +2086,7 @@ class DataAnalysis:
         )
         ax[1].text(
             70,
-            46,
+            45,
             "Do not\nuse fans\n$V=0.8$m/s",
             size=12,
             ha="center",
@@ -2110,7 +2110,7 @@ class DataAnalysis:
         )
         ax[0].text(
             70,
-            46,
+            45,
             "Do not\nuse fans\n$V=0.8$m/s",
             size=12,
             ha="center",
@@ -2653,8 +2653,8 @@ if __name__ == "__main__":
         # "table_list_cities",
         # "compare_hospers_ashrae_weather",
         # "sweat_rate",
-        # "phs",
-        "graphical_abstract",
+        "phs",
+        # "graphical_abstract",
     ]
 
     save_figure = True
@@ -2676,9 +2676,9 @@ if __name__ == "__main__":
             self.met_clo_v(
                 save_fig=False,
                 combinations=[
-                    {"clo": 0.5, "met": 2, "ls": "dashed"},
+                    {"clo": 0.3, "met": 1.8, "ls": "dashed"},
                 ],
-                airspeeds=[0.2, 0.8],
+                airspeeds=[0.2, 0.6],
             )
         if figure_to_plot == "summary_use_fans_comparison_experimental":
             self.summary_use_fans_comparison_experimental(save_fig=save_figure)
