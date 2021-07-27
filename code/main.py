@@ -2652,6 +2652,7 @@ if __name__ == "__main__":
         # "compare_hospers_ashrae_weather",
         # "sweat_rate",
         # "phs",
+        # graphical_abstract,
     ]
 
     save_figure = True
@@ -2699,6 +2700,34 @@ if __name__ == "__main__":
             compare_hospers_ashrae_weather(save_fig=save_figure)
         if figure_to_plot == "phs":
             self.phs_results(save_fig=save_figure)
+        if figure_to_plot == "graphical_abstract":
+            fig, ax = plt.subplots(constrained_layout=True, figsize=(2.25, 1.76))
+            self.summary_use_fans_two_speeds(fig=fig, ax=ax, air_speeds=[0.2, 0.8])
+            ax.text(
+                0.5,
+                0.8,
+                "No fans $V=0.8$m/s",
+                ha="center",
+                transform=ax.transAxes,
+            )
+            ax.text(
+                0.5,
+                0.37,
+                "Use fans\n$V=0.8$m/s",
+                ha="center",
+                transform=ax.transAxes,
+            )
+            ax.set(
+                ylim=(29.95, 50),
+                xlim=(5, 85.05),
+                xticks=(np.arange(5, 95, 20)),
+                xlabel=chart_labels["rh"],
+                ylabel=r"Operative tmp ($t_{\mathrm{o}}$) [°C]",
+            )
+            sns.despine(left=True, bottom=True, right=True)
+            plt.savefig(
+                os.path.join(self.dir_figures, "graphical_abstract.png"), dpi=300
+            )
 
     # self.summary_use_fans_two_speeds()
 
