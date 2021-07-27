@@ -1253,6 +1253,7 @@ class DataAnalysis:
         ax=False,
         plot_heat_strain_lines=False,
         legend=False,
+        plot_35_line=True,
     ):
 
         if not ax:
@@ -1437,7 +1438,8 @@ class DataAnalysis:
                 )
 
         # horizontal line showing limit imposed by most of the standards
-        ax.plot([0, 100], [35, 35], c="tab:red")
+        if plot_35_line:
+            ax.plot([0, 100], [35, 35], c="tab:red")
 
         # add legend
         if legend:
@@ -2644,7 +2646,7 @@ if __name__ == "__main__":
         # "ravanelli_comp",
         # "met_clo",
         # "summary_use_fans_weather",
-        "summary_use_fans_comparison_experimental",
+        # "summary_use_fans_comparison_experimental",
         # "summary_use_fans_and_population_tdb_max",
         # "world_map_population_weather",
         # "met_clo_v",
@@ -2652,7 +2654,7 @@ if __name__ == "__main__":
         # "compare_hospers_ashrae_weather",
         # "sweat_rate",
         # "phs",
-        # graphical_abstract,
+        "graphical_abstract",
     ]
 
     save_figure = True
@@ -2702,18 +2704,20 @@ if __name__ == "__main__":
             self.phs_results(save_fig=save_figure)
         if figure_to_plot == "graphical_abstract":
             fig, ax = plt.subplots(constrained_layout=True, figsize=(2.25, 1.76))
-            self.summary_use_fans_two_speeds(fig=fig, ax=ax, air_speeds=[0.2, 0.8])
+            self.summary_use_fans_two_speeds(
+                fig=fig, ax=ax, air_speeds=[0.2, 0.8], plot_35_line=False
+            )
             ax.text(
                 0.5,
                 0.8,
-                "No fans $V=0.8$m/s",
+                "No fans",
                 ha="center",
                 transform=ax.transAxes,
             )
             ax.text(
                 0.5,
                 0.37,
-                "Use fans\n$V=0.8$m/s",
+                "Fans beneficial",
                 ha="center",
                 transform=ax.transAxes,
             )
