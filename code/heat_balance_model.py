@@ -1,6 +1,4 @@
 import math
-
-import matplotlib.pyplot as plt
 from numba import njit
 
 
@@ -39,47 +37,48 @@ def use_fans_heatwaves(
     """
 
     (
-        e_sk,
+        e_skin,
         e_rsw,
         e_diff,
         e_max,
-        w_max,
         q_sensible,
+        q_skin,
+        q_res,
         t_core,
         t_skin,
+        m_bl,
+        m_rsw,
+        w,
+        w_max,
         heat_strain_blood_flow,
         heat_strain_w,
         heat_strain_sweating,
-        m_bl,
-        reg_sw,
-        w,
-        m,
-        hsk,
-        q_res,
     ) = fans_function_optimized(
         tdb, tr, v, rh, met, clo, wme, body_surface_area, p_atmospheric
     )
 
     return {
-        "e_skin": e_sk,
+        "e_skin": e_skin,
         "e_rsw": e_rsw,
         "e_diff": e_diff,
         "e_max": e_max,
-        "w_max": w_max,
         "q_sensible": q_sensible,
+        "q_skin": q_skin,
+        "q_res": q_res,
         "t_core": t_core,
         "t_skin": t_skin,
-        "heat_strain": any(
-            [heat_strain_blood_flow, heat_strain_w, heat_strain_sweating]
-        ),
+        "m_bl": m_bl,
+        "m_rsw": m_rsw,
+        "w": w,
+        "w_max": w_max,
         "heat_strain_blood_flow": heat_strain_blood_flow,
         "heat_strain_w": heat_strain_w,
         "heat_strain_sweating": heat_strain_sweating,
-        "m_bl": m_bl,
-        "m_rsw": reg_sw,
-        "sweating_required_ollie_equation": (3600 * e_sk / (1 - w ** 2 / 2)) / 2426,
-        "w": w,
-        "energy_balance": m - hsk - q_res,
+        "heat_strain": any(
+            [heat_strain_blood_flow, heat_strain_w, heat_strain_sweating]
+        ),
+        "sweating_required_ollie_equation": (3600 * e_skin / (1 - w ** 2 / 2)) / 2426,
+        "energy_balance": met * 58.2 - q_skin - q_res,
     }
 
 
@@ -94,13 +93,14 @@ def fans_function_optimized(
     wme=0,
     body_surface_area=1.8258,
     p_atmospheric=101325,
+    max_skin_blood_flow=80,
 ):
     vapor_pressure = rh * math.exp(18.6686 - 4030.183 / (tdb + 235.0)) / 100
 
     # variables to check if person is experiencing heat strain
     heat_strain_blood_flow = False  # reached max blood flow
     heat_strain_sweating = False  # reached max regulatory sweating
-    exc_p_wet = False  # reached max skin wettedness
+    heat_strain_w = False  # reached max skin wettedness
 
     # Initial variables as defined in the ASHRAE 55-2017
     air_speed = max(v, 0.1)
@@ -111,26 +111,29 @@ def fans_function_optimized(
     c_dil = 200  # driving coefficient for vasodilation ashrae says 50 see page 195
     c_str = 0.5  # driving coefficient for vasoconstriction
 
-    t_skin_neutral = 33.7
-    t_core_neutral = 36.8
-    alfa = 0.1  # fractional skin mass
-    temp_body_neutral = alfa * t_skin_neutral + (1 - alfa) * t_core_neutral
-    m_bl_neutral = 6.3
-    max_m_bl = 80
+    temp_skin_neutral = 33.7
+    temp_core_neutral = 36.8
+    alfa = 0.1
+    temp_body_neutral = alfa * temp_skin_neutral + (1 - alfa) * temp_core_neutral
+    skin_blood_flow_neutral = 6.3
 
-    t_skin = t_skin_neutral
-    t_core = t_core_neutral
-    m_bl = m_bl_neutral
-    alfa = 0.1  # fractional skin mass
+    t_skin = temp_skin_neutral
+    t_core = temp_core_neutral
+    m_bl = skin_blood_flow_neutral
 
-    # initial guess
-    e_sk = 0.1 * met  # total evaporative heat loss, W
-    dry = 0  # total sensible heat loss, W
-    p_wet = 0  # skin wettedness
+    # initialize some variables
+    e_skin = 0.1 * met  # total evaporative heat loss, W
+    q_sensible = 0  # total sensible heat loss, W
+    w = 0  # skin wettedness
+    e_rsw = 0  # heat lost by vaporization sweat
+    e_diff = 0  # vapor diffusion through skin
+    e_max = 0  # maximum evaporative capacity
+    m_rsw = 0  # regulatory sweating
+    q_res = 0  # heat loss due to respiration
 
     pressure_in_atmospheres = p_atmospheric / 101325
     length_time_simulation = 60  # length time simulation
-    i = 0  # iteration counter
+    n_simulation = 0
 
     r_clo = 0.155 * clo  # thermal resistance of clothing, C M^2 /W
     f_a_cl = 1.0 + 0.15 * clo  # increase in body surface area due to clothing
@@ -153,14 +156,14 @@ def fans_function_optimized(
     h_c_met = 5.66 * (met - 0.85) ** 0.39
     h_cc = max(h_cc, h_c_met)
 
-    c_hr = 4.7  # linearized radiative heat transfer coefficient
-    ctc = c_hr + h_cc
-    r_a = 1.0 / (f_a_cl * ctc)  # resistance of air layer to dry heat
-    t_op = (c_hr * tr + h_cc * tdb) / ctc  # operative temperature
+    h_r = 4.7  # linearized radiative heat transfer coefficient
+    h_t = h_r + h_cc  # sum of convective and radiant heat transfer coefficient W/(m2*K)
+    r_a = 1.0 / (f_a_cl * h_t)  # resistance of air layer to dry heat
+    t_op = (h_r * tr + h_cc * tdb) / h_t  # operative temperature
 
-    while i < length_time_simulation:
+    while n_simulation < length_time_simulation:
 
-        i += 1
+        n_simulation += 1
 
         iteration_limit = 150  # for following while loop
         # t_cl temperature of the outer surface of clothing
@@ -170,12 +173,12 @@ def fans_function_optimized(
 
         while not tc_converged:
 
-            # 0.7 is the ratio between the radiation area of the body and the body area for a sitting person
-            # 0.95 is the clothing emissivity
-            c_hr = 4.0 * 0.95 * sbc * ((t_cl + tr) / 2.0 + 273.15) ** 3.0 * 0.7
-            ctc = c_hr + h_cc
-            r_a = 1.0 / (f_a_cl * ctc)
-            t_op = (c_hr * tr + h_cc * tdb) / ctc
+            # 0.95 is the clothing emissivity from ASHRAE fundamentals Ch. 9.7 Eq. 35
+            # 0.7 ratio between radiation area of the body and the body area
+            h_r = 4.0 * 0.95 * sbc * ((t_cl + tr) / 2.0 + 273.15) ** 3.0 * 0.7
+            h_t = h_r + h_cc
+            r_a = 1.0 / (f_a_cl * h_t)
+            t_op = (h_r * tr + h_cc * tdb) / h_t
             t_cl_new = (r_a * t_skin + r_clo * t_op) / (r_a + r_clo)
             if abs(t_cl_new - t_cl) <= 0.01:
                 tc_converged = True
@@ -183,9 +186,9 @@ def fans_function_optimized(
             n_iterations += 1
 
             if n_iterations > iteration_limit:
-                raise StopIteration("Max iterations heat_strain")
+                raise StopIteration("Max iterations exceeded")
 
-        dry = (t_skin - t_op) / (r_a + r_clo)
+        q_sensible = (t_skin - t_op) / (r_a + r_clo)  # total sensible heat loss, W
         # hf_cs rate of energy transport between core and skin, W
         # 5.28 is the average body tissue conductance in W/(m2 C)
         # 1.163 is the thermal capacity of blood in Wh/(L C)
@@ -193,22 +196,24 @@ def fans_function_optimized(
         q_res = 0.0023 * m * (44.0 - vapor_pressure)  # heat loss due to respiration
         c_res = 0.0014 * m * (34.0 - tdb)  # convective heat loss respiration
         s_core = m - hf_cs - q_res - c_res - wme  # rate of energy storage in the core
-        s_skin = hf_cs - dry - e_sk  # rate of energy storage in the skin
+        s_skin = hf_cs - q_sensible - e_skin  # rate of energy storage in the skin
         tc_sk = 0.97 * alfa * body_weight  # thermal capacity skin
         tc_cr = 0.97 * (1 - alfa) * body_weight  # thermal capacity core
         d_t_sk = (s_skin * body_surface_area) / (
             tc_sk * 60.0
-        )  # temperature change C per minute
-        d_t_cr = s_core * body_surface_area / (tc_cr * 60.0)
+        )  # rate of change skin temperature C per minute
+        d_t_cr = (
+            s_core * body_surface_area / (tc_cr * 60.0)
+        )  # rate of change core temperature C per minute
         t_skin = t_skin + d_t_sk
         t_core = t_core + d_t_cr
         t_body = alfa * t_skin + (1 - alfa) * t_core  # mean body temperature, C
         # sk_sig thermoregulatory control signal from the skin
-        sk_sig = t_skin - t_skin_neutral
+        sk_sig = t_skin - temp_skin_neutral
         warm_sk = (sk_sig > 0) * sk_sig  # vasodilation signal
         colds = ((-1.0 * sk_sig) > 0) * (-1.0 * sk_sig)  # vasoconstriction signal
         # c_reg_sig thermoregulatory control signal from the skin, C
-        c_reg_sig = t_core - t_core_neutral
+        c_reg_sig = t_core - temp_core_neutral
         # c_warm vasodilation signal
         c_warm = (c_reg_sig > 0) * c_reg_sig
         # c_cold vasoconstriction signal
@@ -216,61 +221,59 @@ def fans_function_optimized(
         # bd_sig thermoregulatory control signal from the body
         bd_sig = t_body - temp_body_neutral
         warm_b = (bd_sig > 0) * bd_sig
-        m_bl = (m_bl_neutral + c_dil * c_warm) / (1 + c_str * colds)
-        if m_bl > max_m_bl:
-            m_bl = max_m_bl
+        m_bl = (skin_blood_flow_neutral + c_dil * c_warm) / (1 + c_str * colds)
+        if m_bl > max_skin_blood_flow:
+            m_bl = max_skin_blood_flow
             heat_strain_blood_flow = True
         if m_bl < 0.5:
             m_bl = 0.5
-        reg_sw = c_sw * warm_b * math.exp(warm_sk / 10.7)  # regulatory sweating
-        if reg_sw > 500.0:
-            reg_sw = 500.0
+        m_rsw = c_sw * warm_b * math.exp(warm_sk / 10.7)  # regulatory sweating
+        if m_rsw > 500.0:
+            m_rsw = 500.0
             heat_strain_sweating = True
-        e_rsw = 0.68 * reg_sw  # heat lost by vaporization sweat
+        e_rsw = 0.68 * m_rsw  # heat lost by vaporization sweat
         r_ea = 1.0 / (lr * f_a_cl * h_cc)  # evaporative resistance air layer
         r_ecl = r_clo / (lr * i_cl)
-        # e_max = maximum evaporative capacity
         e_max = (math.exp(18.6686 - 4030.183 / (t_skin + 235.0)) - vapor_pressure) / (
             r_ea + r_ecl
         )
         p_rsw = e_rsw / e_max  # ratio heat loss sweating to max heat loss sweating
-        p_wet = 0.06 + 0.94 * p_rsw
-        e_diff = p_wet * e_max - e_rsw  # vapor diffusion through skin
-        if p_wet > w_max:
-            p_wet = w_max
+        w = 0.06 + 0.94 * p_rsw  # skin wetness
+        e_diff = w * e_max - e_rsw  # vapor diffusion through skin
+        if w > w_max:
+            w = w_max
             p_rsw = w_max / 0.94
             e_rsw = p_rsw * e_max
             e_diff = 0.06 * (1.0 - p_rsw) * e_max
-            exc_p_wet = True
+            heat_strain_w = True
         if e_max < 0:
             e_diff = 0
             e_rsw = 0
-            p_wet = w_max
-        e_sk = (
+            w = w_max
+        e_skin = (
             e_rsw + e_diff
         )  # total evaporative heat loss sweating and vapor diffusion
-        met_shivering = 19.4 * colds * c_cold
+        met_shivering = 19.4 * colds * c_cold  # met shivering W/m2
         m = rm + met_shivering
         alfa = 0.0417737 + 0.7451833 / (m_bl + 0.585417)
 
-    hsk = dry + e_sk  # total heat loss from skin, W
+    q_skin = q_sensible + e_skin  # total heat loss from skin, W
 
     return [
-        e_sk,
+        e_skin,
         e_rsw,
         e_diff,
         e_max,
-        w_max,
-        dry,
+        q_sensible,
+        q_skin,
+        q_res,
         t_core,
         t_skin,
-        heat_strain_blood_flow,
-        exc_p_wet,
-        heat_strain_sweating,
         m_bl,
-        reg_sw,
-        p_wet,
-        m,
-        hsk,
-        q_res,
+        m_rsw,
+        w,
+        w_max,
+        heat_strain_blood_flow,
+        heat_strain_w,
+        heat_strain_sweating,
     ]
