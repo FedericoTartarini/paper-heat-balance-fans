@@ -16,7 +16,8 @@ import psychrolib
 from scipy.ndimage.filters import gaussian_filter1d
 import matplotlib.colors as colors
 from sklearn.metrics import mean_absolute_error
-
+import itertools
+from random import randrange
 from heat_balance_model import use_fans_heatwaves
 
 psychrolib.SetUnitSystem(psychrolib.SI)
@@ -2651,6 +2652,7 @@ if __name__ == "__main__":
         # "graphical_abstract",
     ]
 
+    generate_validation_table = False
     save_figure = True
 
     for figure_to_plot in figures_to_plot:
@@ -2726,6 +2728,44 @@ if __name__ == "__main__":
             plt.savefig(
                 os.path.join(self.dir_figures, "graphical_abstract.png"), dpi=300
             )
+        if generate_validation_table:
+            # code to validate the pythermalcomfort package
+            t = [39, 45]
+            v = [0.2, 1, 4]
+            rh = [20, 40]
+            clo = [0.3, 0.5, 0.7]
+            met = [0.7, 1.3, 2]
+
+            list_of_combinations = [t, v, rh, met, clo]
+            combinations = list(itertools.product(*list_of_combinations))
+
+            for combination in combinations:
+                results = use_fans_heatwaves(
+                    tdb=combination[0],
+                    tr=combination[0],
+                    v=combination[1],
+                    rh=combination[2],
+                    met=combination[3],
+                    clo=combination[4],
+                )
+
+                results.pop("energy_balance", None)
+                results.pop("sweating_required_ollie_equation", None)
+
+                keys = list(results.keys())
+                key = keys[randrange(len(keys))]
+                results[key] = round(results[key], 1)
+
+                print(
+                    f"assert use_fans_heatwaves("
+                    f"tdb={combination[0]},"
+                    f"tr={combination[0]},"
+                    f"v={combination[1]},"
+                    f"rh={combination[2]},"
+                    f"met={combination[3]},"
+                    f"clo={combination[4]},"
+                    f"body_position='sitting')[\"{key}\"] ==  {results[key]}"
+                )
 
     # self.summary_use_fans_two_speeds()
 
@@ -2780,16 +2820,3 @@ if __name__ == "__main__":
     #     / 1000
     # )
     # print(e)
-
-    # t = 46.87
-    # use_fans_heatwaves(
-    #     t,
-    #     t,
-    #     0.2,
-    #     10,
-    #     met=self.defaults["met"],
-    #     clo=self.defaults["clo"],
-    #     wme=0,
-    # )["heat_strain"]
-    #
-    # self.heat_strain[0.2][20]
