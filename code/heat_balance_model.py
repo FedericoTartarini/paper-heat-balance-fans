@@ -31,9 +31,45 @@ def use_fans_heatwaves(
     wme : float
         external work, [met] default 0
     body_surface_area : float
-        body surface area, default value 1.8258 [m2] in [ft2] if `units` = 'IP'
+        body surface area, default value 1.8258 [m2]
     p_atmospheric : float
-        atmospheric pressure, default value 101325 [Pa] in [atm] if `units` = 'IP'
+        atmospheric pressure, default value 101325 [Pa] in [atm]
+
+    Returns
+    -------
+    e_skin : float
+        Total rate of evaporative heat loss from skin, [W/m2]. Equal to e_rsw + e_diff
+    e_rsw : float
+        Rate of evaporative heat loss from sweat evaporation, [W/m2]
+    e_diff : float
+        Rate of evaporative heat loss from moisture diffused through the skin, [W/m2]
+    e_max : float
+        Maximum rate of evaporative heat loss from skin, [W/m2]
+    q_sensible : float
+        Sensible heat loss from skin, [W/m2]
+    q_skin : float
+        Total rate of heat loss from skin, [W/m2]. Equal to q_sensible + e_skin
+    q_res : float
+        Total rate of heat loss through respiration, [W/m2]
+    t_core : float
+        Core temperature, [C]
+    t_skin : float
+        Skin temperature, [C]
+    m_bl : float
+        Skin blood flow, [L/(hm2)]
+    m_rsw : float
+        Rate at which regulatory sweat is generated, [mL/h2]
+    w : float
+        Skin wettedness, adimensional. Ranges from 0 and 1.
+    w_max : float
+        Skin wettedness (w) practical upper limit, adimensional. Ranges from 0 and 1.
+    heat_strain_blood_flow : bool
+        True if heat strain is caused by skin blood flow (m_bl) reaching its maximum value
+    heat_strain_w : bool
+        True if heat strain is caused by skin wettedness (w) reaching its maximum value
+    heat_strain_sweating : bool
+        True if heat strain is caused by regulatory sweating (m_rsw) reaching its maximum value
+
     """
 
     (
