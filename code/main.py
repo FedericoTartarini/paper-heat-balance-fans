@@ -2721,8 +2721,8 @@ if __name__ == "__main__":
                 ylim=(29.95, 50),
                 xlim=(5, 85.05),
                 xticks=(np.arange(5, 95, 20)),
-                xlabel=chart_labels["rh"],
-                ylabel=r"Operative tmp ($t_{\mathrm{o}}$) [°C]",
+                xlabel="Relative humidity, %",
+                ylabel=r"Operative temp, °C",
             )
             sns.despine(left=True, bottom=True, right=True)
             plt.savefig(
